@@ -1,0 +1,6 @@
+namespace scp::actions::server {
+	void remaps() {
+		sendcommand("/notify rebooting mapsystem");
+		sendcommand("/initmaps");
+	}
+}

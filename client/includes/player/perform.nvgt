@@ -1,0 +1,40 @@
+namespace player {
+	void perform(string n, string w) {
+		if (n == "") return;
+		string[] mcmds = {"trust", "untrust", "mute", "unmute", "look"};
+		if (w == "copy") {
+			speak(n + " copyed to clipboard");
+			clipboard_set_text(n);
+			return;
+		} else if (w == "stats") {
+			send(peer_id, "stats " + n, 0);
+			return;
+		} else if (w == "pm") {
+			string r = input("Message", "Type the message to send to " + n);
+			if (r == "") return;
+			send(peer_id, "pm " + n + " " + r, 0);
+			return;
+		} else if (w == "where") {
+			send(peer_id, "j1 " + n, 0);
+			return;
+		} else if (w == "respond") {
+			string r = nvinput("Respond", "Type the message to respond to " + n, multiline = true);
+			if (r == "") return;
+			sendcommand("/respond " + n + " " + r);
+			return;
+		} else if (w == "channel") {
+			send(peer_id, "j2 " + n, 0);
+			return;
+		} else if (w == "macc") {
+			send(peer_id, "j3 " + n, 0);
+			return;
+		} else if (w == "status") {
+			send(peer_id, "status " + n, 0);
+			return;
+		} else if (mcmds.find(w) > -1) {
+			sendcommand("/" + w + " " + n);
+			return;
+		}
+		return;
+	}//function
+}//

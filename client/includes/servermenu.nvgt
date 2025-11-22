@@ -1,0 +1,103 @@
+//custom server menu client side.
+#include"custom_menu.nvgt"
+void cserver_menu(string t, string intr, string[] items, bool saydlg = false, string[] informationals = {}, int type = 0, string focus = "", bool reset = false) {
+	if (items.length() < 1) return;
+	//t is the packet to send, intr is the intro, and items array is to display items
+	custom_menu servercm;
+	if (reset) setupmenu(servercm);
+	for (uint i = 0; i < items.length(); i++)
+		servercm.add(get_item_name(items[i], "[cmu]"), get_item_text(items[i], "[cmu]"));
+	if (informationals.length() > 0) {
+		for (uint j = 0; j < informationals.length(); j++) {
+			string[] ja = informationals[j].split("[=]", true);
+			if (ja.length() < 2) continue;
+			string v = string_trimleft(informationals[j], (ja[0] + "[=]").length());
+			if (v != "" && ja[0] != "") servercm.set_information(ja[0], v);
+		}//J
+	}//
+	if (focus != "") servercm.focus(focus);
+	servercm.create(intr, saydlg);
+	messager a;
+	a.add("message", t);
+	while (servercm.running) {
+		wait(5);
+		servercm.monitor();
+		mainloop();
+		string r = servercm.get_click();
+		if (r != "") {
+			a.add("item", r);
+			if (type == 0) send(0, t + " " + r, 0);
+			else if (type == 1) send(peer_id, a, 0);
+			return;
+		}
+	}//while
+	a.add("item", "[back]");
+	if (type == 0) send(peer_id, t + " [back]", 0);
+	else if (type == 1) send(peer_id, a, 0);
+	return;
+}//end
+void cserver_menu_page(string t, string intr, string[] items, int page = 1, uint maxi = 64, bool saydlg = false, string[] informationals = {}, int type = 0, bool reset = false) {
+	if (items.length() < 1) return;
+	//t is the packet to send, intr is the intro, and items array is to display items
+	if (page < 1) return;
+	uint si = (page - 1) * maxi;
+	uint ei = si + maxi;
+	if (ei > items.length()) ei = items.length();
+	uint to = (items.length() / maxi) +1;
+	string previous = "menu.page.previous";
+	string next = "menu.page.next";
+	string firstp = "menu.page.first";
+	string lastp = "menu.page.last";
+	custom_menu servercm;
+	if (reset) setupmenu(servercm);
+	if (page > 1) {
+		servercm.add("first page", firstp);
+		servercm.add("previous page, page " + (page - 1), previous);
+	}
+	for (uint i = si; i < ei; i++)
+		servercm.add(get_item_name(items[i], "[cmu]"), get_item_text(items[i], "[cmu]"));
+	if (ei < items.length()) {
+		servercm.add("next page, page " + (page + 1), next);
+		servercm.add("last page, page " + to, lastp);
+	}
+	if (informationals.length() > 0) {
+		for (uint j = 0; j < informationals.length(); j++) {
+			string[] ja = informationals[j].split("[=]", true);
+			if (ja.length() < 2) continue;
+			string v = string_trimleft(informationals[j], (ja[0] + "[=]").length());
+			if (v != "" && ja[0] != "") servercm.set_information(ja[0], v);
+		}//J
+	}//
+	string fi = intr + " (page " + page + " out of a total page " + to + ", showing from " + (si + 1) + " to " + (ei) + " out of " + items.length() + ")";
+	servercm.create(fi, saydlg);
+	messager a;
+	a.add("message", t);
+	while (servercm.running) {
+		wait(5);
+		servercm.monitor();
+		mainloop();
+		string r = servercm.get_click();
+		if (r == previous) {
+			cserver_menu_page(t, intr, items, page - 1, maxi, saydlg, informationals, type, reset);
+			return;
+		} else if (r == next) {
+			cserver_menu_page(t, intr, items, page + 1, maxi, saydlg, informationals, type, reset);
+			return;
+		} else if (r == firstp) {
+			cserver_menu_page(t, intr, items, 1, maxi, saydlg, informationals, type, reset);
+			return;
+		} else if (r == lastp) {
+			cserver_menu_page(t, intr, items, to, maxi, saydlg, informationals, type, reset);
+			return;
+		} else if (r != "") {
+			a.add("item", r);
+			if (type == 0) send(peer_id, t + " " + r, 0);
+			else if (type == 1) send(peer_id, a, 0);
+			return;
+		}
+	}//while
+	a.add("item", "[back]");
+	if (type == 0) send(peer_id, t + " [back]", 0);
+	else if (type == 1) send(peer_id, a, 0);
+	return;
+}//end

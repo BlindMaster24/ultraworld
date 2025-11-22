@@ -1,0 +1,12 @@
+{
+  "item": "bowl",
+  "items": "cream;milk;sugar;salt;ice;strawberry",
+  "ritems": {
+    "cream": 10,
+    "milk": 5,
+    "sugar": 4,
+    "ice": 10,
+    "strawberry": 7,
+    "salt": 1
+  }
+}

@@ -1,0 +1,25 @@
+namespace scp::actions::server {
+	void vset() {
+		nv_form f;
+		f.create_window("Server variable changer", false);
+		nv_form_input@ svar = f.add_input("Variable name", "svar");
+		nv_form_button@ ok = f.add_button("Set", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(svar, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (svar.text == "") {
+					speak("Variable name is required");
+					f.focus_control(svar, false, false);
+					continue;
+				}
+				sendcommand("/varset " + svar.text);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

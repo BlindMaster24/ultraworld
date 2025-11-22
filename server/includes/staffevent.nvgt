@@ -1,0 +1,33 @@
+﻿#include "staff.nvgt"
+void staff_menu(uint id) {
+	int index = get_player_index(id);
+	if (index < 0) return;
+	cmenu c;
+	c.initial_packet = "staffmenu";
+	double sof = (staff.get_length() - staff.get_online_length());
+	c.intro = "There " + pluralize(staff.get_length(), "is", "are") + " " + staff.get_length() + " staff member" + pluralize(staff.get_length()) + ", of which " + staff.get_online_length() + " " + pluralize(staff.get_online_length(), "is", "are") + " online and " + sof + " " + pluralize(sof, "is", "are") + " offline.";
+	for (uint i = 0; i < staff.types.length(); i++) {
+		double sof = (staff.get_length(staff.types[i]) - staff.get_online_length(staff.types[i]));
+		c.add(staff.title(staff.types[i]) + " with " + staff.get_length(staff.types[i]) + " total member" + pluralize(staff.get_length(staff.types[i])) + ", of which " + staff.get_online_length(staff.types[i]) + " " + pluralize(staff.get_online_length(staff.types[i]), "is", "are") + " online and " + sof + " " + pluralize(sof, "is", "are") + " offline. " + staff.get_about(staff.types[i]), staff.types[i]);
+	}
+	if (c.menuitems.length() < 1) return;
+	c.send(id);
+	return;
+}
+void staff_menu_as_type(uint id, string t) {
+	int index = get_player_index(id);
+	if (index < 0) return;
+	cmenu c;
+	c.initial_packet = "staffmenutype";
+	double sof = (staff.get_length(t) - staff.get_online_length(t));
+	c.intro = "there " + pluralize(staff.get_length(t), "is", "are") + " " + staff.get_length(t) + " " + staff.title(t, abs(staff.get_length(t)) != 1) + ", of which " + staff.get_online_length(t) + " " + pluralize(staff.get_online_length(t), "is", "are") + " online and " + sof + " " + pluralize(sof, "is", "are") + " offline.";
+	string[] chars = find_directories("chars/*");
+	if (chars.length() < 1) return;
+	for (uint i = 0; i < chars.length(); i++) {
+		string state_of = (is_on_server(chars[i]) ? "online" : "offline");
+		if (is_staff(chars[i], t)) c.add(chars[i] + ", " + state_of, chars[i]);
+	}
+	if (c.menuitems.length() < 1) return;
+	c.send(id);
+	return;
+}

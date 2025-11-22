@@ -1,0 +1,6 @@
+void main() {
+	string u = url_get("https://api.first.org/data/v1/countries?limit=300");
+	json_object j = parse_json(u);
+	file("countries.json", "w").write(j.stringify(2));
+	alert("E", j("total", 0));
+}

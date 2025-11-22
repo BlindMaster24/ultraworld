@@ -1,0 +1,488 @@
+#include "inventory.nvgt"
+string[] invcats = {
+	"all"
+};
+/*
+Inventory function.
+By Harry Min Khant
+*/
+inv_form@ invform = null;
+bool onbag = false;
+timer bagtimer;
+bool bagclosed = true;
+inventory inv;
+string focuseditem;
+double invc = 0;
+void inventorymenu(string cat, double maincount = 0) {
+	onbag = true;
+	bagtimer.restart();
+	wait(5);
+	key_hold ileft(KEY_LEFT, 300, 50);
+	key_hold iright(KEY_RIGHT, 300, 50);
+	key_hold iup(KEY_UP, 300, 50);
+	key_hold idown(KEY_DOWN, 300, 50);
+	key_hold iback(KEY_DELETE, 300, 50);
+	get_characters();
+	string cl, char, multichar, test;
+	timer invchangetimer;
+	bool invchange = false;
+	double mc = 0;
+	int64 counter = maincount;
+	inventory_item@[] parameters = inv.items;
+	inventory_item@[] parameters2;
+	bagclosed = false;
+	speak(string_capitalize(cat));
+	bool pinvchange = cat == "all";
+	while (true) {
+		//cl=get_characters();
+		wait(5);
+		mainloop();
+		parameters.resize(0);
+		parameters2.resize(0);
+		parameters2 = inv.items;
+		if (parameters2.length() > 0) {
+			for (uint i = 0; i < parameters2.length(); i++) {
+				if (@parameters2[i] == null) continue;
+				if (cat == "all")
+					parameters.insert_last(parameters2[i]);
+				else if (cat == "weapons") {
+					if (string_contains(parameters2[i].name, "assault_rifle", 1) != -1 || string_contains(parameters2[i].name, "colt", 1) != -1 || string_contains(parameters2[i].name, "machinegun", 1) != -1 || string_contains(parameters2[i].name, "minigun", 1) != -1 || string_contains(parameters2[i].name, "pistol", 1) != -1 || string_contains(parameters2[i].name, "rifle", 1) != -1 || string_contains(parameters2[i].name, "shotgun", 1) != -1 || string_contains(parameters2[i].name, "sniper", 1) != -1 || string_contains(parameters2[i].name, "nak_nk1000_decimater", 1) != -1 || string_contains(parameters2[i].name, "sniper_rifle", 1) != -1 || string_contains(parameters2[i].name, "revolver", 1) != -1 || string_contains(parameters2[i].name, "axe", 1) != -1 || string_contains(parameters2[i].name, "axe2", 1) != -1 || string_contains(parameters2[i].name, "knife", 1) != -1 || string_contains(parameters2[i].name, "spear", 1) != -1 || string_contains(parameters2[i].name, "hammer", 1) != -1 || string_contains(parameters2[i].name, "sword", 1) != -1 || string_contains(parameters2[i].name, "taser", 1) != -1 || string_contains(parameters2[i].name, "ak48", 1) != -1 || string_contains(parameters2[i].name, "tiny_mg", 1) != -1 || string_contains(parameters2[i].name, "dagger", 1) != -1 || string_contains(parameters2[i].name, "hook", 1) != -1 || string_contains(parameters2[i].name, "iron_shovel", 1) != -1 || string_contains(parameters2[i].name, "machete", 1) != -1 || string_contains(parameters2[i].name, "house_destroyer", 1) != -1 || string_contains(parameters2[i].name, "chainsaw", 1) != -1 || string_contains(parameters2[i].name, "bow", 1) != -1 || string_contains(parameters2[i].name, "grenade_launcher", 1) != -1 || string_contains(parameters2[i].name, "missile_launcher", 1) != -1 || string_contains(parameters2[i].name, "rocket_launcher", 1) != -1 || string_contains(parameters2[i].name, "rpg_launcher", 1) != -1 || string_contains(parameters2[i].name, "rpg7", 1) != -1 || string_contains(parameters2[i].name, "tranquilizer_gun", 1) != -1 || parameters2[i].name == "gold_scar" || parameters2[i].name == "arrow_gun" || parameters2[i].name == "famas_g2")
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "ammos") {
+					if (string_contains(parameters2[i].name, "mm_ammo", 1) != -1 || parameters2[i].name == "shotgun_shell" || parameters2[i].name == "MISSILE" || parameters2[i].name == "rpg" || parameters2[i].name == "rocket" || parameters2[i].name == "battory" || parameters2[i].name == "tranquilizer" || parameters2[i].name == "arrow")
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "explosives") {
+					if (string_contains(parameters2[i].name, "bomb", 1) != -1 || string_contains(parameters2[i].name, "dynamite", 1) != -1 || string_contains(parameters2[i].name, "claymore", 1) != -1 || string_contains(parameters2[i].name, "claymore_remote", 1) != -1 || string_contains(parameters2[i].name, "detonater", 1) != -1 || string_contains(parameters2[i].name, "grenade", 1) != -1 || string_contains(parameters2[i].name, "stp429", 1) != -1 || string_contains(parameters2[i].name, "turret", 1) != -1 || string_contains(parameters2[i].name, "turret_battery", 1) != -1 || string_contains(parameters2[i].name, "turret_cartridge", 1) != -1 || string_contains(parameters2[i].name, "mine", 1) != -1 || string_contains(parameters2[i].name, "molotov_cocktail", 1) != -1 || string_contains(parameters2[i].name, "bullet_bomb_locator", 1) != -1 || string_contains(parameters2[i].name, "impact_bomb_locator", 1) != -1 || string_contains(parameters2[i].name, "dart", 1) != -1 || string_contains(parameters2[i].name, "invisibility_shield", 1) != -1 || string_contains(parameters2[i].name, "poison_star", 1) != -1 || string_contains(parameters2[i].name, "throwing_star", 1) != -1 || string_contains(parameters2[i].name, "gas_canister", 1) != -1 || string_contains(parameters2[i].name, "fire_ball", 1) != -1 || string_contains(parameters2[i].name, "projectile", 1) != -1 || string_contains(parameters2[i].name, "snare", 1) != -1)
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "clothes") {
+					if (parameters2[i].name == "hat" || parameters2[i].name == "panaml_hat" || parameters2[i].name == "police_helmet" || parameters2[i].name == "sun_glasses" || parameters2[i].name == "leather_jacket" || parameters2[i].name == "camouflage_vest" || parameters2[i].name == "bullet_proof_vest" || parameters2[i].name == "shield" || parameters2[i].name == "rubber_vest" || parameters2[i].name == "military_vest" || parameters2[i].name == "knitted_shirt" || parameters2[i].name == "camouflage_pants" || parameters2[i].name == "legging_pants" || parameters2[i].name == "social_pants" || parameters2[i].name == "jeans_pants" || parameters2[i].name == "clamp" || parameters2[i].name == "gloves" || parameters2[i].name == "watch" || parameters2[i].name == "sandal" || parameters2[i].name == "nike_shoes" || parameters2[i].name == "scarpin_shoes" || parameters2[i].name == "social_shoes" || parameters2[i].name == "military_boots" || parameters2[i].name == "black_short_fitting_dresses_with_deep_neckline" || parameters2[i].name == "red_short_fitting_dresses_with_deep_neckline" || parameters2[i].name == "blue_short_fitting_dresses_with_deep_neckline" || parameters2[i].name == "white_short_fitting_dresses_with_deep_neckline" || parameters2[i].name == "green_short_fitting_dresses_with_deep_neckline" || parameters2[i].name == "pink_short_fitting_dresses_with_deep_neckline" || parameters2[i].name == "yellow_short_fitting_dresses_with_deep_neckline" || parameters2[i].name == "black_easy_summer_dress" || parameters2[i].name == "red_easy_summer_dress" || parameters2[i].name == "blue_easy_summer_dress" || parameters2[i].name == "white_easy_summer_dress" || parameters2[i].name == "green_easy_summer_dress" || parameters2[i].name == "pink_easy_summer_dress" || parameters2[i].name == "yellow_easy_summer_dress" || parameters2[i].name == "black_short_fitting_top" || parameters2[i].name == "red_short_fitting_top" || parameters2[i].name == "blue_short_fitting_top" || parameters2[i].name == "white_short_fitting_top" || parameters2[i].name == "green_short_fitting_top" || parameters2[i].name == "pink_short_fitting_top" || parameters2[i].name == "yellow_short_fitting_top" || parameters2[i].name == "black_denim_short_shorts" || parameters2[i].name == "red_denim_short_shorts" || parameters2[i].name == "blue_denim_short_shorts" || parameters2[i].name == "white_denim_short_shorts" || parameters2[i].name == "green_denim_short_shorts" || parameters2[i].name == "pink_denim_short_shorts" || parameters2[i].name == "yellow_denim_short_shorts" || parameters2[i].name == "black_denim_shirt" || parameters2[i].name == "red_denim_shirt" || parameters2[i].name == "blue_denim_shirt" || parameters2[i].name == "white_denim_shirt" || parameters2[i].name == "green_denim_shirt" || parameters2[i].name == "pink_denim_shirt" || parameters2[i].name == "yellow_denim_shirt" || parameters2[i].name == "black_t-shirt" || parameters2[i].name == "red_t-shirt" || parameters2[i].name == "blue_t-shirt" || parameters2[i].name == "white_t-shirt" || parameters2[i].name == "green_t-shirt" || parameters2[i].name == "pink_t-shirt" || parameters2[i].name == "yellow_t-shirt" || parameters2[i].name == "black_sweat_pants" || parameters2[i].name == "red_sweat_pants" || parameters2[i].name == "blue_sweat_pants" || parameters2[i].name == "white_sweat_pants" || parameters2[i].name == "green_sweat_pants" || parameters2[i].name == "pink_sweat_pants" || parameters2[i].name == "yellow_sweat_pants" || parameters2[i].name == "black_sports_jacket" || parameters2[i].name == "red_sports_jacket" || parameters2[i].name == "blue_sports_jacket" || parameters2[i].name == "white_sports_jacket" || parameters2[i].name == "green_sports_jacket" || parameters2[i].name == "pink_sports_jacket" || parameters2[i].name == "yellow_sports_jacket" || parameters2[i].name == "black_baseball_cap" || parameters2[i].name == "red_baseball_cap" || parameters2[i].name == "blue_baseball_cap" || parameters2[i].name == "white_baseball_cap" || parameters2[i].name == "green_baseball_cap" || parameters2[i].name == "pink_baseball_cap" || parameters2[i].name == "yellow_baseball_cap" || parameters2[i].name == "black_open_shoes_with_high_thin_heel" || parameters2[i].name == "red_open_shoes_with_high_thin_heel" || parameters2[i].name == "blue_open_shoes_with_high_thin_heel" || parameters2[i].name == "white_open_shoes_with_high_thin_heel" || parameters2[i].name == "green_open_shoes_with_high_thin_heel" || parameters2[i].name == "pink_open_shoes_with_high_thin_heel" || parameters2[i].name == "yellow_open_shoes_with_high_thin_heel" || parameters2[i].name == "black_bathrobe" || parameters2[i].name == "red_bathrobe" || parameters2[i].name == "blue_bathrobe" || parameters2[i].name == "white_bathrobe" || parameters2[i].name == "green_bathrobe" || parameters2[i].name == "pink_bathrobe" || parameters2[i].name == "yellow_bathrobe" || parameters2[i].name == "black_slippers" || parameters2[i].name == "red_slippers" || parameters2[i].name == "blue_slippers" || parameters2[i].name == "white_slippers" || parameters2[i].name == "green_slippers" || parameters2[i].name == "pink_slippers" || parameters2[i].name == "yellow_slippers" || parameters2[i].name == "black_leather_pants" || parameters2[i].name == "red_leather_pants" || parameters2[i].name == "blue_leather_pants" || parameters2[i].name == "white_leather_pants" || parameters2[i].name == "green_leather_pants" || parameters2[i].name == "pink_leather_pants" || parameters2[i].name == "yellow_leather_pants" || parameters2[i].name == "black_leather_fitting_short_dress" || parameters2[i].name == "red_leather_fitting_short_dress" || parameters2[i].name == "blue_leather_fitting_short_dress" || parameters2[i].name == "white_leather_fitting_short_dress" || parameters2[i].name == "green_leather_fitting_short_dress" || parameters2[i].name == "pink_leather_fitting_short_dress" || parameters2[i].name == "yellow_leather_fitting_short_dress" || parameters2[i].name == "black_denim_short_skirt" || parameters2[i].name == "red_denim_short_skirt" || parameters2[i].name == "blue_denim_short_skirt" || parameters2[i].name == "white_denim_short_skirt" || parameters2[i].name == "green_denim_short_skirt" || parameters2[i].name == "pink_denim_short_skirt" || parameters2[i].name == "yellow_denim_short_skirt" || parameters2[i].name == "black_long_light_skirt" || parameters2[i].name == "red_long_light_skirt" || parameters2[i].name == "blue_long_light_skirt" || parameters2[i].name == "white_long_light_skirt" || parameters2[i].name == "green_long_light_skirt" || parameters2[i].name == "pink_long_light_skirt" || parameters2[i].name == "yellow_long_light_skirt" || parameters2[i].name == "black_blouse_tight_with_deep_neckline" || parameters2[i].name == "red_blouse_tight_with_deep_neckline" || parameters2[i].name == "blue_blouse_tight_with_deep_neckline" || parameters2[i].name == "white_blouse_tight_with_deep_neckline" || parameters2[i].name == "green_blouse_tight_with_deep_neckline" || parameters2[i].name == "pink_blouse_tight_with_deep_neckline" || parameters2[i].name == "yellow_blouse_tight_with_deep_neckline" || parameters2[i].name == "black_female_closed_swimsuit" || parameters2[i].name == "red_female_closed_swimsuit" || parameters2[i].name == "blue_female_closed_swimsuit" || parameters2[i].name == "white_female_closed_swimsuit" || parameters2[i].name == "green_female_closed_swimsuit" || parameters2[i].name == "pink_female_closed_swimsuit" || parameters2[i].name == "yellow_female_closed_swimsuit" || parameters2[i].name == "black_female_outdoor_swimsuit" || parameters2[i].name == "red_female_outdoor_swimsuit" || parameters2[i].name == "blue_female_outdoor_swimsuit" || parameters2[i].name == "white_female_outdoor_swimsuit" || parameters2[i].name == "green_female_outdoor_swimsuit" || parameters2[i].name == "pink_female_outdoor_swimsuit" || parameters2[i].name == "yellow_female_outdoor_swimsuit" || parameters2[i].name == "black_male_bathing_panties" || parameters2[i].name == "red_male_bathing_panties" || parameters2[i].name == "blue_male_bathing_panties" || parameters2[i].name == "white_male_bathing_panties" || parameters2[i].name == "green_male_bathing_panties" || parameters2[i].name == "pink_male_bathing_panties" || parameters2[i].name == "yellow_male_bathing_panties" || parameters2[i].name == "heavy_studded_leather_boots" || parameters2[i].name == "classic_straight_pants" || parameters2[i].name == "classic_jacket" || parameters2[i].name == "classic_shirt" || parameters2[i].name == "tie" || parameters2[i].name == "classic_shoes" || parameters2[i].name == "openwork_stockings" || parameters2[i].name == "wedding_dress" || parameters2[i].name == "wedding_wreath" || parameters2[i].name == "mens_panties" || parameters2[i].name == "womens_lace_panties" || parameters2[i].name == "warm_knitted_hat" || parameters2[i].name == "down_jacket" || parameters2[i].name == "leather_jacket_with_fur_trim_on_collar_and_sleeves" || parameters2[i].name == "fur_coat_short_with_a_hood" || parameters2[i].name == "warm_male_boots" || parameters2[i].name == "warm_High_Womens_High_Heel_Boots" || parameters2[i].name == "warm_sports_jacket_with_hood" || parameters2[i].name == "leather_cloak" || parameters2[i].name == "warmed_sports_pants" || parameters2[i].name == "mens_sweater" || parameters2[i].name == "female_sweater_with_deep_neckline" || parameters2[i].name == "warm_pants" || parameters2[i].name == "warm_high_collar_sweater" || parameters2[i].name == "soft_scarf" || parameters2[i].name == "warm_leather_boots" || parameters2[i].name == "mens_black_denim_shorts" || parameters2[i].name == "mens_blue_denim_shorts" || parameters2[i].name == "mens_white_denim_shorts" || parameters2[i].name == "mens_gray_denim_shorts" || parameters2[i].name == "mens_black_lightweight_shorts" || parameters2[i].name == "mens_blue_lightweight_shorts" || parameters2[i].name == "mens_white_lightweight_shorts" || parameters2[i].name == "mens_gray_lightweight_shorts" || parameters2[i].name == "mens_green_lightweight_shorts" || parameters2[i].name == "mens_black_lightweight_pants" || parameters2[i].name == "mens_blue_lightweight_pants" || parameters2[i].name == "mens_white_lightweight_pants" || parameters2[i].name == "mens_gray_lightweight_pants" || parameters2[i].name == "black_lightweight_sneakers" || parameters2[i].name == "blue_lightweight_sneakers" || parameters2[i].name == "white_lightweight_sneakers" || parameters2[i].name == "red_lightweight_sneakers" || parameters2[i].name == "gray_lightweight_sneakers" || parameters2[i].name == "green_lightweight_sneakers" || parameters2[i].name == "yellow_lightweight_sneakers" || parameters2[i].name == "pink_lightweight_sneakers" || parameters2[i].name == "womens_black_sneakers_on_a_high_platform" || parameters2[i].name == "womens_blue_sneakers_on_a_high_platform" || parameters2[i].name == "womens_white_sneakers_on_a_high_platform" || parameters2[i].name == "womens_red_sneakers_on_a_high_platform" || parameters2[i].name == "womens_green_sneakers_on_a_high_platform" || parameters2[i].name == "womens_yellow_sneakers_on_a_high_platform" || parameters2[i].name == "womens_pink_sneakers_on_a_high_platform" || parameters2[i].name == "mens_black_lightweight_shirt" || parameters2[i].name == "mens_blue_lightweight_shirt" || parameters2[i].name == "mens_white_lightweight_shirt" || parameters2[i].name == "mens_gray_lightweight_shirt" || parameters2[i].name == "mens_green_lightweight_shirt" || parameters2[i].name == "womens_white_tight_jeans" || parameters2[i].name == "womens_black_tight_jeans" || parameters2[i].name == "womens_blue_tight_jeans" || parameters2[i].name == "ring" || parameters2[i].name == "bracelet" || parameters2[i].name == "bronze_bracelet" || parameters2[i].name == "silver_bracelet" || parameters2[i].name == "golden_bracelet" || parameters2[i].name == "marriage_ring")
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "fruits and vegetables") {
+					if ((parameters2[i].name == "apple" || parameters2[i].name == "watermelon" || parameters2[i].name == "orange" || parameters2[i].name == "pear" || parameters2[i].name == "cherry" || parameters2[i].name == "strawberry" || parameters2[i].name == "nectarine" || parameters2[i].name == "grape" || parameters2[i].name == "mango" || parameters2[i].name == "blueberry" || parameters2[i].name == "pomegranate" || parameters2[i].name == "carambola" || parameters2[i].name == "plum" || parameters2[i].name == "banana" || parameters2[i].name == "raspberry" || parameters2[i].name == "mandarin" || parameters2[i].name == "jackfruit" || parameters2[i].name == "papaya" || parameters2[i].name == "kiwi" || parameters2[i].name == "pineapple" || parameters2[i].name == "lime" || parameters2[i].name == "lemon" || parameters2[i].name == "apricot" || parameters2[i].name == "grapefruit" || parameters2[i].name == "melon" || parameters2[i].name == "coconut" || parameters2[i].name == "avocado" || parameters2[i].name == "peach" || parameters2[i].name == "green_almond" || parameters2[i].name == "tamarind" || parameters2[i].name == "cornelian_cherry" || parameters2[i].name == "rhubarb" || parameters2[i].name == "persimmon" || parameters2[i].name == "fig" || parameters2[i].name == "sour_cherry" || parameters2[i].name == "sour_grapes" || parameters2[i].name == "sitron" || parameters2[i].name == "sour_orange" || parameters2[i].name == "corn" || parameters2[i].name == "mushroom" || parameters2[i].name == "broccoli" || parameters2[i].name == "cucumber" || parameters2[i].name == "red_pepper" || parameters2[i].name == "tomato" || parameters2[i].name == "swede" || parameters2[i].name == "carrot" || parameters2[i].name == "brussels_sprout" || parameters2[i].name == "pumpkin" || parameters2[i].name == "cabbage" || parameters2[i].name == "potato" || parameters2[i].name == "eggplant" || parameters2[i].name == "sweet_potato" || parameters2[i].name == "turnip" || parameters2[i].name == "courgette" || parameters2[i].name == "green_chilli" || parameters2[i].name == "onion" || parameters2[i].name == "lettuce" || parameters2[i].name == "radish" || parameters2[i].name == "pea" || parameters2[i].name == "asparagus" || parameters2[i].name == "selery" || parameters2[i].name == "green_pepper" || parameters2[i].name == "french_beans" || parameters2[i].name == "spinach" || parameters2[i].name == "beetroot" || parameters2[i].name == "red_chillies" || parameters2[i].name == "bean" || parameters2[i].name == "cilantro" || parameters2[i].name == "artichoke" || parameters2[i].name == "rosemary" || parameters2[i].name == "bay_leaves" || parameters2[i].name == "mint_leaves" || parameters2[i].name == "basil" || parameters2[i].name == "clove" || parameters2[i].name == "olive" || parameters2[i].name == "shallot" || parameters2[i].name == "turmeric" || parameters2[i].name == "garlic" || parameters2[i].name == "ginger" || parameters2[i].name == "spring_onions" || parameters2[i].name == "lemongrass" || parameters2[i].name == "chives" || parameters2[i].name == "berry" || parameters2[i].name == "nut") and string_contains(parameters2[i].name, "heated_", 1) < 0 and string_contains(parameters2[i].name, "corrupted_", 1) < 0)
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "corrupted food and beverages") {
+					if (string_contains(parameters2[i].name, "heated_", 1) != -1 || string_contains(parameters2[i].name, "corrupted_", 1) != -1)
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "unprepared food and beverages") {
+					if ((string_contains(parameters2[i].name, "dead_", 1) != -1 || string_contains(parameters2[i].name, "skinned_", 1) != -1 || string_contains(parameters2[i].name, "gutted_", 1) != -1 || string_contains(parameters2[i].name, "oyster", 1) != -1) and string_contains(parameters2[i].name, "heated_", 1) < 0 and string_contains(parameters2[i].name, "corrupted_", 1) < 0)
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "food and beverages") {
+					if ((parameters2[i].name == "creamy_ice_cream" || parameters2[i].name == "vanilla_ice_cream" || parameters2[i].name == "caramel_ice_cream" || parameters2[i].name == "smoothie" || parameters2[i].name == "iced_tea" || parameters2[i].name == "lemonade" || parameters2[i].name == "lime_cordial" || parameters2[i].name == "milkshake" || parameters2[i].name == "orange_squash" || parameters2[i].name == "squash" || parameters2[i].name == "cocoa" || parameters2[i].name == "coffee" || parameters2[i].name == "black_coffee" || parameters2[i].name == "decaffeinated_coffee" || parameters2[i].name == "fruit_tea" || parameters2[i].name == "green_tea" || parameters2[i].name == "herbal_tea" || parameters2[i].name == "hot_chocolate" || parameters2[i].name == "tea" || parameters2[i].name == "fruit_juice" || parameters2[i].name == "grapefruit_juice" || parameters2[i].name == "orange_juice" || parameters2[i].name == "pineapple_juice" || parameters2[i].name == "tomato_juice" || parameters2[i].name == "cola" || parameters2[i].name == "opened_cola" || parameters2[i].name == "sos" || parameters2[i].name == "cup_of_water" || parameters2[i].name == "glass_of_water" || parameters2[i].name == "cup_of_cola" || parameters2[i].name == "glass_of_cola" || parameters2[i].name == "cup_of_boiling_water" || parameters2[i].name == "glass_of_boiling_water" || parameters2[i].name == "cup_of_beer" || parameters2[i].name == "glass_of_beer" || parameters2[i].name == "water_bottle" || parameters2[i].name == "beer_bottle" || string_contains(parameters2[i].name, "cooked_", 1) > -1 || string_contains(parameters2[i].name, "eatable_", 1) > -1 || string_contains(parameters2[i].name, "skillit_with_cooked_", 1) > -1 || parameters2[i].name == "open_water_bottle" || parameters2[i].name == "open_beer_bottle" || parameters2[i].name == "pot_of_water" || parameters2[i].name == "fish" || parameters2[i].name == "hotdog" || parameters2[i].name == "hamburger" || parameters2[i].name == "cheeseburger" || parameters2[i].name == "chicken_sandwich" || parameters2[i].name == "piece_of_hotdog" || parameters2[i].name == "piece_of_hamburger" || parameters2[i].name == "piece_of_cheeseburger" || parameters2[i].name == "piece_of_chicken_sandwich" || parameters2[i].name == "hotdog_with_sos" || parameters2[i].name == "hamburger_with_sos" || parameters2[i].name == "cheeseburger_with_sos" || parameters2[i].name == "chicken_sandwich_with_sos" || parameters2[i].name == "piece_of_hotdog_with_sos" || parameters2[i].name == "piece_of_hamburger_with_sos" || parameters2[i].name == "piece_of_cheeseburger_with_sos" || parameters2[i].name == "piece_of_chicken_sandwich_with_sos" || parameters2[i].name == "cake" || parameters2[i].name == "piece_of_cake" || string_contains(parameters2[i].name, "piece_of_bread", 1) > -1 || parameters2[i].name == "chip" || parameters2[i].name == "popcorn" || parameters2[i].name == "chips" || parameters2[i].name == "popcorn_pack") and string_contains(parameters2[i].name, "bowl_of_", 1) < 0 and string_contains(parameters2[i].name, "glass_of_", 1) < 0)
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "medical items") {
+					if (string_contains(parameters2[i].name, "pill", 1) != -1 || string_contains(parameters2[i].name, "jelly", 1) != -1 || string_contains(parameters2[i].name, "antibiotic", 1) != -1 || string_contains(parameters2[i].name, "auto_healer", 1) != -1 || string_contains(parameters2[i].name, "ampoule", 1) != -1 || string_contains(parameters2[i].name, "energy_drink", 1) != -1 || string_contains(parameters2[i].name, "speed_drink", 1) != -1 || string_contains(parameters2[i].name, "_bandage", 1) != -1 || string_contains(parameters2[i].name, "thermometer", 1) != -1)
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "materials") {
+					if (parameters2[i].name == "sand" || parameters2[i].name == "mud" || parameters2[i].name == "clay" || parameters2[i].name == "snow" || parameters2[i].name == "stone" || parameters2[i].name == "glass" || parameters2[i].name == "dirt" || parameters2[i].name == "branch" || parameters2[i].name == "wood" || parameters2[i].name == "rocks" || parameters2[i].name == "leaves" || parameters2[i].name == "gravel" || parameters2[i].name == "grass" || parameters2[i].name == "metal" || parameters2[i].name == "wead" || parameters2[i].name == "ice" || parameters2[i].name == "brick" || parameters2[i].name == "concrete")
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "currency") {
+					if (string_contains(parameters2[i].name, "coins", 1) != -1 || string_contains(parameters2[i].name, "credit", 1) != -1)
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "home appliances") {
+					if (string_contains(parameters2[i].name, "_house", 1) != -1 || parameters2[i].name == "batchelor_pad" || parameters2[i].name == "small_conex" || parameters2[i].name == "fridge" || parameters2[i].name == "microwave" || parameters2[i].name == "air_conditioner" || parameters2[i].name == "steam" || parameters2[i].name == "fan")
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "paid items") {
+					if (string_contains(parameters2[i].name, "credit", 1) != -1 || string_contains(parameters2[i].name, "safe_card", 1) != -1 || string_contains(parameters2[i].name, "teleporter", 1) != -1 || string_contains(parameters2[i].name, "nuclear_bomb", 1) != -1 || string_contains(parameters2[i].name, "health_box", 1) != -1 || string_contains(parameters2[i].name, "energy_box", 1) != -1 || string_contains(parameters2[i].name, "paid_", 1) != -1 || string_contains(parameters2[i].name, "armor", 1) != -1 || string_contains(parameters2[i].name, "quick_thirst_fix_drug", 1) != -1 || string_contains(parameters2[i].name, "quick_hunger_fix_snack", 1) != -1 || string_contains(parameters2[i].name, "xp_potion", 1) != -1 || string_contains(parameters2[i].name, "advanced_bone_repair_kit", 1) != -1 || string_contains(parameters2[i].name, "creature_protector", 1) != -1)
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "packages and  bottles") {
+					if (string_contains(parameters2[i].name, "_pack", 1) != -1 || string_contains(parameters2[i].name, "pack_of_", 1) != -1 || string_contains(parameters2[i].name, "bag_of_", 1) != -1 || string_contains(parameters2[i].name, "chips", 1) != -1 || string_contains(parameters2[i].name, "package", 1) != -1 || string_contains(parameters2[i].name, "_bottle", 1) != -1 || string_contains(parameters2[i].name, "gift", 1) != -1 || string_contains(parameters2[i].name, "_box", 1) != -1 || string_contains(parameters2[i].name, "box_of_", 1) != -1)
+						parameters.insert_last(parameters2[i]);
+				}
+				if (cat == "corpses") {
+					if (string_contains(parameters2[i].name, "corpse", 1) != -1 || string_contains(parameters2[i].name, "dead_", 1) != -1)
+						parameters.insert_last(parameters2[i]);
+				}
+			}
+		}
+		if (counter > parameters.length() - 1)
+			counter = parameters.length() - 1;
+		if (counter < 0) counter = 0;
+		if (@invform != null) {
+			invform.monitor(counter);
+		} else if (@invform == null) {
+			pinvchange = cat == "all";
+			if (navtime.elapsed > 1000 and multichar != "")
+				multichar = "";
+			string c = get_characters().lower();
+			if (c != "" and multichar != c) {
+				navtime.restart();
+				multichar += c;
+			}
+			if (multichar != "" and c != "" and multichar != " " and c != " ") {
+				multichar = multichar.lower();
+				bool found = false;
+				for (uint i = counter; i < parameters.length(); i++) {
+					if (i == counter) continue;
+					test = parameters[i].name;
+					test = test.lower();
+					if (stringleft(test, multichar.length()) == multichar) {
+						if (stringleft(parameters[counter].name, multichar.length()).lower() == multichar and multichar.length() > 1) {
+							found = true;
+							break;
+						}
+						if (counter < i)
+							counter = i;
+						else if (counter > i)
+							counter = i;
+						speak(inv_speak_item(@parameters[counter]));
+						found = true;
+						break;
+					} else continue;
+				}
+				if (found == false) {
+					multichar = multichar.lower();
+					for (uint i = 0; i < parameters.length(); i++) {
+						test = parameters[i].name;
+						test = test.lower();
+						if (stringleft(test, multichar.length()) == multichar) {
+							if (stringleft(parameters[counter].name, multichar.length()).lower() == multichar and multichar.length() > 1) {
+								found = true;
+								break;
+							}
+							if (counter < i)
+								counter = i;
+							else if (counter > i)
+								counter = i;
+							speak(inv_speak_item(@parameters[counter]));
+							found = true;
+							break;
+						} else continue;
+					}
+				}
+				if (!found)
+					speak("No such item exists");
+			}
+			mc = counter;
+			if (ileft.pressing()) {
+				if (parameters.length() == 0)
+					speak("this compartment is empty");
+				else {
+					if (parameters[counter].name != lefthand) {
+						lefthand = parameters[counter].name;
+						send_reliable(peer_id, "drawi " + parameters[counter].name, 0);
+						speak(parameters[counter].name);
+					}
+					if (parameters[counter].name == righthand and inv_item_number(parameters[counter].name) == 1 and righthand == lefthand) righthand = "";
+				}
+			}
+			if (iright.pressing()) {
+				if (parameters.length() == 0)
+					speak("this compartment is empty");
+				else {
+					if (parameters[counter].name != righthand) {
+						righthand = parameters[counter].name;
+						send_reliable(peer_id, "drawi " + parameters[counter].name, 0);
+						speak(parameters[counter].name);
+					}
+					if (parameters[counter].name == lefthand and inv_item_number(parameters[counter].name) == 1 and lefthand == righthand) lefthand = "";
+				}
+			}
+			if (key_pressed(KEY_TAB)) {
+				int di = (shift_down ? 1 : -1);
+				invc += di;
+				if (invc < 0) invc = invcats.length() - 1;
+				if (invc >= invcats.length()) invc = 0;
+				p.play_3d("invselect.ogg", me, me, facing, false);
+				send(0, "draw invselect.ogg", 7);
+				inventorymenu(invcats[invc], mc);
+				break;
+			}
+			if(key_pressed(KEY_SPACE)) {
+				if(parameters.length()==0) {
+					speak("This category doesn't have items");
+				} else {
+					send(peer_id,"giveitem "+parameters[counter].name,0);
+				}
+			}
+			if(shift_is_down() and key_pressed(KEY_RETURN)) {
+				if(parameters.length() == 0) {
+					speak("This category doesn't have items");
+				} else {
+					double am = stn(input("Amount", "Type the amount"));
+					if (am <= 0) {
+						speak("No less than 0");
+						continue;
+					}
+					string need = input("Item", "What do you want?", "coins", sel_start = 0);
+					if (need == "") continue;
+					double bid = stn(input("Bid", "Minimum bid", "1", sel_start = 0));
+					if (bid < 0) continue;
+					send_reliable(0, "auction " + am + " " + parameters[counter].name + " " + need + " " + bid, 0);
+				}
+			}
+			if (key_repeating(KEY_DELETE) and droptimer.elapsed >= droptime and parameters.length() > 0) {
+				droptimer.restart();
+				if (parameters.length() == 0)
+					speak("this compartment is empty");
+				else {
+					if (shift_is_down() or key_down(KEY_RSHIFT)) {
+						string stuff = v.input("How many would you like to drop?");
+						int s = string_to_number(stuff);
+						if (s > 0)
+							drop(parameters[counter].name, s);
+					} else if (key_down(KEY_LCONTROL) or key_down(KEY_RCONTROL)) {
+						int s = inv_item_number(parameters[counter].name);
+						drop(parameters[counter].name, s);
+					} else
+						drop(parameters[counter].name, 1);
+				}
+			}
+			if (key_pressed(KEY_C)) {
+				if (control_down && counter > -1) {
+					string tt = parameters[counter].name;
+					if (shift_down) tt = parameters[counter].amount;
+					clipboard_set_text(tt);
+					speak((shift_down ? "Item amount" : "Item name") + " copied to clipboard");
+				}
+			}
+			if (key_pressed(KEY_RETURN)) {
+				if (parameters.length() == 0)
+					speak("This category doesn't have items");
+				else {
+					send_reliable(peer_id, "desc " + parameters[counter].name, 0);
+				}
+			}
+			if (key_pressed(KEY_HOME) and parameters.length() > 0) {
+				if (parameters.length() == 0)
+					speak("This category doesn't have items");
+				else if ((alt_is_down() and !shift_is_down() and !control_is_down()) and counter > 0 && pinvchange) {
+					inventory_item@ ha = @parameters[counter];
+					parameters.remove_at(counter);
+					parameters.insert_at(0, ha);
+					inv.items = parameters;
+					invchange = true;invchangetimer.restart();
+					play_invmove();
+					counter = 0;
+					speak(inv_speak_item_pos(@parameters[counter]));
+				} else {
+					counter = 0;
+					speak(inv_speak_item(@parameters[counter]));
+					mc = counter;
+				}
+			}
+			if (key_pressed(KEY_END) and parameters.length() > 0) {
+				if (parameters.length() == 0)
+					speak("This category doesn't have items");
+				else if ((alt_is_down() and !control_is_down() and !shift_is_down()) and counter < parameters.length() - 1 && pinvchange) {
+					inventory_item@ ha = parameters[counter];
+					parameters.remove_at(counter);
+					parameters.insert_at(parameters.length(), ha);
+					inv.items = parameters;
+					invchange = true;invchangetimer.restart();
+					play_invmove();
+					counter = parameters.length() - 1;
+					speak(inv_speak_item_pos(@parameters[counter]));
+				} else {
+					counter = parameters.length() - 1;
+					speak(inv_speak_item(@parameters[counter]));
+				}
+			}
+			if (control_down && key_pressed(KEY_F)) inv_searcher(@parameters);
+			if (key_repeating(KEY_F3)) {
+				string lastsearch = "";
+				bool sref = false;
+				bool scase = true;
+				//if (this.cmfdata.get("lastsearch", lastsearch))
+					//this.search(lastsearch, keyboard_modifiers & KEYMOD_SHIFT == 0 ? 1 : -1, false, sref, scase);
+				//else
+					inv_searcher(@parameters);
+			}
+			if (iup.pressing()) {
+				if (parameters.length() == 0)
+					speak("This category doesn't have items");
+				else if ((alt_is_down() and !shift_is_down() and !control_is_down()) and counter > 0 && pinvchange) {
+					inventory_item@ ha = parameters[counter];
+					int64 tcounter = counter;
+					parameters.remove_at(counter);
+					parameters.insert_at(tcounter - 1, ha);
+					inv.items = parameters;
+					invchange = true;invchangetimer.restart();
+					play_invmove();
+					counter = tcounter - 1;
+					speak(inv_speak_item_pos(@parameters[counter]));
+				} else if (parameters.length() == 1) {
+					speak(inv_speak_item(@parameters[0]));
+					counter = 0;
+				} else if (counter > 0) {
+					counter--;
+					speak(inv_speak_item(@parameters[counter]));
+				}
+				mc = counter;
+			}
+			if (key_pressed(KEY_DOWN) == false and idown.pressing()) {
+				if (parameters.length() == 0)
+					speak("This category doesn't have items");
+				else if ((alt_is_down() and !shift_is_down() and !control_is_down()) and counter < parameters.length() - 1 && pinvchange) {
+					inventory_item@ ha = parameters[counter];
+					parameters.remove_at(counter);
+					parameters.insert_at(counter + 1, ha);
+					inv.items = parameters;
+					invchange = true;invchangetimer.restart();
+					play_invmove();
+					counter++;
+					speak(inv_speak_item_pos(@parameters[counter]));
+				} else if (parameters.length() == 1) {
+					speak(inv_speak_item(@parameters[0]));
+					counter = 0;
+				} else if (counter < parameters.length() - 1) {
+					counter++;
+					speak(inv_speak_item(@parameters[counter]));
+				}
+				mc = counter;
+			}
+			if ((key_pressed(KEY_ESCAPE) || key_pressed(KEY_AC_BACK)) && @invform == null && !invchange) {
+				bagclosed = true;
+				bagtimer.restart();
+				focuseditem = "";
+				play_invclose();
+				@invform = null;
+				return;
+			}
+			if (invchange and invchangetimer.elapsed > 300 and cat == "all") {
+				invchangetimer.restart();
+				string d;
+				for (uint i = 0; i < parameters.length(); i++) {
+					if (@parameters[i] == null) continue;
+					d += parameters[i].name + ";";
+				}
+				d = d.trim_whitespace();
+				send(0, "setinvname " + d, 0);
+				invchange = false;
+			}
+		} // End
+	}
+}
+int64 inv_search(inventory_item@[]@ items, string& in text, int dir = 1, int64 position = -1, bool silent = false, bool caseless = true) {
+	if (caseless) text = text.lower();
+	if (@items == null || items.length() < 1) return -1;
+	string[] nav_items(items.length());
+	for (uint i = 0; i < items.length(); i++) {
+		nav_items[i] = items[i].name;
+		if (caseless) nav_items[i] = nav_items[i].lower();
+	}
+	int64 l = position;
+	if (l < 0) l = 0;
+	else if (l >= items.length()) l = items.length() - 1;
+	bool already_on_result = nav_items[l].find(text) > -1;
+	string wrapped = "";
+	for (int i = l + dir; i != l; i += dir) {
+		if (i < 0) {
+			i = items.length() - 1;
+			wrapped = "Wrapped to bottom";
+		} else if (i >= items.length()) {
+			i = 0;
+			wrapped = "Wrapped to top";
+		}
+		if (i == l) break;
+		if (nav_items[i].find(text) < 0) continue;
+		l = i;
+		if (!silent) {
+			if (wrapped != "") speak(wrapped);
+			speak(inv_speak_item(items[l]));
+		}
+		return l;
+	}
+	if (!silent)
+		speak(already_on_result ? "Nothing else found" : "Nothing found");
+	return -1;
+}
+string inv_speak_item(inventory_item@ i) {
+	if (@i == null) return "None";
+	string f = i.name + ", you have " + i.amount;
+	return f;
+}
+string inv_speak_item_pos(inventory_item@ i) {
+	if (@i == null) return "None";
+	int pos = inv.item_index[i.name];
+	string f = (pos + 1) + " of " + inv.items.length();
+	return f;
+}
+interface inv_form {
+	void monitor(int64&inout pos);
+}
+class inv_searcher : inv_form {
+	inventory_item@[]@ parent;
+	audio_form f;
+	int f_text, f_ref, f_case, f_next, f_prev, f_cancel;
+	inv_searcher(inventory_item@[]@ pr) {
+		@this.parent = @pr;
+		string current = "";
+		bool s_ref = false;
+		bool s_case = true;
+		this.f.create_window("Find", false, true);
+		@invform = @this;
+		wait(250);
+		this.f_text = this.f.create_input_box("Search term", current, "", 256);
+		this.f.set_enable_go_to_index(this.f_text, false);
+		if (current != "")
+			this.f.select_text(this.f_text, 0, current.length() - 1);
+		this.f_case = this.f.create_checkbox("Match all &cases", s_case);
+		this.f_next = this.f.create_button("Find &next", true);
+		this.f_prev = this.f.create_button("Find &previous");
+		this.f_cancel = this.f.create_button("Cancel", false, true);
+		this.f.focus(this.f_text);
+	}
+	void monitor(int64&inout pos) {
+		this.f.monitor();
+		bool searchword = this.f.is_pressed(this.f_next);
+		//bool sref = this.f.is_checked(this.f_ref);
+		bool scase = this.f.is_checked(this.f_case);
+		int64 mainpos = pos;
+		if (this.f.is_pressed(this.f_cancel)) {
+			pos = mainpos;
+			speak(inv_speak_item(@this.parent[pos]));
+			@invform = null;
+			return;
+		} else if (searchword or this.f.is_pressed(this.f_prev)) {
+			string text = this.f.get_text(this.f_text);
+			if (text == "") {
+				speak("Enter some text to search for");
+				this.f.focus(this.f_text);
+				return;
+			}
+			int64 position = inv_search(@this.parent, text, searchword ? 1 : -1, pos, false, scase);
+			if (position > -1) {
+				@invform = null;
+				pos = position;
+				return;
+			}
+			f.focus(f_text);
+			return;
+		}
+	}//monitor
+}//End.class.search
+void play_invmove() {
+	p.play_3d("invmove.ogg", me, me, facing, false);
+	send(0, "draw invmove.ogg", 7);
+}
+void play_invopen() {
+	string s = "invopen5.ogg";
+	rvp.play_stationary(s, false);
+	send_reliable(peer_id, "draw " + s, 7);
+}
+void play_invclose() {
+	string s = "invclose5.ogg";
+	rvp.play_stationary(s, false);
+	send_reliable(peer_id, "draw " + s, 7);
+}
+void bagclosecheck() {
+	if (!bagclosed) return;
+	if (!onbag) return;
+	if (bagtimer.elapsed < 250) return;
+	bagtimer.restart();
+	onbag = false;
+	bagclosed = true;
+}

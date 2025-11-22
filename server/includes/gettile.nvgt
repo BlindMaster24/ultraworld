@@ -1,0 +1,67 @@
+string gettile(string tile, bool for_wall = false) {
+	bool is_wall = false;
+	if (for_wall && stringleft(tile, 4) == "wall") {
+		tile = string_trimleft(tile, 4);
+		is_wall = true;
+	}
+	string[] plats = {
+		"bathtub",
+		"bleacher",
+		"branch",
+		"bridge",
+		"brokenglass",
+		"brush",
+		"chair",
+		"cloth",
+		"carpet",
+		"cavegrounds",
+		"cement",
+		"ceramic",
+		"clay",
+		"deck",
+		"concrete",
+		"corpse",
+		"deepsand",
+		"deepwater",
+		"dirt",
+		"fence",
+		"glass",
+		"grass",
+		"gravel",
+		"hardwood",
+		"ice",
+		"ladder",
+		"leaves",
+		"ledge",
+		"marble",
+		"marsh",
+		"metal",
+		"mud",
+		"pipe",
+		"plywood",
+		"rocks",
+		"roof",
+		"sand",
+		"sewer",
+		"snow",
+		"spring",
+		"stairs",
+		"steel",
+		"stone",
+		"swamp",
+		"swimming",
+		"tile",
+		"water",
+		"shallow",
+		"underwater",
+		"weed",
+		"wetconcrete",
+		"wood",
+		"wall"
+	};
+	string w = tile;
+	for (uint a = 0; a < plats.length(); a++)
+		if (stringleft(tile, plats[a].length()) == plats[a]) w = plats[a];
+	if (is_wall) w = "wall" + w;
+	return w;
+}

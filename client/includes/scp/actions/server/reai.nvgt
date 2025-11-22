@@ -1,0 +1,6 @@
+namespace scp::actions::server {
+	void reai() {
+		sendcommand("/notify rebooting AISystem");
+		sendcommand("/refreshai");
+	}
+}

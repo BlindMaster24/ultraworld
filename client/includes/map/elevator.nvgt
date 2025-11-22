@@ -1,0 +1,113 @@
+bool evmoving = false;
+elevator@[] evs(0);
+class elevator {
+	vector min, max;
+	int speed = -1;
+	bool moving = false;
+	timer mover;
+	mfloor@ f = null;
+	double fx, fy, fz;
+	vector oldme;
+	string snd_open, snd_close;
+	string text_open, text_close;
+	int slot_close = -1, slot_open = -1;
+	elevator(vector a, vector b, int sp = -1) {
+		this.min = a; this.max = b;
+		this.speed = sp;
+	}
+	~elevator() {
+		if (this.moving) {
+			this.moving = false;
+			evmoving = false;
+			me = this.oldme;
+			send_reliable(peer_id, "move " + me.x + " " + me.y + " " + me.z, 8);
+		}
+		if (this.slot_close > -1) p.destroy_sound(this.slot_close);
+		if (this.slot_open > -1) p.destroy_sound(this.slot_open);
+	}
+	void loop() {
+		if (!this.moving) return;
+		if (this.speed <= 0) {
+			this.moving = false;
+			evmoving = false;
+			me = vector(this.fx, this.fy, this.fz);
+			send_reliable(peer_id, "move " + me.x + " " + me.y + " " + me.z, 8);
+			if (this.text_close != "") speak(this.text_close);
+			if (this.snd_close != "") this.slot_close = p.play_3d(this.snd_close, me.x, me.y, me.z, me.x, me.y, me.z, facing, false);
+			return;
+		}
+		if (this.mover.elapsed > this.speed) {
+			this.mover.restart();
+			if (me.x < this.fx) me.x++;
+			else if (me.x > this.fx) me.x--;
+			if (me.y < this.fy) me.y++;
+			else if (me.y > this.fy) me.y--;
+			if (me.z < this.fz) me.z++;
+			else if (me.z > this.fz) me.z--;
+		}//Time
+		if (me.x == this.fx && me.y == this.fy && me.z == this.fz) {
+			this.moving = false;
+			evmoving = false;
+			if (this.text_close != "") speak(this.text_close);
+			if (this.snd_close != "") this.slot_close = p.play_3d(this.snd_close, me.x, me.y, me.z, me.x, me.y, me.z, facing, false);
+			send_reliable(peer_id, "move " + me.x + " " + me.y + " " + me.z, 8);
+			return;
+		}
+	}
+}//
+void spawn_elevator(vector a, vector b, int speed = -1, string snd_open = "", string snd_close = "", string text_open = "", string text_close = "") {
+	elevator e1(a, b, speed);
+	e1.snd_open = snd_open;
+	e1.snd_close = snd_close;
+	e1.text_open = text_open;
+	e1.text_close = text_close;
+	evs.insert_last(e1);
+}
+mfloor@ select_floor(elevator@ ev = null) {
+	if (floors.length() < 1) return null;
+	custom_menu c;
+	setupmenu(c);
+	for (uint a = 0; a < floors.length(); a++) {
+		c.add(floors[a].number, floors[a].number);
+		c.set_information(floors[a].number, floors[a].text);
+	}//A
+	string intro = "Select floor.";
+	if (c.item_length < 1) return null;
+	c.create(intro, true);
+	while (c.running) {
+		wait(5);
+		c.monitor();
+		mainloop();
+		string r = c.click;
+		if (r != "") {
+			mfloor@ f = get_floor_by_number(stn(r));
+			return f;
+		}
+	}//While
+	return null;
+}
+bool evcheck() {
+	if (evs.length() < 1) return false;
+	if (evmoving) return false;
+	for (uint a = 0; a < evs.length(); a++) {
+		elevator@ b = evs[a];
+		if (!inrange(me, b.min, b.max)) return false;
+		mfloor@ f = select_floor();
+		if (@f == null) return true;
+		b.oldme = me;
+		b.fx = f.min.x;
+		b.fy = f.min.y;
+		b.fz = f.min.z;
+		b.moving = true;
+		evmoving = true;
+		if (b.text_open != "") speak(b.text_open);
+		if (b.snd_open != "") b.slot_open = p.play_3d(b.snd_open, me.x, me.y, me.z, me.x, me.y, me.z, facing, false);
+		return true;
+	}//A
+	return false;
+}
+void evloop() {
+	if (evs.length() < 1) return;
+	for (uint a = 0; a < evs.length(); a++)
+		evs[a].loop();
+}

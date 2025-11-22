@@ -1,0 +1,23 @@
+void main() {
+	string[] f = find_files("map_backups/*.map");
+	string[] d = find_directories("maps/*");
+	for (uint i = 0; i < f.length(); i++) {
+		string l = f[i].replace(".map", "");
+		if (!directory_exists("maps/" + l)) {
+			file_delete("map_backups/" + f[i]);
+			continue;
+		}
+		file g;
+		g.open("map_backups/" + f[i], "r");
+		string r = g.read();
+		g.close();
+		g.open("maps/" + l + "/!.map", "w");
+		g.write(r);
+		g.close();
+	}
+	println("Done");
+	#if windows
+		alert("Finished", "Done");
+	#endif
+	exit();
+}

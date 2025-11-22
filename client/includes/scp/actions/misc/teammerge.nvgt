@@ -1,0 +1,32 @@
+namespace scp::actions::misc {
+	void teammerge() {
+		nv_form f;
+		f.create_window("Merge Teams", false);
+		nv_form_input@ first = f.add_input("Type the team that will be merged to", "first");
+		nv_form_input@ second = f.add_input("Type the team that will be merged", "second");
+		nv_form_button@ ok = f.add_button("Ok", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(first, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (first.text == "" || first.text.find(" ") > -1) {
+					speak("Team that will be merged to is required");
+					first.focus(false, false);
+					continue;
+				} else if (second.text == "" || second.text.find(" ") > -1) {
+					speak("Team that will be merged is required");
+					second.focus(false, false);
+					continue;
+				} else if (ask("This will merge " + second.text + " into " + first.text + ". This will delete the team " + second.text + " after the merge. Are you sure?") != 1) {
+					continue;
+				}
+				sendcommand("/teammerge " + first.text + " " + second.text);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

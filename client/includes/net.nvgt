@@ -1,0 +1,312 @@
+string mainnetaddress = "uw.posix.live";
+string netaddress = mainnetaddress;
+int netport = 6200;
+uint peer_id = 0;
+sound sr;
+void login() {
+	n.IPV6enabled = false;
+	if (name == "" || password == "") {
+		dlg("setup an account first");
+		reset_network();
+		mainmenu();
+	}
+	messager lmsg;
+	lmsg.add("message", "login");
+	lmsg.add("name", name);
+	lmsg.add("password", password);
+	lmsg.add("compid", compid);
+	lmsg.add("node_id", system_node_id);
+	lmsg.add("yv", app.version);
+	speak("connecting... please wait");
+	sr.load("roleta.ogg");
+	sr.play_looped();
+	reset_network();
+	net_client();
+	n.connect(netaddress, netport);
+	if (connected == true) {
+		e = n.request();
+		send(peer_id, lmsg, 10);
+	}
+	timeouttimer.restart();
+	while (true) {
+		wait(5);
+		e = n.request();
+		if (key_pressed(KEY_ESCAPE)) {
+			sr.close();
+			reset_network();
+			mainmenu();
+			break;
+		}
+		if (e.type == event_connect) {
+			peer_id = e.peer_id;
+			s.fade_music(20);
+			sr.stop();
+			p.play_stationary("roletaseleciona.ogg", false);
+			send(peer_id, lmsg, 10);
+			connected = true;
+		} else if (e.type == event_receive and get_event_message() == "loggedin") {
+			if (tpool1.elapsed >= npool1) {
+				tpool1.restart();
+				npool1 = random(30, 100);
+				mpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+				p.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+				sourcepool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+				musicpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+			}
+			if (tpool2.elapsed >= npool2) {
+				tpool2.restart();
+				npool2 = random(30, 100);
+				distpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+				placedistpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+				signpool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+				itempool.update_listener_3d(me.x, me.y, me.z, calculate_theta(facing));
+			}
+			sourcecheckloop();
+			game();
+			break;
+		} else if (e.type == event_receive and get_event_message() == "lcm") {
+			speak("You are a language channel manager");
+			lcm = true;
+		} else if (e.type == event_receive and get_event_message() == "mapname")
+			mapname = string_replace(get_event_message(), "mapname ", "", false);
+		else if (e.type == event_receive and get_event_message() == "updatenow") {
+			string nver = url_get("https://posix.live/uw.php");
+			dlg("your client is out of date");
+			reset_network();
+			mainmenu();
+			break;
+		} else if (e.type == event_receive and get_event_message() == "nochar") {
+			dlg("error: This account does not exist!");
+			reset_network();
+			mainmenu();
+			break;
+		} else if (e.type == event_receive and get_event_message() == "wrongpass") {
+			dlg("incorrect password.");
+			reset_network();
+			mainmenu();
+			break;
+		} else if (e.type == event_receive and get_event_message() == "alreadyplaying") {
+			dlg("sorry: this account is already logged in");
+			reset_network();
+			mainmenu();
+			break;
+		} else if (e.type == event_receive and string_contains(get_event_message(), "error", 1) > -1) {
+			dlg(get_event_message());
+			reset_network();
+			mainmenu();
+			break;
+		} else if (e.type == event_receive and get_event_message() == "error" or (timeouttimer.elapsed >= timeouttime)) {
+			sr.stop();
+			p.play_stationary("error.ogg", false);
+			speak("Server down");
+			reconnect();
+			break;
+		} else if (e.type == event_receive and get_event_message() == "banned") {
+			if (SCRIPT_COMPILED) {
+				dlg("error, You are currently banned from the game. please try again later");
+				reset_network();
+				mainmenu();
+				break;
+			}
+		} else if (e.type == event_receive) {
+			string[] parsed = string_split(get_event_message(), " ", false);
+			if (parsed[0] == "block") {
+				dlg(string_trim_left(get_event_message(), 6));
+				reset_network();
+				mainmenu();
+				break;
+			} else if (parsed[0] == "x" and parsed.length() > 1)
+				me.x = string_to_number(parsed[1]);
+			else if (parsed[0] == "y" and parsed.length() > 1)
+				me.y = string_to_number(parsed[1]);
+			else if (parsed[0] == "z" and parsed.length() > 1)
+				me.z = string_to_number(parsed[1]);
+			else if (parsed[0] == "mapname" and parsed.length() > 1)
+				mapname = parsed[1];
+			else if (parsed[0] == "spawn_player" and parsed.length() > 5) {
+				int x = string_to_number(parsed[1]);
+				int y = string_to_number(parsed[2]);
+				int z = string_to_number(parsed[3]);
+				string n = parsed[4];
+				string mp = parsed[5];
+				if (n != name)
+					spawn_player(x, y, z, mp, n);
+			} else if (parsed[0] == "m_data")
+				load_map(string_replace(get_event_message(), "mdata ", "", false));
+			else if (parsed[0] == "facing" and parsed.length() > 1)
+				facing = string_to_number(parsed[1]);
+		}
+	}
+}
+void create() {
+	form.reset();
+	if (screen_reader_is_running(1))
+		form.set_output_mode(JAWS);
+	if (screen_reader_is_running(2))
+		form.set_output_mode(WINDOW_EYES);
+	if (screen_reader_is_running(3))
+		form.set_output_mode(SYSTEM_ACCESS);
+	if (screen_reader_is_running(4))
+		form.set_output_mode(NVDA);
+	form.create_window("Registration Form", false);
+	int user = form.create_input_box("&Username");
+	int pass = form.create_input_box("&Password", "", "*");
+	int email = form.create_input_box("&Email", "");
+	int gender = form.create_list("&Gender selection", 0);
+	form.add_list_item(gender, "Male", 0);
+	form.add_list_item(gender, "Female", 1);
+	int ok = form.create_button("&Register");
+	int cancel = form.create_button("&Cancel");
+	form.set_button_attributes(ok, true, false);
+	form.set_button_attributes(cancel, false, true);
+	while (true) {
+		form.monitor();
+		wait(5);
+		if (form.is_pressed(cancel)) {
+			form.reset();
+			n.destroy();
+			reset_network();
+			mainmenu();
+			break;
+		} else if (form.is_pressed(ok)) {
+			if (form.get_text(user) == "" or string_contains(form.get_text(user), " ", 1) != -1 || !name_is_valid(form.get_text(user))) {
+				dlg("An error has occured. Please check the username field and try again");
+				creating = false;
+				form.reset();
+				reset_network();
+				mainmenu();
+				break;
+			} else if (form.get_text(pass) == "" or string_contains(form.get_text(pass), " ", 1) != -1) {
+				dlg("An error has occured. Please check the password field and try again");
+				creating = false;
+				form.reset();
+				reset_network();
+				mainmenu();
+				break;
+			} else if (form.get_text(email) == "" or string_contains(form.get_text(email), "@", 1) == -1) {
+				dlg("An error has occured. Please check the e-mail field and try again");
+				creating = false;
+				form.reset();
+				reset_network();
+				mainmenu();
+				break;
+			} else if (form.get_list_position(gender) == -1) {
+				dlg("An error has occured. Please set your gender in the gender selection list and try again");
+				creating = false;
+				form.reset();
+				reset_network();
+				mainmenu();
+				break;
+			} else {
+				timeouttimer.restart();
+				messager lmsg;
+				lmsg.add("message", "newchar");
+				lmsg.add("name", form.get_text(user));
+				lmsg.add("password", form.get_text(pass));
+				lmsg.add("email", form.get_text(email));
+				lmsg.add("gender", form.get_list_position(gender));
+				lmsg.add("compid", compid);
+				lmsg.add("node_id", system_node_id);
+				lmsg.add("yv", app.version);
+				speak("establishing connection... please wait");
+				sr.load("roleta.ogg");
+				sr.play_looped();
+				reset_network();
+				net_client();
+				n.connect(netaddress, netport);
+				while (true) {
+					wait(5);
+					e = n.request();
+					if (key_pressed(KEY_ESCAPE)) {
+						sr.stop();
+						form.reset();
+						reset_network();
+						mainmenu();
+						break;
+					}
+					if (e.type == event_disconnect or timeouttimer.elapsed >= timeouttime) {
+						sr.stop();
+						p.play_stationary("error.ogg", false);
+						speak("Server down");
+						reset_network();
+						mainmenu();
+						break;
+					}
+					if (e.type == event_connect and connected == false) {
+						creating = true;
+						peer_id = e.peer_id;
+						speak("creating");
+						send(peer_id, lmsg, 10);
+					} else if (e.type == event_receive and get_event_message() == "createdchar") {
+						sr.close();
+						dlg("success! Your account has been registered! press enter to connect");
+						s.fade_music(20);
+						name = form.get_text(user);
+						password = form.get_text(pass);
+						writeprefs();
+						form.reset();
+						client::destruct();
+						reset_network();
+						login();
+						creating = false;
+						break;
+					} else if (e.type == event_receive and get_event_message() == "alreadyaccount") {
+						creating = false;
+						form.reset();
+						reset_network();
+						mainmenu();
+						break;
+					} else if (e.type == event_receive and get_event_message() == "alreadyexists") {
+						sr.close();
+						dlg("This account already exists");
+						creating = false;
+						form.reset();
+						reset_network();
+						mainmenu();
+						break;
+					} else if (e.type == event_receive and string_contains(get_event_message(), "Error", 1) > -1) {
+						sr.close();
+						dlg(get_event_message());
+						creating = false;
+						form.reset();
+						reset_network();
+						mainmenu();
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+void reset_network() {
+	resetnet();
+}
+void resetnet(bool soft = false) {
+	if (soft) {
+		n.disconnect_peer_softly(peer_id);
+		n.disconnect_peer_softly(0);
+	} else {
+		n.disconnect_peer(peer_id);
+		n.disconnect_peer(0);
+	}
+	timeouttimer.restart();
+	peer_id = 0;
+	n.destroy();
+	connected = false;
+}
+bool net_client(uint channels = 20, uint peers = 1) {
+	n.destroy();
+	n.IPV6enabled = false;
+	bool r = n.setup_client(channels, peers);
+	//n.packet_compression = true;
+	return r;
+}
+void reconnect(bool frommainmenu = false) {
+	if (looking) looking = false;
+	stream.stop();
+	can_move = true;
+	client::destruct();
+	reset_network();
+	speak("reconnecting... please wait");
+	login();
+}

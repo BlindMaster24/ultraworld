@@ -1,0 +1,17 @@
+namespace player {
+	void keycheck(string n) {
+		if (control_down && key_pressed(KEY_C)) player::perform(n, "copy");
+		else if (key_pressed(KEY_F1)) player::perform(n, (shift_down && assistant ? "respond" : "stats"));
+		else if (key_pressed(KEY_F2)) player::perform(n, "pm");
+		else if (key_pressed(KEY_F3)) player::perform(n, "where");
+		else if (key_pressed(KEY_F4)) player::perform(n, "channel");
+		else if (key_pressed(KEY_F5)) player::perform(n, "macc");
+		else if (key_pressed(KEY_F6)) player::perform(n, "status");
+		else if (control_down) {
+			if (key_pressed(KEY_T)) player::perform(n, (shift_down ? "untrust" : "trust"));
+			else if (key_pressed(KEY_M)) player::perform(n, (shift_down ? "unmute" : "mute"));
+			else if (key_pressed(KEY_L)) player::perform(n, "look");
+		}
+		return;
+	}
+}//

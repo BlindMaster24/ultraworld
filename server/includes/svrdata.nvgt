@@ -1,0 +1,65 @@
+namespace svd {
+	void save() {
+		save_ntms();
+		for (uint i = 0; i < players.length(); i++)
+			scd(players[i]);
+		for (uint i = 0; i < houses.length(); i++)
+			houses[i].house_save();
+		for (uint i = 0; i < apartments.length(); i++)
+			apartments[i].save();
+		for (uint i = 0; i < tents.length(); i++)
+			tents[i].save();
+		for (uint i = 0; i < microwaves.length(); i++)
+			microwaves[i].microwave_save();
+		for (uint i = 0; i < playerstores.length(); i++)
+			playerstores[i].playerstore_save();
+		savelockers();
+		savefridges();
+		save_all_teams();
+		save_corpses();
+		writedata();
+	}
+	void load () {
+		loaddata();
+		file f;
+		if (file_exists("jaildata.dat")) {
+			f.open("jaildata.dat", "rb");
+			string jaildata = f.read();
+			f.close();
+			jaildata = string_decrypt(jaildata, "charbhoom");
+			compjails = deserialize(jaildata);
+		}
+		if (file_exists("jaildata2.dat")) {
+			f.open("jaildata2.dat", "rb");
+			string jaildata = f.read();
+			f.close();
+			jaildata = string_decrypt(jaildata, "charbhoom");
+			ipjails = deserialize(jaildata);
+		}
+		f.open("adminnotes.svr", "rb");
+		adminnote = f.read();
+		f.close();
+		load_compids();
+		load_ais();
+		load_corpses();
+		load_all_teams();
+		on_web(delete = true);
+		string[] stuff = find_files("lockers/*.locker");
+		if (stuff.length() > 0)
+			for (uint i = 0; i < stuff.length(); i++)
+				load_locker(string_replace(stuff[i], ".locker", "", false));
+		string[] fstuff = find_files("fridges/*.fridge");
+		if (fstuff.length() > 0)
+			for (uint i = 0; i < fstuff.length(); i++)
+				load_fridge(string_replace(fstuff[i], ".fridge", "", false));
+		load_all_houses();
+		load_all_apartments();
+		load_all_tents();
+		load_all_microwaves();
+		load_all_playerstores();
+		load_descriptions();
+	}
+	void destruct() {
+		destroy_all_ais();
+	}
+}

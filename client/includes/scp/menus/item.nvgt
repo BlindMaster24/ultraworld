@@ -1,0 +1,35 @@
+namespace scp::menus {
+	void item() {
+		custom_menu c;
+		setupmenu(c);
+		if (admin)
+			c.add("give an item to all online players", "giveall");
+		if (manager) {
+			c.add("give an item to all characters on the game, online or offline", "ig");
+			c.add("give an item to a specific player", "give");
+			c.add("remove an item from all characters on the game, online or offline", "ik");
+		}
+		if (c.get_item_length() < 1) return;
+		c.create("Item Management Panel", true);
+		while (c.running) {
+			wait(5);
+			c.monitor();
+			mainloop();
+			string r = c.click;
+			if (r == "ik") {
+				scp::actions::item::ik();
+				break;
+			} else if (r == "giveall") {
+				scp::actions::item::giveall();
+				break;
+			} else if (r == "give") {
+				scp::actions::item::give();
+				break;
+			} else if (r == "ig") {
+				scp::actions::item::ig();
+				break;
+			}
+		}//While
+		return;
+	}//End
+}

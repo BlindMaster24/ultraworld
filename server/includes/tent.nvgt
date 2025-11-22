@@ -1,0 +1,371 @@
+tent@[] tents(0);
+class tent {
+	int x, y, z, code, health, hackmode = -1, hacktime, canbell = 0, security_boosts = 0, dooropen = 0;
+	string id, map, housemap, owner, hitby = "nothing", hacker = "noone", bellsound, itemdeleted = "conex", dooropener = "noone";
+	bool hacking = false;
+	timer hacktimer, doortimer;
+	json data;
+	tent(int vx, int vy, int vz, string vmap, string vowner, int vcode, int vhealth, string vhousemap, string vitemdeleted, string vid = "") {
+		x = vx;
+		y = vy;
+		z = vz;
+		map = vmap;
+		owner = vowner;
+		code = vcode;
+		health = vhealth;
+		housemap = vhousemap;
+		itemdeleted = vitemdeleted;
+		id = vid;
+		house_zoner(this.map, this.owner, this.x, this.y, this.z, itemd = this.itemdeleted);
+	}
+	void houseplay(string soundfile) {
+		send_packet(6, "play locker_" + soundfile + ".ogg " + x + " " + y + " " + z, x, y, z, maps[get_map_index(map)]);
+	}
+	void save() {
+		if (directory_exists("tents") == false)
+			directory_create("tents");
+		this.data.clear();
+		data.set("x", x);
+		data.set("y", y);
+		data.set("z", z);
+		data.set("map", map);
+		data.set("owner", owner);
+		data.set("code", code);
+		data.set("health", health);
+		data.set("housemap", housemap);
+		if (this.bellsound != "") data.set("bellsound", bellsound);
+		data.set("canbell", canbell);
+		data.set("id", id);
+		data.set("itemdeleted", itemdeleted);
+		file_put("tents/" + this.id + ".json", this.data.dump(2));
+	}
+	void loop(int i) {
+		if (health <= 0) {
+			if (this.hitby != "") {
+				send_packet(6, "play base_dest.ogg " + x + " " + y + " " + z, x, y, z, maps[get_map_index(map)]);
+				send_dpacket(6, "distsound base_destdist " + x + " " + y + " " + z + " " + map, maps[get_map_index(map)]);
+			}
+			house_zoner(this.map, this.owner, this.x, this.y, this.z, true, itemd = this.itemdeleted);
+			for (uint i2 = 0; i2 < players.length(); i2++) {
+				if (players[i2].map == housemap) {
+					move_player(players[i2], map, x, y, z);
+					send_reliable(players[i2], "exitplace", 0);
+					players[i2].health -= 50000;
+				}
+			}
+			for (uint i2 = 0; i2 < msounds.length(); i2++) {
+				if (msounds[i2].map == housemap) {
+					msounds.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < ais.length(); i2++) {
+				if (ais[i2].map.name == housemap) {
+					if (ais[i2].voice != "" and ais[i2].rapidvoice == true) destroy_moving_sound(ais[i2].voice);
+					ais.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < beehives.length(); i2++) {
+				if (beehives[i2].map == housemap) {
+					file_delete("beehives/" + beehives[i2].beehivemap + ".beehive");
+					remove_map(beehives[i2].beehivemap);
+					beehives.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < lockers.length(); i2++) {
+				if (lockers[i2].map == housemap) {
+					file_delete("lockers/" + lockers[i2].id + ".locker");
+					lockers.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < microwaves.length(); i2++) {
+				if (microwaves[i2].map == housemap) {
+					destroy_moving_sound(microwaves[i2].midsound);
+					file_delete("microwaves/" + microwaves[i2].id + ".microwave");
+					microwaves.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < air_conditioners.length(); i2++) {
+				if (air_conditioners[i2].map == housemap) {
+					destroy_moving_sound(air_conditioners[i2].mid);
+					file_delete("air_conditioners/" + air_conditioners[i2].id + ".air_conditioner");
+					air_conditioners.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < steams.length(); i2++) {
+				if (steams[i2].map == housemap) {
+					destroy_moving_sound(steams[i2].mid);
+					file_delete("steams/" + steams[i2].id + ".steam");
+					steams.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < fans.length(); i2++) {
+				if (fans[i2].map == housemap) {
+					destroy_moving_sound(fans[i2].mid);
+					file_delete("fans/" + fans[i2].id + ".fan");
+					fans.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < fridges.length(); i2++) {
+				if (fridges[i2].map == housemap) {
+					destroy_moving_sound(fridges[i2].mid);
+					file_delete("fridges/" + fridges[i2].id + ".fridge");
+					fridges.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < timeitems.length(); i2++) {
+				if (timeitems[i2].map == housemap) {
+					timeitems.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < objs.length(); i2++) {
+				if (objs[i2].map.name == housemap) {
+					objs.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < silenceobjs.length(); i2++) {
+				if (silenceobjs[i2].map.name == housemap) {
+					silenceobjs.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < bodyfalls.length(); i2++) {
+				if (bodyfalls[i2].map == housemap) {
+					bodyfalls.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < weapons.length(); i2++) {
+				if (weapons[i2].map.name == housemap) {
+					weapons.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < censor_bombs.length(); i2++) {
+				if (censor_bombs[i2].map.name == housemap) {
+					censor_bombs.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < nuclear_bombs.length(); i2++) {
+				if (nuclear_bombs[i2].map.name == housemap) {
+					nuclear_bombs.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < small_nuclear_bombs.length(); i2++) {
+				if (small_nuclear_bombs[i2].map.name == housemap) {
+					small_nuclear_bombs.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < large_nuclear_bombs.length(); i2++) {
+				if (large_nuclear_bombs[i2].map.name == housemap) {
+					large_nuclear_bombs.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < time_bombs.length(); i2++) {
+				if (time_bombs[i2].map.name == housemap) {
+					time_bombs.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < grenades.length(); i2++) {
+				if (grenades[i2].map.name == housemap) {
+					grenades.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < canisters.length(); i2++) {
+				if (canisters[i2].map.name == housemap) {
+					canisters.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < snares.length(); i2++) {
+				if (snares[i2].map.name == housemap) {
+					snares.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < rockets.length(); i2++) {
+				if (rockets[i2].map.name == housemap) {
+					rockets.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < rpgs.length(); i2++) {
+				if (rpgs[i2].map.name == housemap) {
+					rpgs.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < turrets.length(); i2++) {
+				if (turrets[i2].map.name == housemap) {
+					turrets.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < mines.length(); i2++) {
+				if (mines[i2].map.name == housemap) {
+					mines.remove_at(i2);
+					continue;
+				}
+			}
+			for (uint i2 = 0; i2 < robots.length(); i2++) {
+				if (robots[i2].map.name == housemap) {
+					destroy_moving_sound(robots[i2].mid);
+					robots.remove_at(i2);
+					continue;
+				}
+			}
+			file_delete("tents/" + id + ".json");
+			if (this.hitby != "") send_reliable(0, "kills " + killmsg3(owner + "'s " + itemdeleted, hitby, map), 0);
+			remove_map(this.housemap, true);
+			if (this.hitby != "") {
+				string hb;
+				if (string_contains(hitby, "'", 1) > -1) {
+					string[] parsed_data = string_split(hitby, "'", false);
+					hb = parsed_data[0];
+				} else
+					hb = hitby;
+				int index = get_player_index_from(hb);
+				if (index > -1) {
+					givexp(players[index], random(100, 300)*players[index].reinforcement);
+					int t = is_in_team(players[index].name);
+					if (t > -1) {
+						int l = random(50, 100);
+						teams[t].points += l;
+						teams[t].transmit("This team just got " + l + " points!");
+					}
+				}
+			}
+			@tents[i] = null;
+			tents.remove_at(i);
+			return;
+		}
+		if (dooropen == 1) {
+			if (doortimer.elapsed >= 8000) {
+				dooropen = 0;
+				dooropener = "noone";
+				send_packet(6, "play door156close.ogg " + x + " " + y + " " + z, x, y, z, maps[get_map_index(map)]);
+				send_packet(6, "play door156close.ogg 5 0 0", 5, 0, 0, maps[get_map_index(housemap)]);
+				int owner_index = get_player_index_from(owner);
+				if (owner_index > -1) {
+					send_reliable(players[owner_index], "Your tent flap has automatically closed", 2);
+				}
+			}
+		}
+		if (hacking == true) {
+			if (hacktimer.elapsed > hacktime) {
+				int h = get_player_index_from(hacker);
+				if (h > -1) {
+					string packet;
+					if (hackmode == 1) {
+						if (security_boosts >= 0) security_boosts -= random(1, 100);
+						packet = "Hack successfull! The tent code is " + code;
+					} else {
+						if (security_boosts >= 0) security_boosts -= random(1, 100);
+						packet = "The hack did not complete successfully";
+					}
+					send_reliable(players[h], packet, 2);
+					send_reliable(players[h], "startmoving", 0);
+				}
+				hacking = false;
+			}
+		}
+	}
+}
+void spawn_tent(int x, int y, int z, string map, string owner, int code, int health, string housemap, string itemdeleted, string id) {
+	tent v(x, y, z, map, owner, code, health, housemap, itemdeleted, id);
+	tents.insert_last(v);
+}
+void load_tent(string t) {
+	int x, y, z, code, health, canbell;
+	string id, map, housemap, owner, bellsound, itemdeleted;
+	json tsd;
+	tsd.loadf("tents/" + t + ".json");
+	if (tsd.exists("x"))
+		x = tsd.get("x");
+	if (tsd.exists("y"))
+		y = tsd.get("y");
+	if (tsd.exists("z"))
+		z = tsd.get("z");
+	if (tsd.exists("map"))
+		map = tsd.get("map");
+	if (tsd.exists("owner"))
+		owner = tsd.get("owner");
+	if (tsd.exists("code"))
+		code = tsd.get("code");
+	if (tsd.exists("health"))
+		health = tsd.get("health");
+	if (tsd.exists("housemap"))
+		housemap = tsd.get("housemap");
+	if (tsd.exists("id"))
+		id = tsd.get("id");
+	if (tsd.exists("bellsound"))
+		bellsound = tsd.get("bellsound");
+	if (tsd.exists("canbell"))
+		canbell = tsd.get("canbell");
+	if (tsd.exists("itemdeleted"))
+		itemdeleted = tsd.get("itemdeleted");
+	spawn_tent(x, y, z, map, owner, code, health, housemap, itemdeleted, id);
+	int hindex = get_tent_index(t);
+	tents[hindex].bellsound = bellsound;
+	tents[hindex].canbell = canbell;
+}
+void load_all_tents() {
+	string[] tentfiles = find_files("tents/*.json");
+	for (uint i = 0; i < tentfiles.length(); i++)
+		load_tent(string_trim_right(tentfiles[i], 5));
+}
+int get_tent_index(int x, int y, int z, mapdata@m) {
+	for (uint i = 0; i < tents.length(); i++) {
+		if (tents[i].map == m.name and tents[i].x == x and tents[i].y == y and tents[i].z == z)
+			return i;
+	}
+	return -1;
+}
+int in_tent(player@p) {
+	int index = get_player_index_from(p.name);
+	if (index < 0) return -1;
+	for (uint x = 0; x < tents.length(); x++) {
+		if (players[index].map == tents[x].housemap) return x;
+	}
+	return -1;
+}
+int get_tent_index(string id) {
+	for (uint i = 0; i < tents.length(); i++) {
+		if (tents[i].id == id)
+			return i;
+	}
+	return -1;
+}
+int get_tent_index_by_owner(string owner) {
+	for (uint i = 0; i < tents.length(); i++) {
+		if (tents[i].owner == owner)
+			return i;
+	}
+	return -1;
+}
+int has_tent(string who) {
+	for (uint i = 0; i < tents.length(); i++) {
+		int index = get_player_index_from(who);
+		if (index > -1) {
+			if (tents[i].owner == players[index].name or players[index].partner == tents[i].owner)
+				return i;
+		}
+	}
+	return -1;
+}

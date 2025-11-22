@@ -1,0 +1,4192 @@
+string[] devs = {"patricus", "kannadiga"};
+const string sndtype = ".ogg";
+#pragma asset "rules"
+#pragma asset "readme.txt"
+#pragma asset "rules.txt"
+#pragma asset "changes.md"
+#pragma asset "commands.md"
+#include "includes.nvgt"
+const string deflang = "English";
+dictionary descryptions;
+string bell = ascii_to_character(7);
+string bell2 = ascii_to_character(9);
+double shutdowntime = 15, reboottime = 15;
+timer sdtimer, rbtimer, extimer;
+bool exiting = false, exrestart = false;
+int extime = 1000;
+bool reboot = false, shutdown = false;
+string rebootreason = "", shutdownreason = "";
+int gamewindow = 1;
+int runbyadmin;
+int doublexp, superxp, megaxp, gigaxp, masterxp;
+int currentlyonline;
+int writeprefs = 1;
+int chatting = 1;
+int guessthenumber_active = 0, guessthenumber_minutes = 5;
+int szx = 5;
+int szy = 1;
+int szminx = 5;
+int szmaxx = 5;
+int szy2 = 0;
+string szmap = "main_map";
+int objtime = 3000, maxobjs = 500;
+int cid = -1;
+
+int filterstuff = 1;
+double servermoney;
+instance uwserverinstance("uwserver.exe");
+int numerochuva;
+int volumechuva;
+int volumechuva1 = 0; int volumechuva2 = 0;
+int volumechuva3 = 0;
+int volumechuva4 = 0;
+int volumechuva5 = 0;
+int volumechuva6 = 0;
+int volumechuva7 = 0;
+int volumechuva8 = 0;
+int volumechuva9 = 0;
+int volumechuva10 = 0;
+int chuvatempo = 24715630;
+int chovendo = 0;
+int trov1 = 0;
+int trov2 = 0;
+int trov3 = 0;
+int trov4 = 0;
+int trov5 = 0;
+int trov6 = 0;
+int trov7 = 0;
+int trov8 = 0;
+int trov9 = 0;
+int trov10 = 0;
+int numerowind;
+int volumewind;
+int volumewind1 = 0; int volumewind2 = 0;
+int volumewind3 = 0;
+int volumewind4 = 0;
+int volumewind5 = 0;
+int volumewind6 = 0;
+int volumewind7 = 0;
+int volumewind8 = 0;
+int volumewind9 = 0;
+int volumewind10 = 0;
+int wtrov1 = 0;
+int wtrov2 = 0;
+int wtrov3 = 0;
+int wtrov4 = 0;
+int wtrov5 = 0;
+int wtrov6 = 0;
+int wtrov7 = 0;
+int wtrov8 = 0;
+int wtrov9 = 0;
+int wtrov10 = 0;
+int windtempo = 9000000;
+int windendo = 0;
+int numeronight;
+int volumenight;
+int volumenight1 = 0; int volumenight2 = 0;
+int volumenight3 = 0;
+int volumenight4 = 0;
+int volumenight5 = 0;
+int volumenight6 = 0;
+int volumenight7 = 0;
+int volumenight8 = 0;
+int volumenight9 = 0;
+int volumenight10 = 0;
+int nighttempo = 1000;
+int nightendo = 0;
+int npresentes = random(80000, 100000);
+int connections = 0;
+int disconnections = 0;
+int objgrabs = 0;
+int objspawns = 0;
+int objspawntime = 5000;
+int port = 6200;
+int activations = 0;
+int peak;
+int missiletime = 4000, missilemax = 5;
+double voteyes = 0;
+double voteno = 0;
+double leaveafk1 = 10;
+double minverlanguage = 1;
+double minverkeyboardlanguage = 1;
+string[] store_items;
+double[] amounts;
+string[] paid_store_items;
+double[] paid_amounts;
+string[] team_store_items;
+double[] team_amounts;
+string[] titems;
+double[] tamounts;
+string adminnote;
+string ailist = "";
+string itemlist = "";
+string acode = "                ,                     !!!";
+string adminlog;
+string tflag;
+string guessthenumber_winner;
+string peakreached;
+string[] msgadm;
+string[] guns = {"a90sniper_rifle", "ak47assault_rifle", "ak48", "arrow_gun", "bow", "colt_m9", "colt_m19", "e9pistol", "e20shotgun", "e235shotgun", "mpt_special_shotgun", "mb3shotgun", "mb5shotgun", "mp5machinegun", "famas_g2", "k222rifle", "long_bow", "p3hunting_shotgun", "taser", "tiny_mg", "rocket_launcher", "ar15machinegun", "barett_m1500sniper_rifle", "blz5machinegun", "browning_m2heavy_machinegun", "chainsaw", "crossbow", "fn2000pistol", "fnm_pistol", "g36pistol", "gouse_pistol", "hk_machinegun", "lr12pistol", "m9pistol", "m10machinegun", "m16machinegun", "m125assault_rifle", "m152minigun", "m155minigun", "m560sniper_rifle", "mg4machinegun", "mj420machinegun", "mk_long_machinegun", "mk52assault_rifle", "mk215machinegun", "mkv43machinegun", "ml7rifle", "ml15rifle", "mlk290rifle", "mlr_assault_rifle", "mp12machinegun", "msb530shotgun", "pcs_handgun", "rpg_launcher", "rpg7", "rocket_launcher", "nak_nk1000_decimater", "ruga22revolver", "s55assault_rifle", "s110assault_rifle", "sp5shotgun", "sp150shotgun", "stp106_long_barreled_pistol", "str301machinegun", "m90machinegun", "qt_machinegun", "pst500shotgun", "sfx12machinegun", "mb93machinegun", "stp15rifle", "sp3heavy_machinegun", "ak9automatic_machinegun", "tsp_grenade_launcher", "m234minigun", "missile_launcher", "m28mini_machinegun", "b96machinegun", "kalashnikov_rifle", "ump45machinegun", "tac50rifle", "uzi_machinegun", "d23machete", "blue_assault_rifle", "blue_bolt_action_sniper", "blue_burst_assault_rifle", "blue_heavy_assault_rifle", "blue_hunting_rifle", "blue_infintry_rifle", "blue_tacticle_shotgun", "drum_shotgun", "gold_burst_assault_rifle", "gold_drum_gun", "gold_heavy_assault_rifle", "gold_scar", "gold_tacticle_shotgun", "heavy_sniper", "tranquilizer_gun"};
+string[] language_channels;
+string[] ps_language_channels;
+string[] countrys;
+string[] ages;
+string[] days;
+string[] monthnames;
+string[] months;
+string[] tlps;
+string[] ainames;
+bool fireon;
+bool dardoativo = true;
+bool fitaativa = true;
+bool varinhaativa = true;
+bool sugadorativo = true;
+bool notify = true;
+bool netsetup;
+uint onlineplength = 0;
+bool gamestopped = false;
+bool spawnobj = true;
+bool svrmon = true;
+double file_size_limit_kb = 2000;
+int can_upload_files = 1;
+timer divulgar, chuvatimer, windtimer, nighttimer, objectspawntimer, versiontimer, uptimer, accumulated_uptimer, timetimer, savetimer, gcl, thingsavetimer, announcertimer, leaveafktimer, tdemorar, meteoritespawntimer;
+network n;
+network_event e;
+savedata sd("serverdata.dat", "server_data");
+const string prefskey = "charbhoom";
+dictionary d, d2;
+http httpn;
+//mapispawn@[] mapispawns;
+//mapai@[] mapais;
+application app;
+void main() {
+	start_profiling();
+	println("Connecting...");
+	println(cwdir());
+	netsetup = n.setup_server(port, 20, 500);
+	if (!netsetup) {
+		#if_not linux
+		alert("Error", "Can't set up server.");
+		#endif
+		#if linux
+		println("Failed to setup server. Network instance might have already been active.");
+		#endif
+		exit();
+	}
+	svd::load();
+	garbage_collect();
+	setupserver();
+	garbage_collect();
+	init_mapsystem();
+	log("svr", "server started.");
+	garbage_collect();
+	#if_not linux
+	show_window(app.name + " Server version " + app.version);
+	#endif
+	println("Server is running.");
+	while (true) {
+		netloop();
+		if (key_pressed(KEY_H))
+			hide_game_window();
+		if (key_pressed(KEY_ESCAPE)) {
+			exitsvr();
+		}
+		wait(5);
+	}
+}
+void loaddata() {
+	sd.load();
+	if (sd.d.exists("file_size_limit_kb"))
+		file_size_limit_kb = sd.readn("file_size_limit_kb");
+	if (sd.d.exists("can_upload_files"))
+		can_upload_files = sd.readn("can_upload_files");
+	if (sd.d.exists("gamewindow"))
+		gamewindow = sd.readn("gamewindow");
+	if (sd.d.exists("runbyadmin"))
+		runbyadmin = sd.readn("runbyadmin");
+	if (sd.d.exists("doublexp"))
+		doublexp = sd.readn("doublexp");
+	if (sd.d.exists("superxp"))
+		superxp = sd.readn("superxp");
+	if (sd.d.exists("megaxp"))
+		megaxp = sd.readn("megaxp");
+	if (sd.d.exists("gigaxp"))
+		gigaxp = sd.readn("gigaxp");
+	if (sd.d.exists("masterxp"))
+		masterxp = sd.readn("masterxp");
+	if (sd.d.exists("peak"))
+		peak = sd.readn("peak");
+	if (sd.d.exists("chatting"))
+		chatting = sd.readn("chatting");
+	if (sd.d.exists("activations"))
+		activations = sd.readn("activations");
+	if (sd.d.exists("peakreached"))
+		peakreached = sd.read("peakreached");
+	if (sd.d.exists("servermoney"))
+		servermoney = sd.readn("servermoney");
+	if (sd.d.exists("voteyes"))
+		voteyes = sd.readn("voteyes");
+	if (sd.d.exists("voteno"))
+		voteno = sd.readn("voteno");
+	if (sd.d.exists("accumulated_uptimer"))
+		accumulated_uptimer.force(sd.readn("accumulated_uptimer"));
+	//if(sd.d.exists("meteoritespawntimer"))
+	//meteoritespawntimer.force(sd.readn("meteoritespawntimer"));
+	/*if (sd.d.exists("auctiontimer"))
+		auctiontimer.force(sd.readn("auctiontimer"));
+	if (sd.d.exists("auctiontime"))
+		auctiontime = sd.readn("auctiontime");
+	if (sd.d.exists("auctionamount"))
+		auctionamount = sd.readn("auctionamount");
+	if (sd.d.exists("auctionbid"))
+		auctionbid = sd.readn("auctionbid");
+	if (sd.d.exists("auctionwho"))
+		auctionwho = sd.read("auctionwho");
+	if (sd.d.exists("auctionwho2"))
+		auctionwho2 = sd.read("auctionwho2");
+	if (sd.d.exists("auctionitem"))
+		auctionitem = sd.read("auctionitem");
+	if (sd.d.exists("auctioncurrency"))
+		auctioncurrency = sd.read("auctioncurrency");*/
+	if (sd.d.exists("missiletime"))
+		missiletime = sd.readn("missiletime");
+	if (sd.d.exists("missilemax"))
+		missilemax = sd.readn("missilemax");
+}
+void writedata(string fv = "", int fvv = -55555) {
+	file f;
+	sd.d.delete_all();
+	sd.add("activations", activations);
+	sd.add("file_size_limit_kb", file_size_limit_kb);
+	sd.add("can_upload_files", can_upload_files);
+	sd.add("gamewindow", gamewindow);
+	sd.add("runbyadmin", runbyadmin);
+	sd.add("doublexp", doublexp);
+	sd.add("superxp", superxp);
+	sd.add("megaxp", megaxp);
+	sd.add("gigaxp", gigaxp);
+	sd.add("masterxp", masterxp);
+	sd.add("accumulated_uptimer", accumulated_uptimer.elapsed);
+	//sd.add("meteoritespawntimer",meteoritespawntimer.elapsed);
+	/*sd.add("auctiontimer", auctiontimer.elapsed);
+	sd.add("auctiontime", auctiontime);
+	sd.add("auctionamount", auctionamount);
+	sd.add("auctionbid", auctionbid);
+	sd.add("auctionwho", auctionwho);
+	sd.add("auctionwho2", auctionwho2);
+	sd.add("auctionitem", auctionitem);
+	sd.add("auctioncurrency", auctioncurrency);*/
+	sd.add("peak", peak);
+	sd.add("peakreached", peakreached);
+	sd.add("voteyes", voteyes);
+	sd.add("voteno", voteno);
+	sd.add("servermoney", servermoney);
+	sd.add("chatting", chatting);
+	sd.add("missiletime", missiletime);
+	sd.add("missilemax", missilemax);
+	if (fv != "" and fvv != -55555)
+		sd.add(fv, fvv);
+	file_put("admin_log.svr", adminlog, 250);
+	string bandata;
+	bandata = serialize(compjails);
+	bandata = string_encrypt(bandata, "charbhoom");
+	f.open("jaildata.dat", "wb");
+	f.write(bandata);
+	f.close();
+	bandata = serialize(ipjails);
+	bandata = string_encrypt(bandata, "charbhoom");
+	f.open("jaildata2.dat", "wb");
+	f.write(bandata);
+	f.close();
+	sd.save();
+}
+void netloop() {
+	try {
+	if (shutdown && sdtimer.elapsed > shutdowntime * 1000) {
+		sdtimer.restart();
+		shutdown = false;
+		svshutdown(shutdownreason);
+	}
+	if (reboot && rbtimer.elapsed > reboottime * 1000) {
+		rbtimer.restart();
+		reboot = false;
+		svreboot(rebootreason);
+	}
+	if (exiting && extimer.elapsed > extime) {
+		extimer.restart();
+		exiting = false;
+		exitsvr(exrestart);
+	}
+	if (maps.length() > 0) {
+		for (uint i = 0; i < maps.length(); i++)
+			maps[i].loop();
+	}
+	if (players.length() > 0) {
+		for (uint i = 0; i < players.length(); i++)
+			players[i].loop(i);
+	}
+	if (onlineplength != players.length() && !weblock) {
+		onlineplength = players.length();
+		on_web({"player"});
+	}
+	ntmsloop();
+	weaponloop();
+	if (ais.length() > 0) {
+		for (uint i = 0; i < ais.length(); i++)
+			ais[i].loop(i);
+	}
+	if (houses.length() > 0) {
+		for (uint i = 0; i < houses.length(); i++)
+			houses[i].loop(i);
+	}
+	if (apartments.length() > 0) {
+		for (uint i = 0; i < apartments.length(); i++)
+			apartments[i].loop(i);
+	}
+	if (tents.length() > 0) {
+		for (uint i = 0; i < tents.length(); i++)
+			tents[i].loop(i);
+	}
+	if (playerstores.length() > 0) {
+		for (uint i = 0; i < playerstores.length(); i++)
+			playerstores[i].loop(i);
+	}
+	if (robots.length() > 0) {
+		for (uint i = 0; i < robots.length(); i++)
+			robots[i].loop(i);
+	}
+	if (washbasins.length() > 0) {
+		for (uint i = 0; i < washbasins.length(); i++)
+			washbasins[i].loop();
+	}
+	if (showers.length() > 0) {
+		for (uint i = 0; i < showers.length(); i++)
+			showers[i].loop();
+	}
+	if (item_cariers.length() > 0) {
+		for (uint i = 0; i < item_cariers.length(); i++)
+			item_cariers[i].loop(i);
+	}
+	if (firemaps.length() > 0) {
+		for (uint i = 0; i < firemaps.length(); i++)
+			firemaps[i].loop(i);
+	}
+	if (timeitems.length() > 0) {
+		for (uint i = 0; i < timeitems.length(); i++)
+			timeitems[i].loop(i);
+	}
+	if (timepackets.length() > 0) {
+		for (uint i = 0; i < timepackets.length(); i++)
+			timepackets[i].loop(i);
+	}
+	if (time_bombs.length() > 0) {
+		for (uint i = 0; i < time_bombs.length(); i++)
+			time_bombs[i].loop(i);
+	}
+	if (mines.length() > 0) {
+		for (uint i = 0; i < mines.length(); i++)
+			mines[i].loop(i);
+	}
+	if (vending_machines.length() > 0) {
+		for (uint i = 0; i < vending_machines.length(); i++)
+			vending_machines[i].loop();
+	}
+	if (bodyfalls.length() > 0) {
+		for (uint i = 0; i < bodyfalls.length(); i++)
+			bodyfalls[i].loop(i);
+	}
+	if (censor_bombs.length() > 0) {
+		for (uint i = 0; i < censor_bombs.length(); i++)
+			censor_bombs[i].loop(i);
+	}
+	if (snares.length() > 0) {
+		for (uint i = 0; i < snares.length(); i++)
+			snares[i].loop(i);
+	}
+	if (canisters.length() > 0) {
+		for (uint i = 0; i < canisters.length(); i++)
+			canisters[i].loop(i);
+	}
+	if (rpgs.length() > 0) {
+		for (uint i = 0; i < rpgs.length(); i++)
+			rpgs[i].loop(i);
+	}
+	if (rockets.length() > 0) {
+		for (uint i = 0; i < rockets.length(); i++)
+			rockets[i].loop(i);
+	}
+	if (auto_healers.length() > 0) {
+		for (uint i = 0; i < auto_healers.length(); i++)
+			auto_healers[i].loop(i);
+	}
+	if (microwaves.length() > 0) {
+		for (uint i = 0; i < microwaves.length(); i++)
+			microwaves[i].loop(i);
+	}
+	if (teams.length() > 0) {
+		for (uint i = 0; i < teams.length(); i++)
+			teams[i].loop(i);
+	}
+	if (lockers.length() > 0) {
+		for (uint i = 0; i < lockers.length(); i++)
+			lockers[i].loop(i);
+	}
+	if (fridges.length() > 0) {
+		for (uint i = 0; i < fridges.length(); i++)
+			fridges[i].loop(i);
+	}
+	if (fires.length() > 0) {
+		for (uint i = 0; i < fires.length(); i++)
+			fires[i].loop(i);
+	}
+	if (fire_starters.length() > 0) {
+		for (uint i = 0; i < fire_starters.length(); i++)
+			fire_starters[i].loop(i);
+	}
+	if (grenades.length() > 0) {
+		for (uint i = 0; i < grenades.length(); i++)
+			grenades[i].loop(i);
+	}
+	if (savetimer.elapsed >= 50000 and writeprefs == 1) {
+		savetimer.restart();
+		svd::save();
+		garbage_collect();
+	}
+	if (TIME_HOUR > 6 and TIME_HOUR<19 and nightendo == 1 and timetimer.elapsed>60000) {
+		timetimer.restart();
+		send_reliable(0, "fimnight", 0);
+		send_reliable(0, "volumenight -12", 0);
+		nightendo = 0;
+	}
+	if (TIME_HOUR >= 19 and TIME_HOUR <= 24 and nightendo == 0 and timetimer.elapsed > 60000) {
+		timetimer.restart();
+		send_reliable(0, "volumenight -7", 0);
+		volumenight = -12;
+		numeronight = random(3, 4);
+		send_reliable(0, "nightativa " + numeronight, 0);
+		nightendo = 1;
+		volumenight1 = 0;
+		volumenight2 = 0;
+		volumenight3 = 0;
+		volumenight4 = 0;
+		volumenight5 = 0;
+		volumenight6 = 0;
+		volumenight7 = 0;
+		volumenight8 = 0;
+		volumenight9 = 0;
+		volumenight10 = 0;
+	}
+	if (TIME_HOUR >= 1 and TIME_HOUR <= 6 and nightendo == 0 and timetimer.elapsed > 60000) {
+		timetimer.restart();
+		send_reliable(0, "volumenight -7", 0);
+		volumenight = -12;
+		numeronight = random(3, 4);
+		send_reliable(0, "nightativa " + numeronight, 0);
+		nightendo = 1;
+		volumenight1 = 0;
+		volumenight2 = 0;
+		volumenight3 = 0;
+		volumenight4 = 0;
+		volumenight5 = 0;
+		volumenight6 = 0;
+		volumenight7 = 0;
+		volumenight8 = 0;
+		volumenight9 = 0;
+		volumenight10 = 0;
+	}
+	if (TIME_HOUR == 5 and TIME_MINUTE == 59 and timetimer.elapsed > 60000) {
+		timetimer.restart();
+		send_reliable(0, "play_s notify_magicbell.ogg", 6);
+		send_reliable(0, "The sun is rising from the back of the mountain, since it is 6 o'clock in the morning", 2);
+		if (nightendo == 1) {
+			send_reliable(0, "fimnight", 0);
+			send_reliable(0, "volumenight -12", 0);
+			nightendo = 0;
+		}
+	}
+	if (TIME_HOUR == 11 and TIME_MINUTE == 59 and timetimer.elapsed > 60000) {
+		timetimer.restart();
+		send_reliable(0, "play_s notify_trumpet.ogg", 6);
+		send_reliable(0, "The sun has reached the middle of the sky, indicating that it is noon!", 2);
+	}
+	if (TIME_HOUR == 18 and TIME_MINUTE == 59 and timetimer.elapsed > 60000) {
+		timetimer.restart();
+		send_reliable(0, "play_s notify_woosh.ogg", 6);
+		send_reliable(0, "The sun is drowning. Yes! time is 7 pm!", 2);
+		if (nightendo == 0) {
+			send_reliable(0, "volumenight -7", 0);
+			volumenight = -12;
+			numeronight = random(3, 4);
+			send_reliable(0, "nightativa " + numeronight, 0);
+			nightendo = 1;
+			volumenight1 = 0;
+			volumenight2 = 0;
+			volumenight3 = 0;
+			volumenight4 = 0;
+			volumenight5 = 0;
+			volumenight6 = 0;
+			volumenight7 = 0;
+			volumenight8 = 0;
+			volumenight9 = 0;
+			volumenight10 = 0;
+		}
+	}
+	if (TIME_HOUR == 23 and TIME_MINUTE == 59 and timetimer.elapsed > 60000) {
+		timetimer.restart();
+		send_reliable(0, "play_s notify" + random(1, 10) + ".ogg", 6);
+		send_reliable(0, "since it is midnight, a new day begins", 2);
+		string[] chars = find_directories("chars/*");
+		for (uint i = 0; i < chars.length(); i++) {
+			file f;
+			f.open("chars/" + chars[i] + "/giftlimit.usr", "wb");
+			f.write(0);
+			f.close();
+		}
+	}
+	if (players.length() > peak) {
+		peak = players.length();
+		send_reliable(0, "peak we have reached a new peak of " + peak + " players!", 0);
+		peakreached = get_date() + " at " + get_time();
+		string[] t;
+		t.insert_last(random(13, 19) + " 5.56mm_ammo");
+		t.insert_last(random(10, 15) + " 7.62mm_ammo");
+		t.insert_last(random(8, 14) + " 9mm_ammo");
+		t.insert_last(random(5, 7) + " 12.7mm_ammo");
+		t.insert_last(random(8, 13) + " shotgun_shell");
+		//t.insert_last(random(3, 10)+" arrow");
+		t.insert_last(random(25, 100) + " coins");
+		t.insert_last(random(1, 5) + " paid_gift");
+		t.insert_last(random(1, 5) + " staff_gift");
+		//t.insert_last(random(1, 25)+" mana");
+		int nitem = random(0, t.length() - 1);
+		string[] a = string_split(t[nitem], " ", false);
+		int numero = string_to_number(a[0]);
+		string nome = a[1];
+		send_reliable(0, "play_s notify_applause.ogg", 6);
+		for (uint n = 0; n < players.length(); n++) {
+			send_packet(6, "play get" + get_draw_and_get_sound(nome) + ".ogg " + players[n].x + " " + players[n].y + " " + players[n].z, players[n].x, players[n].y, players[n].z, maps[get_map_index(players[n].map)]);
+			players[n].inv_add_item(nome, numero);
+			send_reliable(players[n], "as a peak gift, you've got " + numero + " " + nome, 2);
+		}
+	}
+	auction::loop();
+	if (chovendo == 1 && fire_starters.length() > 0) {
+		for (uint i = 0; i < fire_starters.length(); i++) {
+			@fire_starters[i] = null;
+			fire_starters.remove_at(i);
+			continue;
+		}
+	}
+	if (chuvatimer.elapsed > chuvatempo and chovendo == 0) {
+		chuvatimer.restart();
+		send_reliable(0, "volumechuva -7", 0);
+		volumechuva = -12;
+		numerochuva = random(3, 4);
+		send_reliable(0, "chuvaativa " + numerochuva, 0);
+		chovendo = 1;
+		trov1 = 0;
+		trov2 = 0;
+		trov3 = 0;
+		trov4 = 0;
+		trov5 = 0;
+		trov6 = 0;
+		trov7 = 0;
+		trov8 = 0;
+		trov9 = 0;
+		trov10 = 0;
+		volumechuva1 = 0;
+		volumechuva2 = 0;
+		volumechuva3 = 0;
+		volumechuva4 = 0;
+		volumechuva5 = 0;
+		volumechuva6 = 0;
+		volumechuva7 = 0;
+		volumechuva8 = 0;
+		volumechuva9 = 0;
+		volumechuva10 = 0;
+	}
+	if (chuvatimer.elapsed > 500000 and chovendo == 1) {
+		chuvatimer.restart();
+		send_reliable(0, "fimchuva", 0);
+		send_reliable(0, "volumechuva -12", 0);
+		chovendo = 0;
+	}
+	if (chuvatimer.elapsed >= 498000 and chovendo == 0 and trov1 == 0) {
+		jraio();
+		trov1 = 1;
+	}
+	if (chuvatimer.elapsed >= 1500 and chovendo == 1 and trov2 == 0) {
+		jraio();
+		send_reliable(0, "volumechuva -12", 0);
+		volumechuva = -12;
+		trov2 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 20000 and chovendo == 1 and trov9 == 0) {
+		jraio();
+		volumechuva = -10;
+		send_reliable(0, "volumechuva -10", 0);
+		trov9 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 43000 and chovendo == 1 and trov10 == 0) {
+		jraio();
+		volumechuva = -8;
+		send_reliable(0, "volumechuva -8", 0);
+		trov10 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 45000 and chovendo == 1 and volumechuva1 == 0) {
+		jraio();
+		volumechuva = -6;
+		volumechuva1 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 47000 and chovendo == 1 and volumechuva2 == 0) {
+		send_reliable(0, "volumechuva -4", 0);
+		volumechuva = -4;
+		volumechuva2 = 1;
+		int jogaronda = random(1, 200);
+		if (jogaronda < 10)
+			send_reliable(0, "play_s thunder" + random(1, 50) + ".ogg", 6);
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 48000 and chovendo == 1 and volumechuva3 == 0) {
+		send_reliable(0, "volumechuva -2", 0);
+		volumechuva = -2;
+		volumechuva3 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 50000 and chovendo == 1 and volumechuva4 == 0) {
+		send_reliable(0, "volumechuva 1000", 0);
+		volumechuva = 1000;
+		volumechuva4 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 60000 and chovendo == 1 and trov3 == 0) {
+		jraio();
+		trov3 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 150000 and chovendo == 1 and trov4 == 0) {
+		jraio();
+		trov4 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 180000 and chovendo == 1 and trov5 == 0) {
+		jraio();
+		trov5 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 240000 and chovendo == 1 and trov6 == 0) {
+		jraio();
+		trov6 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 300000 and chovendo == 1 and trov7 == 0) {
+		jraio();
+		trov7 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 451000 and chovendo == 1 and volumechuva9 == 0) {
+		volumechuva = -2;
+		send_reliable(0, "volumechuva -2", 0);
+		volumechuva9 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 452000 and chovendo == 1 and volumechuva8 == 0) {
+		send_reliable(0, "volumechuva -4", 0);
+		volumechuva = -4;
+		volumechuva8 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 454000 and chovendo == 1 and volumechuva7 == 0) {
+		volumechuva = -6;
+		send_reliable(0, "volumechuva -6", 0);
+		volumechuva7 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 457000 and chovendo == 1 and volumechuva6 == 0) {
+		volumechuva = -8;
+		send_reliable(0, "volumechuva -8", 0);
+		volumechuva6 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 480000 and chovendo == 1 and volumechuva5 == 0) {
+		volumechuva = -10;
+		send_reliable(0, "volumechuva -10", 0);
+		volumechuva5 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (chuvatimer.elapsed >= 499000 and chovendo == 1 and trov8 == 0) {
+		jraio();
+		volumechuva = -12;
+		send_reliable(0, "volumechuva -12", 0);
+		trov8 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+			players[i].dirty -= random(1, 2);
+			players[i].wet -= random(1, 2);
+		}
+	}
+	if (windtimer.elapsed > windtempo and windendo == 0) {
+		windtimer.restart();
+		send_reliable(0, "volumewind -7", 0);
+		volumewind = -12;
+		numerowind = random(3, 4);
+		send_reliable(0, "windativa " + numerowind, 0);
+		windendo = 1;
+		wtrov1 = 0;
+		wtrov2 = 0;
+		wtrov3 = 0;
+		wtrov4 = 0;
+		wtrov5 = 0;
+		wtrov6 = 0;
+		wtrov7 = 0;
+		wtrov8 = 0;
+		wtrov9 = 0;
+		wtrov10 = 0;
+		volumewind1 = 0;
+		volumewind2 = 0;
+		volumewind3 = 0;
+		volumewind4 = 0;
+		volumewind5 = 0;
+		volumewind6 = 0;
+		volumewind7 = 0;
+		volumewind8 = 0;
+		volumewind9 = 0;
+		volumewind10 = 0;
+	}
+	if (windtimer.elapsed > 65000 and windendo == 1) {
+		windtimer.restart();
+		send_reliable(0, "fimwind", 0);
+		send_reliable(0, "volumewind -12", 0);
+		windendo = 0;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 1500 and windendo == 1 and wtrov2 == 0) {
+		send_reliable(0, "volumewind -12", 0);
+		wtrov2 = 1;
+		volumewind = -12;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 20000 and windendo == 1 and wtrov9 == 0) {
+		volumewind = -10;
+		send_reliable(0, "volumewind -10", 0);
+		wtrov9 = 1;
+	}
+	if (windtimer.elapsed >= 43000 and windendo == 1 and wtrov10 == 0) {
+		volumewind = -8;
+		send_reliable(0, "volumewind -8", 0);
+		wtrov10 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 45000 and windendo == 1 and volumewind1 == 0) {
+		volumewind = -6;
+		volumewind1 = 1;
+	}
+	if (windtimer.elapsed >= 47000 and windendo == 1 and volumewind2 == 0) {
+		send_reliable(0, "volumewind -4", 0);
+		volumewind = -4;
+		volumewind2 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 48000 and windendo == 1 and volumewind3 == 0) {
+		send_reliable(0, "volumewind -2", 0);
+		volumewind = -2;
+		volumewind3 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 50000 and windendo == 1 and volumewind4 == 0) {
+		send_reliable(0, "volumewind 1000", 0);
+		volumewind = 1000;
+		volumewind4 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 53000 and windendo == 1 and volumewind9 == 0) {
+		volumewind = -2;
+		send_reliable(0, "volumewind -2", 0);
+		volumewind9 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 55000 and windendo == 1 and volumewind8 == 0) {
+		send_reliable(0, "volumewind -4", 0);
+		volumewind = -4;
+		volumewind8 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 59000 and windendo == 1 and volumewind7 == 0) {
+		volumewind = -6;
+		send_reliable(0, "volumewind -6", 0);
+		volumewind7 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 61000 and windendo == 1 and volumewind6 == 0) {
+		volumewind = -8;
+		send_reliable(0, "volumewind -8", 0);
+		volumewind6 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 64000 and windendo == 1 and volumewind5 == 0) {
+		volumewind = -10;
+		send_reliable(0, "volumewind -10", 0);
+		volumewind5 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (windtimer.elapsed >= 64000 and windendo == 1 and trov8 == 0) {
+		volumewind = -12;
+		send_reliable(0, "volumewind -12", 0);
+		trov8 = 1;
+		for (uint i = 0; i < players.length(); i++) {
+			//players[i].temperaturelevel-=random(0,1);
+		}
+	}
+	if (gcl.elapsed >= 3600000) {
+		gcl.restart();
+		weapons.resize(0);
+		objs.resize(0);
+		robots.resize(0);
+		send_reliable(0, "The automation of the game has begun to clean the garbage to reduce the lag. Please note, this can lead to a temporary server delay for a few seconds when cleaning is in progress. We appreciate your patience.", 2);
+		send_reliable(0, "play_s garbage_collect.ogg", 6);
+		send_reliable(0, "garbage_collect", 0);
+		garbage_collect();
+	}
+	if (divulgar.elapsed >= random(1150000, 1600000)) {
+		divulgar.restart();
+		string[] msgs;
+		msgs.insert_last("Please log in at least once in 6 months to avoid your account and house being destroyed");
+		msgs.insert_last("If you need help, press f7 to send a message to the staff. dont send irrelivent messages.");
+		msgs.insert_last("Love this game? share it to your friends too: https://uw.posix.live");
+		msgs.insert_last("join us on telegram to discuss more about the game: https://t.me/+87hXLwoqOvM4M2Zl");
+		msgs.insert_last("Teleporters can be used to remove yourself from an unknown area by pressing ault v and pressing backspace to choose where you want to go.");
+		msgs.insert_last("To get an account on our team talk server, you can send an admin tell and request an account.");
+		msgs.insert_last("Join us on whatsapp at https://chat.whatsapp.com/LkjhAmvhIK9AZsfTsLj0Bp?mode=ems_share_t");
+		int frase = random(0, msgs.length() - 1);
+		send_reliable(0, "notify_startrek_chime " + msgs[frase], 0);
+	}
+	while ((e = n.request()).type != event_none) {
+		if (e.type == event_disconnect) {
+			int index = get_player_index(e.peer_id);
+			if (index > -1) {
+				n.disconnect_peer_softly(players[index].peer_id);
+				log("disconnections", players[index].name + " lost connection", true, true);
+				for (uint i2 = 0; i2 < arenas.length(); i2++) {
+					if (players[index].map == arenas[i2].map) {
+						players[index].bullet_proof_vested = 0;
+						players[index].bullet_proof_vestshots = 0;
+						players[index].armored = 0;
+						players[index].armorshots = 0;
+						players[index].large_armor_plated = 0;
+						players[index].large_armor_plateshots = 0;
+						players[index].shielded = 0;
+						players[index].shieldshots = 0;
+						players[index].steel_shielded = 0;
+						players[index].steel_shieldshots = 0;
+						players[index].hurtlevel = 0;
+						players[index].hurttimer.restart();
+						players[index].healtimer.restart();
+						players[index].poisoned = false;
+						players[index].hurt = false;
+						players[index].cbombplacing = false;
+						players[index].drunk = false;
+						if (players[index].weapon_name != "fists") {
+							players[index].weapon_name = "fists";
+							if (players[index].weapon_ammos > 0)
+								players[index].inv_add_item(players[index].weapon_ammo_type, players[index].weapon_ammos);
+							players[index].firetimer = 180;
+							players[index].weapon_ammos = 0;
+							players[index].weapon_ammo_type = "";
+							players[index].weapon_copasity = 0;
+							send_reliable(players[index], "notrapid", 0);
+						}
+						int newx = string_to_number(get_char_val(players[index].name, "oldx"));
+						int newy = string_to_number(get_char_val(players[index].name, "oldy"));
+						int newz = string_to_number(get_char_val(players[index].name, "oldz"));
+						string charfolder = "chars/" + players[index].name;
+						scd(players[index]);
+						if (players[index].inv.get_size() > 0) players[index].inv.reset();
+						file_copy(charfolder + "/oldinv.usr", charfolder + "/inv.usr", true);
+						if (players[index].inv.get_size() < 1) players[index].inv_add_item("starter_pack", 1);
+						load_char_data(players[index], true);
+						file_delete(charfolder + "/oldx.usr");
+						file_delete(charfolder + "/oldy.usr");
+						file_delete(charfolder + "/oldz.usr");
+						file_delete(charfolder + "/oldmaplayers[index].usr");
+						file_delete(charfolder + "/oldinv.usr");
+						move_player(players[index], "main_map", newx, newy, newz);
+						arenas[i2].joined--;
+						int amath = arenas[i2].length - arenas[i2].joined;
+						if (arenas[i2].length > 1) send_reliable(0, "arena " + players[index].name + " has escaped from " + arenas[i2].owner + "'s " + arenas[i2].type + " Arena. " + amath + " participators stil left.", 0);
+						else send_reliable(0, "arena " + players[index].name + " has escaped from " + arenas[i2].owner + "'s " + arenas[i2].type + " Arena", 0);
+						if (players[index].pvpd == 1 and players[index].pvp == 1) {
+							players[index].pvp = 0;
+							players[index].pvpd = 0;
+						}
+						if (players[index].pvpd == 3) {
+							players[index].pvp = 1;
+							players[index].pvpd = 2;
+						}
+						remove_player(players[index].name, true);
+						return;
+					}
+				}
+				if (cheatercheck(players[index]) || players[index].cheater == 1 || file_exists("chars/" + players[index].name + "/cheater.usr")) {
+					create_temp_ban(players[index].name, 60000);
+					write_to(players[index].name, "cheater.usr", players[index].name + " is a cheater! They closed the game in " + ms_to_readable_time(players[index].statchangetimer.elapsed) + " of being hit");
+					send_reliable(0, players[index].name + " is a cheater!", 2);
+					players[index].persisttimer.restart();
+					players[index].disconnected = true;
+				} else if (players[index].nuclearbombspawned == 1) {
+					create_temp_ban(players[index].name, 60000);
+					players[index].persisttime = 60000;
+					players[index].persisttimer.restart();
+					players[index].disconnected = true;
+				} else
+					remove_player(players[index].name, true);
+			}
+		}
+		if (e.type == event_receive) {
+			if (e.channel == 1) {
+				int index = get_player_index(e.peer_id);
+				if (index > -1) {
+					players[index].idle.restart();
+					if (players[index].away == true) {
+						players[index].away = false;
+						pesend(0, "" + players[index].nickname + " is no longer away", name = players[index].name);
+						players[index].awaytitle = "";
+					}
+					if (players[index].pvp_stop) {
+						players[index].pvp_stop = false;
+						send_reliable(players[index], "play_s terror.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while turning off your pvp!", 2);
+					}
+					if (players[index].afking) {
+						players[index].afking = false;
+						players[index].afk = false;
+						send_packet(6, "play afkoff.ogg " + players[index].x + " " + players[index].y + " " + players[index].z, players[index].x, players[index].y, players[index].z, maps[get_map_index(players[index].map)]);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while going afk!", 2);
+						write_to(players[index].name, "afk.usr", players[index].afk);
+						write_to(players[index].name, "afkseconds.usr", players[index].afkseconds);
+						players[index].afktitle = "";
+					}
+					string message = get_event_message();
+					if (filter(message)) {
+						send_reliable(players[index], "The server has detected a crash code. The server will prevent these messages from going through.", 2);
+						send_reliable(0, "play_s notice.ogg", 6);
+						send_reliable(0, "warning! The player " + players[index].nickname + " is trying to send crash codes through the chat!", 2);
+						remove_player(players[index].name);
+						return;
+					}
+					if (string_left(get_event_message(), 1) != "/") {
+						if (players[index].ds.find("chat") > -1) {
+							send_reliable(players[index], "your chats have been disabled", 0);
+							return;
+						}
+						if (players[index].away == true and message != "/afk" and players[index].is_admin() == false) {
+							send_reliable(players[index], "You can't chat while you are away", 2);
+							return;
+						}
+						if (chatting == 0) {
+							string message;
+							message = "Sorry, server chats are currently disabled.";
+							if (players[index].is_admin()) message += " If you want to turn them back on, type /varset chatting 1";
+							send_reliable(players[index], message, 2);
+							return;
+						}
+						players[index].chats += 1;
+						log(players[index].name + "_chats", players[index].name + " said " + get_event_message(), true, true);
+						string chatmessage = get_event_message();
+						if (players[index].drunk == true) {
+							int action = random(1, 2);
+							if (action == 1) chatmessage = chatmessage; //do nothing.
+							else if (action == 2) chatmessage = string_replace(chatmessage, " ", "", true);
+							else if (action == 3) chatmessage = string_reverse(chatmessage);
+						}
+						string chatmess;
+						if (players[index].teamname != "") chatmess += team_name(players[index].teamname) + " ";
+						if (players[index].prisontitle != "") chatmess += players[index].prisontitle + " ";
+						if (players[index].newbtitle != "") chatmess += players[index].newbtitle + " ";
+						if (players[index].pvptitle != "") chatmess += players[index].pvptitle + " ";
+						if (players[index].jobtitle != "") chatmess += players[index].jobtitle + " ";
+						chatmess += players[index].nickname + ": " + chatmessage;
+						players[index].chat(chatmess);
+						return;
+					} else {
+						if (index > -1)
+							log(players[index].name + "_commands", players[index].nickname + " (" + players[index].name + ") sent " + get_event_message());
+					}
+					command(players[index], get_event_message());
+				}
+			}
+			else if (e.channel == 0) {
+				int index = get_player_index(e.peer_id);
+				if (index > -1) {
+					players[index].idle.restart();
+					if (players[index].away == true) {
+						players[index].away = false;
+						pesend(0, "" + players[index].name + " is no longer away.", name = players[index].name);
+						players[index].awaytitle = "";
+					}
+					if (players[index].pvp_stop) {
+						players[index].pvp_stop = false;
+						send_reliable(players[index], "play_s terror.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while turning off your pvp!", 2);
+					}
+					if (players[index].afking) {
+						players[index].afking = false;
+						players[index].afk = false;
+						send_reliable(0, "play_s afkoff.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while going afk!", 2);
+						write_to(players[index].name, "afk.usr", players[index].afk);
+						write_to(players[index].name, "afkseconds.usr", players[index].afkseconds);
+						players[index].afktitle = "";
+					}
+					player_event(players[index], get_event_message());
+				}
+			}
+			else if (e.channel == 3) {
+				int index = get_player_index(e.peer_id);
+				if (index > -1) {
+					players[index].idle.restart();
+					if (players[index].away == true) {
+						players[index].away = false;
+						pesend(0, players[index].nickname + " is no longer away", name = players[index].name);
+						players[index].awaytitle = "";
+					}
+					if (players[index].pvp_stop) {
+						players[index].pvp_stop = false;
+						send_reliable(players[index], "play_s terror.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while turning off your pvp!", 2);
+					}
+					if (players[index].afking) {
+						players[index].afking = false;
+						players[index].afk = false;
+						send_packet(6, "play afkoff.ogg " + players[index].x + " " + players[index].y + " " + players[index].z, players[index].x, players[index].y, players[index].z, maps[get_map_index(players[index].map)]);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while going afk!", 2);
+						write_to(players[index].name, "afk.usr", players[index].afk);
+						write_to(players[index].name, "afkseconds.usr", players[index].afkseconds);
+						players[index].afktitle = "";
+					}
+					voicechat(players[index], get_event_message());
+				}
+			}
+			else if (e.channel == 4) {
+				int index = get_player_index(e.peer_id);
+				if (index > -1) {
+					players[index].idle.restart();
+					if (players[index].away == true) {
+						players[index].away = false;
+						pesend(0, players[index].nickname + " is no longer away", name = players[index].name);
+						players[index].awaytitle = "";
+					}
+					if (players[index].pvp_stop) {
+						players[index].pvp_stop = false;
+						send_reliable(players[index], "play_s terror.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while turning off your pvp!", 2);
+					}
+					if (players[index].afking) {
+						players[index].afking = false;
+						players[index].afk = false;
+						send_packet(6, "play afkoff.ogg " + players[index].x + " " + players[index].y + " " + players[index].z, players[index].x, players[index].y, players[index].z, maps[get_map_index(players[index].map)]);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while going afk!", 2);
+						write_to(players[index].name, "afk.usr", players[index].afk);
+						write_to(players[index].name, "afkseconds.usr", players[index].afkseconds);
+						players[index].afktitle = "";
+					}
+					use(players[index], get_event_message());
+					return;
+				}
+			}
+			else if (e.channel == 5) {
+				int index = get_player_index(e.peer_id);
+				if (index > -1) {
+					players[index].idle.restart();
+					if (players[index].away == true) {
+						players[index].away = false;
+						pesend(0, players[index].nickname + " is no longer away", name = players[index].name);
+						players[index].awaytitle = "";
+					}
+					if (players[index].pvp_stop) {
+						players[index].pvp_stop = false;
+						send_reliable(players[index], "play_s terror.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while turning off your pvp!", 2);
+					}
+					if (players[index].afking) {
+						players[index].afking = false;
+						players[index].afk = false;
+						send_packet(6, "play afkoff.ogg " + players[index].x + " " + players[index].y + " " + players[index].z, players[index].x, players[index].y, players[index].z, maps[get_map_index(players[index].map)]);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while going afk!", 2);
+						write_to(players[index].name, "afk.usr", players[index].afk);
+						write_to(players[index].name, "afkseconds.usr", players[index].afkseconds);
+						players[index].afktitle = "";
+					}
+					combine(players[index], get_event_message());
+					return;
+				}
+			}
+			else if (e.channel == 6) {
+				string[] parsed = string_split(get_event_message(), " ", true);
+				int index = get_player_index(e.peer_id);
+				if (index > -1) {
+					players[index].idle.restart();
+					if (players[index].away == true) {
+						players[index].away = false;
+						pesend(0, players[index].nickname + " is no longer away", name = players[index].name);
+						players[index].awaytitle = "";
+					}
+					if (players[index].pvp_stop) {
+						players[index].pvp_stop = false;
+						send_reliable(players[index], "play_s terror.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while turning off your pvp!", 2);
+					}
+					if (players[index].afking) {
+						players[index].afking = false;
+						players[index].afk = false;
+						send_packet(6, "play afkoff.ogg " + players[index].x + " " + players[index].y + " " + players[index].z, players[index].x, players[index].y, players[index].z, maps[get_map_index(players[index].map)]);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while going afk!", 2);
+						write_to(players[index].name, "afk.usr", players[index].afk);
+						write_to(players[index].name, "afkseconds.usr", players[index].afkseconds);
+						players[index].afktitle = "";
+					}
+					useitem(players[index], get_event_message());
+					return;
+				}
+			}
+			else if (e.channel == 7) {
+				int index = get_player_index(e.peer_id);
+				if (index > -1) {
+					players[index].idle.restart();
+					if (players[index].away == true) {
+						players[index].away = false;
+						pesend(0, players[index].nickname + " is no longer away", name = players[index].name);
+						players[index].awaytitle = "";
+					}
+					if (players[index].pvp_stop) {
+						players[index].pvp_stop = false;
+						send_reliable(players[index], "play_s terror.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while turning off your pvp!", 2);
+					}
+					if (players[index].afking) {
+						players[index].afking = false;
+						players[index].afk = false;
+						send_packet(6, "play afkoff.ogg " + players[index].x + " " + players[index].y + " " + players[index].z, players[index].x, players[index].y, players[index].z, maps[get_map_index(players[index].map)]);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while going afk!", 2);
+						write_to(players[index].name, "afk.usr", players[index].afk);
+						write_to(players[index].name, "afkseconds.usr", players[index].afkseconds);
+						players[index].afktitle = "";
+					}
+					play(players[index], get_event_message());
+				}
+			}
+			else if (e.channel == 8) {
+				int index = get_player_index(e.peer_id);
+				if (index > -1) {
+					players[index].idle.restart();
+					if (players[index].away == true) {
+						players[index].away = false;
+						pesend(0, players[index].nickname + " is no longer away", name = players[index].name);
+						players[index].awaytitle = "";
+					}
+					if (players[index].pvp_stop) {
+						players[index].pvp_stop = false;
+						send_reliable(players[index], "play_s terror.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while turning off your pvp!", 2);
+					}
+					if (players[index].afking) {
+						players[index].afking = false;
+						players[index].afk = false;
+						send_packet(6, "play afkoff.ogg " + players[index].x + " " + players[index].y + " " + players[index].z, players[index].x, players[index].y, players[index].z, maps[get_map_index(players[index].map)]);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while going afk!", 2);
+						write_to(players[index].name, "afk.usr", players[index].afk);
+						write_to(players[index].name, "afkseconds.usr", players[index].afkseconds);
+						players[index].afktitle = "";
+					}
+					move(players[index], get_event_message());
+				}
+			}
+			else if (e.channel == 9) {
+				int index = get_player_index(e.peer_id);
+				if (index > -1) {
+					players[index].idle.restart();
+					if (players[index].away == true) {
+						players[index].away = false;
+						pesend(0, players[index].nickname + " is no longer away", name = players[index].name);
+						players[index].awaytitle = "";
+					}
+					if (players[index].pvp_stop) {
+						players[index].pvp_stop = false;
+						send_reliable(players[index], "play_s terror.ogg", 6);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while turning off your pvp!", 2);
+					}
+					if (players[index].afking) {
+						players[index].afking = false;
+						players[index].afk = false;
+						send_packet(6, "play afkoff.ogg " + players[index].x + " " + players[index].y + " " + players[index].z, players[index].x, players[index].y, players[index].z, maps[get_map_index(players[index].map)]);
+						send_reliable(players[index], "error! " + players[index].nickname + ", please don't touch your keyboard while going afk!", 2);
+						write_to(players[index].name, "afk.usr", players[index].afk);
+						write_to(players[index].name, "afkseconds.usr", players[index].afkseconds);
+						players[index].afktitle = "";
+					}
+					weapon_e(players[index], get_event_message());
+				}
+			}
+			else if (e.channel == 10) {
+				int index = get_player_index(e.peer_id);
+				string[] parsed = string_split(get_event_message(), " ", true);
+				messager md = event_message_as_object;
+				if (md.get_value("message") == "login") {
+					string name = md.get_value("name");
+					string password = md.get_value("password");
+					if (name == "" || password == "") return;
+					string yv = md.get_value("yv");
+					string compid = md.get_value("compid");
+					string node_id = md.get_value("node_id");
+					login(name, password, yv, e.peer_id, compid, node_id);
+					return;
+				} else if (md.get_value("message") == "newchar") {
+					string name = md.get_value("name");
+					string password = md.get_value("password");
+					string email = md.get_value("email");
+					int gender = stn(md.get_value("gender", "-1"));
+					if (gender == -1) return;
+					string yv = md.get_value("yv");
+					string compid = md.get_value("compid");
+					string node_id = md.get_value("node_id");
+					create_char(name, password, email, gender, e.peer_id, yv, compid, node_id);
+					return;
+				} else if (parsed[0] == "ping") {
+					int index = get_player_index(e.peer_id);
+					if (index > -1)
+						send_reliable(players[index], "pong", 0);
+				} else if (parsed[0] == "newplayer" and parsed.length() > 7) {
+					int hide = string_to_number(get_char_val(parsed[5], "hidden"));
+					calendar d;
+					writeto(parsed[5], "data", "", "lastseen", join({d.year, d.month, d.day, d.hour, d.minute, d.second}, "/"));
+					spawn_player(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), parsed[4], parsed[5], e.peer_id, parsed[6], string_replace(parsed[7], "[spce]", " ", true), n.get_peer_address(e.peer_id), string_replace(get_event_message(), parsed[0] + " " + parsed[1] + " " + parsed[2] + " " + parsed[3] + " " + parsed[4] + " " + parsed[5] + " " + parsed[6] + " " + parsed[7], "", false), hide);
+					int index = get_player_index(e.peer_id);
+					if (index > -1) {
+						writeto(parsed[5], "data", "", "lastseen", join({d.year, d.month, d.day, d.hour, d.minute, d.second}, "/"));
+						load_char_data(players[index]);
+						dictionary@ margs = default_mapvars;
+						margs.set("myname", players[index].name);
+						margs.set("mynick", players[index].nickname);
+						for (uint i = 0; i < players.length(); i++) {
+							if (players[i].readolmsg == 1 and players[index].name != "smart_bot") {
+								string omsg = players[index].onmsg;
+								margs.set("name", players[i].name);
+								margs.set("nickname", players[i].nickname);
+								omsg = mapvars(omsg, margs);
+								omsg = genderreplace(players[index].gender, omsg, "%g_");
+								send_reliable(players[i], "connections " + omsg + "", 0);
+							}
+						}
+						string charfolder = "chars/" + players[index].name;
+						check_maps_for(players[index].name);
+						if (file_exists(charfolder + "/prison.usr")) players[index].prison = true;
+						string test;
+						index = get_player_index_from(parsed[5]);
+						if (index > -1 and players[index].warnlevel > 0) {
+							send_reliable(players[index], "play_s warn.ogg", 6);
+							send_reliable(players[index], "dlg warning! " + players[index].warning + ".", 0);
+						}
+						if (msounds.length() > 0)
+							for (uint i = 0; i < msounds.length(); i++)
+								send_reliable(players[index], "createmsound " + msounds[i].id + " " + msounds[i].soundloop + " " + msounds[i].x + " " + msounds[i].y + " " + msounds[i].z + " " + msounds[i].map + " " + msounds[i].pitch, 4);
+						players[index].statchangetimer.force(60000);
+						if (chovendo == 1) {
+							send_reliable(players[index], "volumechuva " + volumechuva, 0);
+							send_reliable(players[index], "chuvaativa", 0);
+						}
+						if (windendo == 1) {
+							send_reliable(players[index], "volumewind " + volumewind, 0);
+							send_reliable(players[index], "windativa", 0);
+						}
+						if (nightendo == 1) {
+							send_reliable(players[index], "volumenight " + volumenight, 0);
+							send_reliable(players[index], "nightativa", 0);
+						}
+						string ms;
+						if (players[index].langchan == "disable_chat") ms = "welcome" + players[index].gender2 + "! press shift h or type /help to see help";
+						else ms = "welcome" + players[index].gender2 + "! press shift h or type /help to see help: message of the day: ";
+						ms += motd;
+						send_reliable(players[index], ms, 2);
+						send_reliable(players[index], "play_s welcome" + random(1, 19) + ".ogg", 6);
+						titlecheck(players[index]);
+						string[] chars = find_directories("chars/*");
+						string type = chars[random(0, chars.length() - 1)];
+						if (players[index].team_invite != "") bsend(players[index].peer_id, "notifications", "teaminvite.ogg", "You have an invited team " + players[index].team_invite + " team. Type /ati to accept and /rti to refuse");
+						//send_reliable(players[index],"This connection is sponsored by "+type,2);
+						//if(players[index].paid==1) send_reliable(0,""+players[index].name+" is a paid user",2);
+						string teamteam = get_charval(players[index].name, "team");
+						if (teamteam != "") {
+							players[index].teamname = teamteam;
+							checkteam(players[index].name);
+							teamteam = players[index].teamname;
+							if (team_exists(teamteam)) {
+								int tx = get_team_index(teamteam);
+								if (players[index].hidden == 0) pesend(0, players[index].name + " is in " + team_name(teamteam, teamteam) + " team");
+							}
+						}
+						if (players[index].pvp == 1) send_reliable(players[index], "you are now pvp", 2);
+						if (auction::doing) {
+							send_reliable(players[index], "play_s notify_blips.ogg", 6);
+							send_reliable(players[index], "auctions there's an auction in progress: " + auction::info, 0);
+						}
+						if (doublexp == 1) {
+							send_reliable(players[index], "play_s notify_applause.ogg", 6);
+							send_reliable(players[index], "Double xp is enabled", 2);
+						} else if (superxp == 1) {
+							send_reliable(players[index], "play_s notify_applause.ogg", 6);
+							send_reliable(players[index], "Super xp is enabled", 2);
+						} else if (megaxp == 1) {
+							send_reliable(players[index], "play_s notify_applause.ogg", 6);
+							send_reliable(players[index], "mega xp is enabled", 2);
+						} else if (gigaxp == 1) {
+							send_reliable(players[index], "play_s notify_applause.ogg", 6);
+							send_reliable(players[index], "giga xp is enabled", 2);
+						} else if (masterxp == 1) {
+							send_reliable(players[index], "play_s notify_applause.ogg", 6);
+							send_reliable(players[index], "master xp is enabled", 2);
+						}
+						if (hide > 0) {
+							players[index].is_dead = true;
+							send_reliable(players[index], "play_s notify8.ogg", 6);
+							send_reliable(players[index], "you are currently hiding", 2);
+						}
+						string pfolder = "chars/" + players[index].name + "/";
+						file f;
+						f.open(pfolder + "pms.usr", "rb");
+						string fread = f.read();
+						f.close();
+						if (fread != "") {
+							string[] pms = string_split(fread, "\r\n", false);
+							for (uint i = 0; i < pms.length(); i++)
+								send_reliable(players[index], "pm " + pms[i], 0);
+							f.open(pfolder + "pms.usr", "wb");
+							f.write("");
+							f.close();
+						}
+						f.open(pfolder + "replys.usr", "rb");
+						string fread2 = f.read();
+						f.close();
+						if (fread2 != "") {
+							string[] pms = string_split(fread2, "\r\n", false);
+							for (uint i = 0; i < pms.length(); i++)
+								send_reliable(players[index], "pm " + pms[i], 0);
+							f.open(pfolder + "replys.usr", "wb");
+							f.write("");
+							f.close();
+						}
+						if (DATE_DAY == players[index].day and DATE_MONTH == players[index].month and players[index].giftlimit < 1) {
+							send_reliable(players[index], "happy berthday to you " + players[index].name + "!", 2);
+							if (players[index].gender == 0)players[index].gender2 = "he";
+							else players[index].gender2 = "she";
+							send_reliable(0, "today is birthday of " + players[index].name + " and " + players[index].gender2 + " is now " + players[index].age + " years old!", 2);
+							players[index].giftlimit++;
+							int n = random(1, 2);
+							if (n == 1) send_reliable(0, "play_s fireworkloop.ogg", 6);
+							else if (n == 2) send_reliable(0, "play_s fireworkloop.ogg", 6);
+							send_reliable(0, "play_s applause" + random(1, 6) + ".ogg", 6);
+							file f;
+							f.open("chars/" + players[index].name + "/eml.usr", "wb");
+							string eml = f.read();
+							f.close();
+							//url_post("http://balls.com/dl/mail.php","who="+eml+"&from=balls.com&name=Ultra World&sub=Happy berthday, "+players[index].name+"!&mess=Hello.\r\nHappy berthday to you "+players[index].name+"!\r\n\r\nThis message was automated by Ultra World. Please do not reply.");
+						}
+						if (players[index].langchan == "" or players[index].age == 0 or players[index].country == "" or players[index].day == 0 or players[index].month == 0 or players[index].year == 0)
+							send_reliable(players[index], "You didn't complete your profile yet, please go to your smart phone to complete your profile", 2);
+						if (players[index].sitting == 1) send_reliable(players[index], "sitstart", 0);
+						else if (players[index].sitting == 0) send_reliable(players[index], "sitstop", 0);
+						if (players[index].langchan == "") {
+							server_menu menu;
+							menu.intro = "Select a new language channel";
+							menu.initial_packet = "lchannelset";
+							for (uint i = 0; i < language_channels.length(); i += 1)
+								menu.add(language_channels[i], language_channels[i]);
+							menu.add("password protected channels", "ppc");
+							menu.send(e.peer_id);
+						}
+					}
+				} else if (parsed[0] == "compinfo" and parsed.length() > 1 && index > -1) {
+					string comptext = players[index].name + " (" + string_replace(get_event_message(), "compinfo ", "", false) + ") from IP " + n.get_peer_address(e.peer_id) + ", computer ID " + players[index].compid + "\r\n";
+					file f;
+					f.open("chars/" + players[index].name + "/info.usr", "wb");
+					f.write("last seen: " + get_date() + " at " + get_time() + "\r\ncomp info:\r\n" + comptext + "\r\nlocation:\r\n");
+					f.close();
+					f.open("compchars.log", "rb");
+					string orgtext = f.read();
+					f.close();
+					if (string_contains(orgtext, comptext, 1) < 0) {
+						f.open("compchars.log", "ab");
+						f.write(comptext);
+						f.close();
+					}
+					players[index].ctext = comptext;
+				} else if (parsed[0] == "staffcheck" && index > -1) {
+					if (file_exists("chars/" + players[index].name + "/sponsor.usr")) {
+						send_plus(players[index].peer_id, "play_s afktimer.ogg", 6);
+						send_plus(players[index].peer_id, players[index].name + " is a sponsor to this game", 2);
+					}
+					if (players[index].lchm) {
+						chnotify(players[index].langchan, players[index].name + " is a language channel manager of this channel", "notify4.ogg");
+					}
+					if (players[index].in_lcm) send(players[index].peer_id, "islcm", 0);
+					if (devs.find(players[index].name) > -1 && !file_exists(staff.folder + "/" + players[index].name + "/developer" + staff.ext)) file_put(staff.folder + "/" + players[index].name + "/developer" + staff.ext, "Auto");
+					for (uint si = 0; si < staff.types.length(); si++) {
+						if (!is_staff(players[index].name, staff.types[si])) continue;
+						send(players[index].peer_id, "isstaff " + staff.types[si], 0);
+						string stitle = staff.title(staff.types[si]);
+						players[index].sendpacket("You are " + string_article(stitle) + " " + stitle + ". Type /adminrules to view staff rules, and Alt+S to bring up your control panel", 2);
+					}
+					team@ t = team_obj(get_charval(players[index].name, "team"));
+					if (@t != null) {
+						if (t.is_leader(players[index].name)) t.transmit2(players[index].name + " is the leader of this team!", "teamn", "teammmessage.ogg");
+						else if (t.is_mod(players[index].name)) t.transmit2(players[index].name + " is a moderator of this team!", "teamn", "teammmessage.ogg");
+					}
+				} else if (parsed[0] == "setvoice" and parsed.length() > 2 && index > -1) {
+					players[index].voice = string_to_number(parsed[1]);
+				}
+			}
+		}
+	}
+	} catch {
+		string exf = get_exception_info() + "\n---\n" + last_exception_call_stack;
+		file_put("e.log", exf + "\n\n", FILE_APPEND);
+		println(exf);
+	}
+}
+void send_reliable(uint peer, string mess, uint channel) {
+	mess.replace_this("\r\n", "\n");
+	n.send_reliable(peer, mess, channel);
+}
+void send_unreliable(uint peer, string mess, uint channel) {
+	mess.replace_this("\r\n", "\n");
+	n.send_reliable(peer, mess, channel);
+}
+void send_reliable(player@p, string mess, uint channel) {
+	mess.replace_this("\r\n", "\n");
+	n.send_reliable(p.peer_id, mess, channel);
+}
+void send_unreliable(player@p, string mess, uint channel) {
+	mess.replace_this("\r\n", "\n");
+	n.send_reliable(p.peer_id, mess, channel);
+}
+void send_plus(player@p, string packet, int channel) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (p.peer_id != players[i].peer_id)
+			send_reliable(players[i], packet, channel);
+	}
+}
+void send_plus(uint id, string packet, int channel) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (id != players[i].peer_id)
+			send_reliable(players[i].peer_id, packet, channel);
+	}
+}
+void charwrite(string name, string thing, string value) {
+	file f;
+	f.open("chars/" + name + "/" + thing + ".usr", "wb");
+	f.write(value);
+	f.close();
+}
+void devsend_reliable(string packet, int channel, string notifysound = "") {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].dev) {
+			send_reliable(players[i], packet, channel);
+			if (notifysound != "") send_reliable(players[i], "play_s " + notifysound, 6);
+		}
+	}
+}
+void setupserver() {
+	monthnames.insert_last("january");
+	monthnames.insert_last("Febuary");
+	monthnames.insert_last("March");
+	monthnames.insert_last("April");
+	monthnames.insert_last("May");
+	monthnames.insert_last("June");
+	monthnames.insert_last("July");
+	monthnames.insert_last("August");
+	monthnames.insert_last("September");
+	monthnames.insert_last("October");
+	monthnames.insert_last("november");
+	monthnames.insert_last("december");
+	tlps.insert_last("The Cozy House:main_map");
+	tlps.insert_last("lindow_town:lindow_town");
+	tlps.insert_last(app.name + "'s Staff Center:staff_center");
+	tlps.insert_last("the mall:mall");
+	tlps.insert_last("farm:farm");
+	tlps.insert_last("ghost_continent:ghost_continent");
+	tlps.insert_last("large mountain:mountain_to_go_dragon_cave");
+	tlps.insert_last("elision sea shore:sea_twords_mountain");
+	tlps.insert_last("the hunting map:new_zealand_hunting");
+	tlps.insert_last("the residencial area:residencial_area_ml");
+	create_store("clothing_store");
+	create_store("weapon_store");
+	create_store("fastfood_store");
+	create_store("explosive_store");
+	create_store("misc_store");
+	create_store("credit_store");
+	create_store("medical_store");
+	create_store("fruit_store");
+	create_store("household_store");
+	create_store("jewelry");
+	create_paid_store("paid_store");
+	create_team_store("team_store");
+	create_store("grocery_store");
+	create_store("tobacconist_store");
+	create_store("diy_store");
+	create_store("survival_store");
+	create_store("bar_counter");
+	create_store("kitchen_store");
+	create_store("technology_store");
+	create_store("ghosttiketmachine_store");
+	create_store("tiketmachine_store");
+	create_store("lindowbrasserie_store");
+	add_to_store("empty_wallet", 200, "clothing_store");
+	add_to_store("hand_key", 50, "clothing_store");
+	add_to_store("hat", 60, "clothing_store");
+	add_to_store("panaml_hat", 60, "clothing_store");
+	add_to_store("police_helmet", 97, "clothing_store");
+	add_to_store("sun_glasses", 67, "clothing_store");
+	add_to_store("leather_jacket", 84, "clothing_store");
+	add_to_store("camouflage_vest", 191, "clothing_store");
+	add_to_store("bullet_proof_vest", 205, "clothing_store");
+	add_to_store("shield", 155, "clothing_store");
+	add_to_store("steel_shield", 285, "clothing_store");
+	add_to_store("rubber_vest", 77, "clothing_store");
+	add_to_store("military_vest", 923, "clothing_store");
+	add_to_store("knitted_shirt", 162, "clothing_store");
+	add_to_store("camouflage_pants", 150, "clothing_store");
+	add_to_store("legging_pants", 202, "clothing_store");
+	add_to_store("social_pants", 255, "clothing_store");
+	add_to_store("jeans_pants", 1409, "clothing_store");
+	add_to_store("clamp", 710, "clothing_store");
+	add_to_store("gloves", 84, "clothing_store");
+	add_to_store("watch", 60, "clothing_store");
+	add_to_store("sandal", 116, "clothing_store");
+	add_to_store("nike_shoes", 172, "clothing_store");
+	add_to_store("scarpin_shoes", 165, "clothing_store");
+	add_to_store("social_shoes", 181, "clothing_store");
+	add_to_store("military_boots", 388, "clothing_store");
+	add_to_store("black_short_fitting_dresses_with_deep_neckline", random(250, 700), "clothing_store");
+	add_to_store("red_short_fitting_dresses_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("blue_short_fitting_dresses_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("white_short_fitting_dresses_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("green_short_fitting_dresses_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("pink_short_fitting_dresses_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("yellow_short_fitting_dresses_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("black_easy_summer_dress", random(400, 700), "clothing_store");
+	add_to_store("red_easy_summer_dress", random(400, 700), "clothing_store");
+	add_to_store("blue_easy_summer_dress", random(400, 700), "clothing_store");
+	add_to_store("white_easy_summer_dress", random(400, 700), "clothing_store");
+	add_to_store("green_easy_summer_dress", random(400, 700), "clothing_store");
+	add_to_store("pink_easy_summer_dress", random(400, 700), "clothing_store");
+	add_to_store("yellow_easy_summer_dress", random(400, 700), "clothing_store");
+	add_to_store("black_short_fitting_top", random(400, 700), "clothing_store");
+	add_to_store("red_short_fitting_top", random(400, 700), "clothing_store");
+	add_to_store("blue_short_fitting_top", random(400, 700), "clothing_store");
+	add_to_store("white_short_fitting_top", random(400, 700), "clothing_store");
+	add_to_store("green_short_fitting_top", random(400, 700), "clothing_store");
+	add_to_store("pink_short_fitting_top", random(400, 700), "clothing_store");
+	add_to_store("yellow_short_fitting_top", random(400, 700), "clothing_store");
+	add_to_store("black_denim_short_shorts", random(400, 700), "clothing_store");
+	add_to_store("red_denim_short_shorts", random(400, 700), "clothing_store");
+	add_to_store("blue_denim_short_shorts", random(400, 700), "clothing_store");
+	add_to_store("white_denim_short_shorts", random(400, 700), "clothing_store");
+	add_to_store("green_denim_short_shorts", random(400, 700), "clothing_store");
+	add_to_store("pink_denim_short_shorts", random(400, 700), "clothing_store");
+	add_to_store("yellow_denim_short_shorts", random(400, 700), "clothing_store");
+	add_to_store("black_denim_shirt", random(400, 700), "clothing_store");
+	add_to_store("red_denim_shirt", random(400, 700), "clothing_store");
+	add_to_store("blue_denim_shirt", random(400, 700), "clothing_store");
+	add_to_store("white_denim_shirt", random(400, 700), "clothing_store");
+	add_to_store("green_denim_shirt", random(400, 700), "clothing_store");
+	add_to_store("pink_denim_shirt", random(400, 700), "clothing_store");
+	add_to_store("yellow_denim_shirt", random(400, 700), "clothing_store");
+	add_to_store("black_t-shirt", random(400, 700), "clothing_store");
+	add_to_store("red_t-shirt", random(400, 700), "clothing_store");
+	add_to_store("blue_t-shirt", random(400, 700), "clothing_store");
+	add_to_store("white_t-shirt", random(400, 700), "clothing_store");
+	add_to_store("green_t-shirt", random(400, 700), "clothing_store");
+	add_to_store("pink_t-shirt", random(400, 700), "clothing_store");
+	add_to_store("yellow_t-shirt", random(400, 700), "clothing_store");
+	add_to_store("black_sweat_pants", random(400, 700), "clothing_store");
+	add_to_store("red_sweat_pants", random(400, 700), "clothing_store");
+	add_to_store("blue_sweat_pants", random(400, 700), "clothing_store");
+	add_to_store("white_sweat_pants", random(400, 700), "clothing_store");
+	add_to_store("green_sweat_pants", random(400, 700), "clothing_store");
+	add_to_store("pink_sweat_pants", random(400, 700), "clothing_store");
+	add_to_store("yellow_sweat_pants", random(400, 700), "clothing_store");
+	add_to_store("black_sports_jacket", random(400, 700), "clothing_store");
+	add_to_store("red_sports_jacket", random(400, 700), "clothing_store");
+	add_to_store("blue_sports_jacket", random(400, 700), "clothing_store");
+	add_to_store("white_sports_jacket", random(400, 700), "clothing_store");
+	add_to_store("green_sports_jacket", random(400, 700), "clothing_store");
+	add_to_store("pink_sports_jacket", random(400, 700), "clothing_store");
+	add_to_store("yellow_sports_jacket", random(400, 700), "clothing_store");
+	add_to_store("black_baseball_cap", random(400, 700), "clothing_store");
+	add_to_store("red_baseball_cap", random(400, 700), "clothing_store");
+	add_to_store("blue_baseball_cap", random(400, 700), "clothing_store");
+	add_to_store("white_baseball_cap", random(400, 700), "clothing_store");
+	add_to_store("green_baseball_cap", random(400, 700), "clothing_store");
+	add_to_store("pink_baseball_cap", random(400, 700), "clothing_store");
+	add_to_store("yellow_baseball_cap", random(400, 700), "clothing_store");
+	add_to_store("black_open_shoes_with_high_thin_heel", random(400, 700), "clothing_store");
+	add_to_store("red_open_shoes_with_high_thin_heel", random(400, 700), "clothing_store");
+	add_to_store("blue_open_shoes_with_high_thin_heel", random(400, 700), "clothing_store");
+	add_to_store("white_open_shoes_with_high_thin_heel", random(400, 700), "clothing_store");
+	add_to_store("green_open_shoes_with_high_thin_heel", random(400, 700), "clothing_store");
+	add_to_store("pink_open_shoes_with_high_thin_heel", random(400, 700), "clothing_store");
+	add_to_store("yellow_open_shoes_with_high_thin_heel", random(400, 700), "clothing_store");
+	add_to_store("black_bathrobe", random(400, 700), "clothing_store");
+	add_to_store("red_bathrobe", random(400, 700), "clothing_store");
+	add_to_store("blue_bathrobe", random(400, 700), "clothing_store");
+	add_to_store("white_bathrobe", random(400, 700), "clothing_store");
+	add_to_store("green_bathrobe", random(400, 700), "clothing_store");
+	add_to_store("pink_bathrobe", random(400, 700), "clothing_store");
+	add_to_store("yellow_bathrobe", random(400, 700), "clothing_store");
+	add_to_store("black_slippers", random(400, 700), "clothing_store");
+	add_to_store("red_slippers", random(400, 700), "clothing_store");
+	add_to_store("blue_slippers", random(400, 700), "clothing_store");
+	add_to_store("white_slippers", random(400, 700), "clothing_store");
+	add_to_store("green_slippers", random(400, 700), "clothing_store");
+	add_to_store("pink_slippers", random(400, 700), "clothing_store");
+	add_to_store("yellow_slippers", random(400, 700), "clothing_store");
+	add_to_store("black_leather_pants", random(400, 700), "clothing_store");
+	add_to_store("red_leather_pants", random(400, 700), "clothing_store");
+	add_to_store("blue_leather_pants", random(400, 700), "clothing_store");
+	add_to_store("white_leather_pants", random(400, 700), "clothing_store");
+	add_to_store("green_leather_pants", random(400, 700), "clothing_store");
+	add_to_store("pink_leather_pants", random(400, 700), "clothing_store");
+	add_to_store("yellow_leather_pants", random(400, 700), "clothing_store");
+	add_to_store("black_leather_fitting_short_dress", random(400, 700), "clothing_store");
+	add_to_store("red_leather_fitting_short_dress", random(400, 700), "clothing_store");
+	add_to_store("blue_leather_fitting_short_dress", random(400, 700), "clothing_store");
+	add_to_store("white_leather_fitting_short_dress", random(400, 700), "clothing_store");
+	add_to_store("green_leather_fitting_short_dress", random(400, 700), "clothing_store");
+	add_to_store("pink_leather_fitting_short_dress", random(400, 700), "clothing_store");
+	add_to_store("yellow_leather_fitting_short_dress", random(400, 700), "clothing_store");
+	add_to_store("black_denim_short_skirt", random(400, 700), "clothing_store");
+	add_to_store("red_denim_short_skirt", random(400, 700), "clothing_store");
+	add_to_store("blue_denim_short_skirt", random(400, 700), "clothing_store");
+	add_to_store("white_denim_short_skirt", random(400, 700), "clothing_store");
+	add_to_store("green_denim_short_skirt", random(400, 700), "clothing_store");
+	add_to_store("pink_denim_short_skirt", random(400, 700), "clothing_store");
+	add_to_store("yellow_denim_short_skirt", random(400, 700), "clothing_store");
+	add_to_store("black_long_light_skirt", random(400, 700), "clothing_store");
+	add_to_store("red_long_light_skirt", random(400, 700), "clothing_store");
+	add_to_store("blue_long_light_skirt", random(400, 700), "clothing_store");
+	add_to_store("white_long_light_skirt", random(400, 700), "clothing_store");
+	add_to_store("green_long_light_skirt", random(400, 700), "clothing_store");
+	add_to_store("pink_long_light_skirt", random(400, 700), "clothing_store");
+	add_to_store("yellow_long_light_skirt", random(400, 700), "clothing_store");
+	add_to_store("black_blouse_tight_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("red_blouse_tight_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("blue_blouse_tight_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("white_blouse_tight_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("green_blouse_tight_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("pink_blouse_tight_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("yellow_blouse_tight_with_deep_neckline", random(400, 700), "clothing_store");
+	add_to_store("black_female_closed_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("red_female_closed_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("blue_female_closed_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("white_female_closed_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("green_female_closed_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("pink_female_closed_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("yellow_female_closed_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("black_female_outdoor_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("red_female_outdoor_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("blue_female_outdoor_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("white_female_outdoor_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("green_female_outdoor_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("pink_female_outdoor_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("yellow_female_outdoor_swimsuit", random(400, 700), "clothing_store");
+	add_to_store("black_male_bathing_panties", random(400, 700), "clothing_store");
+	add_to_store("red_male_bathing_panties", random(400, 700), "clothing_store");
+	add_to_store("blue_male_bathing_panties", random(400, 700), "clothing_store");
+	add_to_store("white_male_bathing_panties", random(400, 700), "clothing_store");
+	add_to_store("green_male_bathing_panties", random(400, 700), "clothing_store");
+	add_to_store("pink_male_bathing_panties", random(400, 700), "clothing_store");
+	add_to_store("yellow_male_bathing_panties", random(400, 700), "clothing_store");
+	add_to_store("heavy_studded_leather_boots", random(350, 600), "clothing_store");
+	add_to_store("classic_straight_pants", random(350, 600), "clothing_store");
+	add_to_store("classic_jacket", random(350, 600), "clothing_store");
+	add_to_store("classic_shirt", random(350, 600), "clothing_store");
+	add_to_store("tie", random(350, 600), "clothing_store");
+	add_to_store("classic_shoes", random(350, 600), "clothing_store");
+	add_to_store("openwork_stockings", random(350, 600), "clothing_store");
+	add_to_store("wedding_dress", random(350, 600), "clothing_store");
+	add_to_store("wedding_wreath", random(350, 600), "clothing_store");
+	add_to_store("mens_panties", random(350, 600), "clothing_store");
+	add_to_store("womens_lace_panties", random(350, 600), "clothing_store");
+	add_to_store("warm_knitted_hat", random(350, 600), "clothing_store");
+	add_to_store("down_jacket", random(350, 600), "clothing_store");
+	add_to_store("leather_jacket_with_fur_trim_on_collar_and_sleeves", random(350, 600), "clothing_store");
+	add_to_store("fur_coat_short_with_a_hood", random(350, 600), "clothing_store");
+	add_to_store("warm_male_boots", random(350, 600), "clothing_store");
+	add_to_store("warm_High_Womens_High_Heel_Boots", random(350, 600), "clothing_store");
+	add_to_store("warm_sports_jacket_with_hood", random(350, 600), "clothing_store");
+	add_to_store("leather_cloak", random(350, 600), "clothing_store");
+	add_to_store("warmed_sports_pants", random(350, 600), "clothing_store");
+	add_to_store("mens_sweater", random(350, 600), "clothing_store");
+	add_to_store("female_sweater_with_deep_neckline", random(350, 600), "clothing_store");
+	add_to_store("warm_pants", random(350, 600), "clothing_store");
+	add_to_store("warm_high_collar_sweater", random(350, 600), "clothing_store");
+	add_to_store("soft_scarf", random(350, 600), "clothing_store");
+	add_to_store("warm_leather_boots", random(350, 600), "clothing_store");
+	add_to_store("mens_black_denim_shorts", random(450, 950), "clothing_store");
+	add_to_store("mens_blue_denim_shorts", random(450, 950), "clothing_store");
+	add_to_store("mens_white_denim_shorts", random(450, 950), "clothing_store");
+	add_to_store("mens_gray_denim_shorts", random(450, 950), "clothing_store");
+	add_to_store("mens_black_lightweight_shorts", random(450, 950), "clothing_store");
+	add_to_store("mens_blue_lightweight_shorts", random(450, 950), "clothing_store");
+	add_to_store("mens_white_lightweight_shorts", random(450, 950), "clothing_store");
+	add_to_store("mens_gray_lightweight_shorts", random(450, 950), "clothing_store");
+	add_to_store("mens_green_lightweight_shorts", random(450, 950), "clothing_store");
+	add_to_store("mens_black_lightweight_pants", random(450, 950), "clothing_store");
+	add_to_store("mens_blue_lightweight_pants", random(450, 950), "clothing_store");
+	add_to_store("mens_white_lightweight_pants", random(450, 950), "clothing_store");
+	add_to_store("mens_gray_lightweight_pants", random(450, 950), "clothing_store");
+	add_to_store("black_lightweight_sneakers", random(450, 950), "clothing_store");
+	add_to_store("blue_lightweight_sneakers", random(450, 950), "clothing_store");
+	add_to_store("white_lightweight_sneakers", random(450, 950), "clothing_store");
+	add_to_store("red_lightweight_sneakers", random(450, 950), "clothing_store");
+	add_to_store("gray_lightweight_sneakers", random(450, 950), "clothing_store");
+	add_to_store("green_lightweight_sneakers", random(450, 950), "clothing_store");
+	add_to_store("yellow_lightweight_sneakers", random(450, 950), "clothing_store");
+	add_to_store("pink_lightweight_sneakers", random(450, 950), "clothing_store");
+	add_to_store("womens_black_sneakers_on_a_high_platform", random(450, 950), "clothing_store");
+	add_to_store("womens_blue_sneakers_on_a_high_platform", random(450, 950), "clothing_store");
+	add_to_store("womens_white_sneakers_on_a_high_platform", random(450, 950), "clothing_store");
+	add_to_store("womens_red_sneakers_on_a_high_platform", random(450, 950), "clothing_store");
+	add_to_store("womens_green_sneakers_on_a_high_platform", random(450, 950), "clothing_store");
+	add_to_store("womens_yellow_sneakers_on_a_high_platform", random(450, 950), "clothing_store");
+	add_to_store("womens_pink_sneakers_on_a_high_platform", random(450, 950), "clothing_store");
+	add_to_store("mens_black_lightweight_shirt", random(450, 950), "clothing_store");
+	add_to_store("mens_blue_lightweight_shirt", random(450, 950), "clothing_store");
+	add_to_store("mens_white_lightweight_shirt", random(450, 950), "clothing_store");
+	add_to_store("mens_gray_lightweight_shirt", random(450, 950), "clothing_store");
+	add_to_store("mens_green_lightweight_shirt", random(450, 950), "clothing_store");
+	add_to_store("womens_white_tight_jeans", random(450, 950), "clothing_store");
+	add_to_store("womens_black_tight_jeans", random(450, 950), "clothing_store");
+	add_to_store("womens_blue_tight_jeans", random(450, 950), "clothing_store");
+	add_to_store("towel", 150, "clothing_store");
+	add_to_store("ring", 450, "jewelry");
+	add_to_store("bracelet", 590, "jewelry");
+	add_to_store("bronze_bracelet", 510, "jewelry");
+	add_to_store("silver_bracelet", 720, "jewelry");
+	add_to_store("golden_bracelet", 970, "jewelry");
+	add_to_store("marriage_ring", 25000, "jewelry");
+	add_to_store("axe", 8700, "weapon_store");
+	add_to_store("blake_sword", 9900, "weapon_store");
+	add_to_store("dagger", 525, "weapon_store");
+	add_to_store("small_dagger", 85, "weapon_store");
+	add_to_store("spear", 550, "weapon_store");
+	add_to_store("sword", 1230, "weapon_store");
+	add_to_store("long_sword", 100000, "weapon_store");
+	add_to_store("short_sword", 1070, "weapon_store");
+	//add_to_store("wip",196,"weapon_store");
+	add_to_store("ak9automatic_machinegun", 8200, "weapon_store");
+	add_to_store("a90sniper_rifle", 5200, "weapon_store");
+	add_to_store("ak47assault_rifle", 1630, "weapon_store");
+	add_to_store("ak48", 12300, "weapon_store");
+	add_to_store("ar15machinegun", 6220, "weapon_store");
+	add_to_store("arrow_gun", 975, "weapon_store");
+	add_to_store("b96machinegun", 8600, "weapon_store");
+	add_to_store("barett_m1500sniper_rifle", 33830, "weapon_store");
+	add_to_store("blz5machinegun", 1580, "weapon_store");
+	add_to_store("bow", 310, "weapon_store");
+	add_to_store("browning_m2heavy_machinegun", 5890, "weapon_store");
+	add_to_store("chainsaw", 880, "weapon_store");
+	add_to_store("colt_m9", 885, "weapon_store");
+	add_to_store("colt_m19", 899, "weapon_store");
+	add_to_store("crossbow", 983, "weapon_store");
+	add_to_store("e9pistol", 968, "weapon_store");
+	add_to_store("e20shotgun", 1570, "weapon_store");
+	add_to_store("e235shotgun", 890, "weapon_store");
+	add_to_store("fn2000pistol", 833, "weapon_store");
+	add_to_store("fnm_pistol", 900, "weapon_store");
+	add_to_store("g36pistol", 931, "weapon_store");
+	add_to_store("gouse_pistol", 901, "weapon_store");
+	add_to_store("hk_machinegun", 966, "weapon_store");
+	add_to_store("k222rifle", 3900, "weapon_store");
+	add_to_store("kalashnikov_rifle", 5990, "weapon_store");
+	add_to_store("long_bow", 458, "weapon_store");
+	add_to_store("lr12pistol", 999, "weapon_store");
+	add_to_store("m9pistol", 619, "weapon_store");
+	add_to_store("m10machinegun", 999, "weapon_store");
+	add_to_store("m16machinegun", 13200, "weapon_store");
+	add_to_store("m28mini_machinegun", 10700, "weapon_store");
+	add_to_store("m90machinegun", 11100, "weapon_store");
+	add_to_store("m125assault_rifle", 31900, "weapon_store");
+	add_to_store("m152minigun", 28990, "weapon_store");
+	add_to_store("m155minigun", 29200, "weapon_store");
+	add_to_store("m234minigun", 59560, "weapon_store");
+	add_to_store("m560sniper_rifle", 33030, "weapon_store");
+	add_to_store("mb3shotgun", 9506, "weapon_store");
+	add_to_store("mb5shotgun", 9800, "weapon_store");
+	add_to_store("mb93machinegun", 9207, "weapon_store");
+	add_to_store("mg4machinegun", 9070, "weapon_store");
+	add_to_store("missile_launcher", 8864, "weapon_store");
+	add_to_store("mj420machinegun", 969, "weapon_store");
+	add_to_store("mk_long_machinegun", 10300, "weapon_store");
+	add_to_store("mk52assault_rifle", 3190, "weapon_store");
+	add_to_store("mk215machinegun", 9030, "weapon_store");
+	add_to_store("mkv43machinegun", 10113, "weapon_store");
+	add_to_store("ml7rifle", 6945, "weapon_store");
+	add_to_store("ml15rifle", 2999, "weapon_store");
+	add_to_store("mlk290rifle", 17413, "weapon_store");
+	add_to_store("mlr_assault_rifle", 11654, "weapon_store");
+	add_to_store("mp5machinegun", 940, "weapon_store");
+	add_to_store("mp12machinegun", 836, "weapon_store");
+	add_to_store("mpt_special_shotgun", 5174, "weapon_store");
+	add_to_store("msb530shotgun", 6923, "weapon_store");
+	add_to_store("nak_nk1000_decimater", 93500, "weapon_store");
+	add_to_store("p3hunting_shotgun", 36600, "weapon_store");
+	add_to_store("pcs_handgun", 9200, "weapon_store");
+	add_to_store("pst500shotgun", 31350, "weapon_store");
+	add_to_store("qt_machinegun", 6090, "weapon_store");
+	add_to_store("rocket_launcher", 10000000, "weapon_store");
+	add_to_store("rpg_launcher", 9990, "weapon_store");
+	//add_to_store("rpg7",5620,"weapon_store");
+	add_to_store("ruga22revolver", 9900, "weapon_store");
+	add_to_store("s55assault_rifle", 31130, "weapon_store");
+	add_to_store("s110assault_rifle", 30110, "weapon_store");
+	add_to_store("sfx12machinegun", 5395, "weapon_store");
+	add_to_store("sp3heavy_machinegun", 9895, "weapon_store");
+	add_to_store("sp5shotgun", 15400, "weapon_store");
+	add_to_store("sp150shotgun", 10740, "weapon_store");
+	add_to_store("stp15rifle", 13650, "weapon_store");
+	add_to_store("stp106_long_barreled_pistol", 17650, "weapon_store");
+	add_to_store("str301machinegun", 9800, "weapon_store");
+	add_to_store("tac50rifle", 5600, "weapon_store");
+	add_to_store("tiny_mg", 999, "weapon_store");
+	add_to_store("tsp_grenade_launcher", 5000, "weapon_store");
+	add_to_store("ump45machinegun", 6700, "weapon_store");
+	add_to_store("uzi_machinegun", 5400, "weapon_store");
+	add_to_store("famas_g2", 9100, "weapon_store");
+	add_to_store("blue_assault_rifle", 9890, "weapon_store");
+	add_to_store("blue_bolt_action_sniper", 5990, "weapon_store");
+	add_to_store("blue_burst_assault_rifle", 7795, "weapon_store");
+	add_to_store("blue_heavy_assault_rifle", 6190, "weapon_store");
+	add_to_store("blue_hunting_rifle", 6490, "weapon_store");
+	add_to_store("blue_infintry_rifle", 5590, "weapon_store");
+	add_to_store("blue_tacticle_shotgun", 6660, "weapon_store");
+	add_to_store("drum_shotgun", 2510, "weapon_store");
+	add_to_store("gold_burst_assault_rifle", 28900, "weapon_store");
+	add_to_store("gold_drum_gun", 9523, "weapon_store");
+	add_to_store("gold_heavy_assault_rifle", 6033, "weapon_store");
+	add_to_store("gold_scar", 2570, "weapon_store");
+	add_to_store("gold_tacticle_shotgun", 5760, "weapon_store");
+	add_to_store("heavy_sniper", 4150, "weapon_store");
+	add_to_store("tranquilizer_gun", 4470, "weapon_store");
+	add_to_store("taser", 5900, "weapon_store");
+	add_to_store("5.56mm_ammo", 50, "weapon_store");
+	add_to_store("7.62mm_ammo", 70, "weapon_store");
+	add_to_store("9mm_ammo", 90, "weapon_store");
+	add_to_store("12.7mm_ammo", 120, "weapon_store");
+	add_to_store("arrow", 30, "weapon_store");
+	add_to_store("missile", 570, "weapon_store");
+	add_to_store("rocket", 4000, "weapon_store");
+	add_to_store("rpg", 22141, "weapon_store");
+	add_to_store("shotgun_shell", 110, "weapon_store");
+	add_to_store("tranquilizer", 250, "weapon_store");
+	add_to_store("hotdog", 350, "fastfood_store");
+	add_to_store("sos", 60, "fastfood_store");
+	add_to_store("cake", 150, "fastfood_store");
+	add_to_store("hamburger", 150, "fastfood_store");
+	add_to_store("cheeseburger", 150, "fastfood_store");
+	add_to_store("chicken_sandwich", 250, "fastfood_store");
+	add_to_store("creamy_ice_cream", 151, "fastfood_store");
+	add_to_store("vanilla_ice_cream", 161, "fastfood_store");
+	add_to_store("caramel_ice_cream", 181, "fastfood_store");
+	add_to_store("smoothie", 221, "fastfood_store");
+	add_to_store("iced_tea", 170, "fastfood_store");
+	add_to_store("lemonade", 260, "fastfood_store");
+	add_to_store("lime_cordial", 190, "fastfood_store");
+	add_to_store("milkshake", 170, "fastfood_store");
+	add_to_store("orange_squash", 160, "fastfood_store");
+	add_to_store("squash", 190, "fastfood_store");
+	add_to_store("cocoa", 180, "fastfood_store");
+	add_to_store("black_coffee", 270, "fastfood_store");
+	add_to_store("decaffeinated_coffee", 290, "fastfood_store");
+	add_to_store("fruit_tea", 190, "fastfood_store");
+	add_to_store("green_tea", 230, "fastfood_store");
+	add_to_store("herbal_tea", 200, "fastfood_store");
+	add_to_store("hot_chocolate", 170, "fastfood_store");
+	add_to_store("tea", 140, "fastfood_store");
+	add_to_store("fruit_juice", 180, "fastfood_store");
+	add_to_store("grapefruit_juice", 210, "fastfood_store");
+	add_to_store("orange_juice", 170, "fastfood_store");
+	add_to_store("pineapple_juice", 170, "fastfood_store");
+	add_to_store("tomato_juice", 210, "fastfood_store");
+	add_to_store("cola", 150, "fastfood_store");
+	add_to_store("time_bomb", 1561, "explosive_store");
+	add_to_store("grenade", 5000, "explosive_store");
+	add_to_store("mine", 140, "explosive_store");
+	//add_to_store("molotov_cocktail",102,"explosive_store");
+	add_to_store("gas_canister", 135, "explosive_store");
+	add_to_store("censor_bomb", 247, "explosive_store");
+	add_to_store("snare", 50, "explosive_store");
+	add_to_store("energogenic_canister", 345, "explosive_store");
+	add_to_store("energy_reducing_canister", 305, "explosive_store");
+	add_to_store("thirsting_canister", 290, "explosive_store");
+	add_to_store("starvogenic_canister", 325, "explosive_store");
+	add_to_store("pathogenic_canister", 375, "explosive_store");
+	add_to_store("experience_canister", 351, "explosive_store");
+	add_to_store("1000_credit_pack", 1000000, "credit_store");
+	add_to_store("4000_credit_pack", 3000000, "credit_store");
+	add_to_store("7000_credit_pack", 5000000, "credit_store");
+	add_to_store("10000_credit_pack", 7000000, "credit_store");
+	add_to_store("15000_credit_pack", 10000000, "credit_store");
+	add_to_store("bike", 250000, "misc_store");
+	add_to_store("empty_pack", 50, "misc_store");
+	add_to_store("box", 1700, "misc_store");
+	add_to_store("empty_balloon", 155, "misc_store");
+	add_to_store("ball", 150, "misc_store");
+	add_to_store("bell", 70, "misc_store");
+	add_to_store("health_pill", 250, "medical_store");
+	add_to_store("jelly_pack", 450, "medical_store");
+	add_to_store("antibiotic", 200, "medical_store");
+	add_to_store("antibiotic_canister", 375, "medical_store");
+	//add_to_store("antidote",1625,"misc_store");add_to_store("string",15,"medical_store");
+	add_to_store("auto_healer", 620, "medical_store");
+	add_to_store("sleeping_pill", 150, "medical_store");
+	add_to_store("heart_rate_device", 375, "medical_store");
+	add_to_store("poison_drink", 135, "medical_store");
+	add_to_store("energy_drink", 550, "medical_store");
+	//add_to_store("thermometer",175,"medical_store");
+	add_to_store("roll_bandage", 550, "medical_store");
+	add_to_store("apple", random(40, 90), "fruit_store");
+	add_to_store("watermelon", random(40, 90), "fruit_store");
+	add_to_store("orange", random(40, 90), "fruit_store");
+	add_to_store("pear", random(40, 90), "fruit_store");
+	add_to_store("cherry", random(40, 90), "fruit_store");
+	add_to_store("strawberry", random(40, 90), "fruit_store");
+	add_to_store("nectarine", random(40, 90), "fruit_store");
+	add_to_store("grape", random(40, 90), "fruit_store");
+	add_to_store("mango", random(40, 90), "fruit_store");
+	add_to_store("blueberry", random(40, 90), "fruit_store");
+	add_to_store("pomegranate", random(40, 90), "fruit_store");
+	add_to_store("carambola", random(40, 90), "fruit_store");
+	add_to_store("plum", random(40, 90), "fruit_store");
+	add_to_store("banana", random(40, 90), "fruit_store");
+	add_to_store("raspberry", random(40, 90), "fruit_store");
+	add_to_store("mandarin", random(40, 90), "fruit_store");
+	add_to_store("jackfruit", random(40, 90), "fruit_store");
+	add_to_store("corn", random(40, 90), "fruit_store");
+	add_to_store("papaya", random(40, 90), "fruit_store");
+	add_to_store("kiwi", random(40, 90), "fruit_store");
+	add_to_store("pineapple", random(40, 90), "fruit_store");
+	add_to_store("lime", random(40, 90), "fruit_store");
+	add_to_store("lemon", random(40, 90), "fruit_store");
+	add_to_store("apricot", random(40, 90), "fruit_store");
+	add_to_store("grapefruit", random(40, 90), "fruit_store");
+	add_to_store("melon", random(40, 90), "fruit_store");
+	add_to_store("coconut", random(40, 90), "fruit_store");
+	add_to_store("avocado", random(40, 90), "fruit_store");
+	add_to_store("peach", random(40, 90), "fruit_store");
+	add_to_store("green_almond", random(40, 90), "fruit_store");
+	add_to_store("tamarind", random(40, 90), "fruit_store");
+	add_to_store("cornelian_cherry", random(40, 90), "fruit_store");
+	add_to_store("rhubarb", random(40, 90), "fruit_store");
+	add_to_store("persimmon", random(40, 90), "fruit_store");
+	add_to_store("fig", random(40, 90), "fruit_store");
+	add_to_store("sour_cherry", random(40, 90), "fruit_store");
+	add_to_store("sour_grapes", random(40, 90), "fruit_store");
+	add_to_store("sitron", random(40, 90), "fruit_store");
+	add_to_store("sour_orange", random(40, 90), "fruit_store");
+	add_to_store("mushroom", random(40, 90), "fruit_store");
+	add_to_store("broccoli", random(40, 90), "fruit_store");
+	add_to_store("cucumber", random(40, 90), "fruit_store");
+	add_to_store("red_pepper", random(40, 90), "fruit_store");
+	add_to_store("tomato", random(40, 90), "fruit_store");
+	add_to_store("swede", random(40, 90), "fruit_store");
+	add_to_store("carrot", random(40, 90), "fruit_store");
+	add_to_store("brussels_sprout", random(40, 90), "fruit_store");
+	add_to_store("pumpkin", random(40, 90), "fruit_store");
+	add_to_store("cabbage", random(40, 90), "fruit_store");
+	add_to_store("potato", random(40, 90), "fruit_store");
+	add_to_store("eggplant", random(40, 90), "fruit_store");
+	add_to_store("sweet_potato", random(40, 90), "fruit_store");
+	add_to_store("turnip", random(40, 90), "fruit_store");
+	add_to_store("courgette", random(40, 90), "fruit_store");
+	add_to_store("green_chilli", random(40, 90), "fruit_store");
+	add_to_store("onion", random(40, 90), "fruit_store");
+	add_to_store("lettuce", random(40, 90), "fruit_store");
+	add_to_store("radish", random(40, 90), "fruit_store");
+	add_to_store("pea", random(40, 90), "fruit_store");
+	add_to_store("asparagus", random(40, 90), "fruit_store");
+	add_to_store("selery", random(40, 90), "fruit_store");
+	add_to_store("green_pepper", random(40, 90), "fruit_store");
+	add_to_store("french_beans", random(40, 90), "fruit_store");
+	add_to_store("spinach", random(40, 90), "fruit_store");
+	add_to_store("beetroot", random(40, 90), "fruit_store");
+	add_to_store("red_chillies", random(40, 90), "fruit_store");
+	add_to_store("bean", random(40, 90), "fruit_store");
+	add_to_store("cilantro", random(40, 90), "fruit_store");
+	add_to_store("artichoke", random(40, 90), "fruit_store");
+	add_to_store("rosemary", random(40, 90), "fruit_store");
+	add_to_store("bay_leaves", random(40, 90), "fruit_store");
+	add_to_store("mint_leaves", random(40, 90), "fruit_store");
+	add_to_store("basil", random(40, 90), "fruit_store");
+	add_to_store("clove", random(40, 90), "fruit_store");
+	add_to_store("olive", random(40, 90), "fruit_store");
+	add_to_store("shallot", random(40, 90), "fruit_store");
+	add_to_store("turmeric", random(40, 90), "fruit_store");
+	add_to_store("garlic", random(40, 90), "fruit_store");
+	add_to_store("ginger", random(40, 90), "fruit_store");
+	add_to_store("spring_onions", random(40, 90), "fruit_store");
+	add_to_store("lemongrass", random(40, 90), "fruit_store");
+	add_to_store("chives", random(40, 90), "fruit_store");
+	add_to_store("berry", random(40, 90), "fruit_store");
+	add_to_store("nut", random(40, 90), "fruit_store");
+	add_to_store("store", 50360000, "household_store");
+	add_to_store("tent", 20144000, "household_store");
+	add_to_store("apartment", 201440000, "household_store");
+	add_to_store("golden_gate_house", 705040000, "household_store");
+	add_to_store("rosehaven_house", 1007200000, "household_store");
+	//add_to_store("beehive",21000,"household_store");
+	add_to_store("microwave", 58800, "household_store");
+	add_to_store("fridge", 56000, "household_store");
+	add_to_store("locker", 205000, "household_store");
+	add_to_team_store("friendship_sphere", 500, "team_store");
+	add_to_team_store("corpse_bomb", 450, "team_store");
+	add_to_team_store("team_member_booster", 1000, "team_store");
+	add_to_team_store("experience_restorer", 250, "team_store");
+	add_to_team_store("animal_revitalizer", 525, "team_store");
+	add_to_paid_store("safe_card", 1000, "paid_store");
+	add_to_paid_store("teleporter", 2000, "paid_store");
+	add_to_paid_store("telehouse", 550, "paid_store");
+	add_to_paid_store("pvp_escapator", 1000, "paid_store");
+	add_to_paid_store("patricus_potion", 3333, "paid_store");
+	add_to_paid_store("paid_gift", 1000, "paid_store");
+	add_to_paid_store("xp_potion", 3500, "paid_store");
+	add_to_paid_store("armor", 500, "paid_store");
+	add_to_paid_store("large_armor_plate", 5000, "paid_store");
+	add_to_paid_store("kannadigas_potion", 3500, "paid_store");
+	add_to_paid_store("energy_pill", 500, "paid_store");
+	add_to_paid_store("advanced_bone_repair_kit", 1000, "paid_store");
+	add_to_paid_store("rpg7", 500, "paid_store");
+	add_to_paid_store("chocolate_boy", 500, "paid_store");
+	add_to_paid_store("item_grabber", 2000, "paid_store");
+	add_to_paid_store("chocolate_girl", 600, "paid_store");
+	add_to_paid_store("starter_pack", 50, "paid_store");
+	add_to_paid_store("protein_ball", 500, "paid_store");
+	add_to_store("cream", 47, "grocery_store");
+	add_to_store("vanilla_extract", 71, "grocery_store");
+	add_to_store("small_cup_of_butter", 112, "grocery_store");
+	add_to_store("salt", 5, "grocery_store");
+	add_to_store("sugar", 5, "grocery_store");
+	add_to_store("carbonated_water", 20, "grocery_store");
+	add_to_store("caffeine", 25, "grocery_store");
+	add_to_store("taurine", 30, "grocery_store");
+	add_to_store("vitamin_b12", 30, "grocery_store");
+	add_to_store("citrus", 20, "grocery_store");
+	add_to_store("citric_acid", 25, "grocery_store");
+	add_to_store("caramel_syrup", 62, "grocery_store");
+	add_to_store("coffee", 230, "grocery_store");
+	add_to_store("phosphoric_acid", 45, "grocery_store");
+	add_to_store("cola_essence", 85, "grocery_store");
+	add_to_store("boost", 10, "grocery_store");
+	add_to_store("flour_pack", 650, "grocery_store");
+	add_to_store("oil_bottle", 450, "grocery_store");
+	add_to_store("milk", 320, "grocery_store");
+	add_to_store("water_bottle", 320, "grocery_store");
+	add_to_store("empty_bottle", 80, "grocery_store");
+	add_to_store("praline_chocolates_box", 320, "grocery_store");
+	add_to_store("piece_of_yeast", 500, "grocery_store");
+	add_to_store("beer_bottle", 1000, "grocery_store");
+	add_to_store("cigarette_pack", 165, "tobacconist_store");
+	add_to_store("chips", 150, "grocery_store");
+	add_to_store("lighter", 150, "tobacconist_store");
+	add_to_store("match_box", 175, "tobacconist_store");
+	add_to_store("gas_bottle", 120, "tobacconist_store");
+	add_to_store("firework", 145, "tobacconist_store");
+	add_to_store("firecracker", 125, "tobacconist_store");
+	add_to_store("bounty", 150, "tobacconist_store");
+	add_to_store("ganja", 2000, "tobacconist_store");
+	add_to_store("weed_vape", 450, "tobacconist_store");
+	add_to_store("cherry_cigar", 250, "tobacconist_store");
+	add_to_store("small_saw", 230, "diy_store");
+	add_to_store("large_saw", 370, "diy_store");
+	add_to_store("glue_bottle", 350, "diy_store");
+	add_to_store("brick", 350, "diy_store");
+	add_to_store("hammer", 350, "diy_store");
+	add_to_store("metal", 500, "diy_store");
+	add_to_store("wood", 500, "diy_store");
+	add_to_store("concrete", 1200, "diy_store");
+	add_to_store("iron_shovel", 230, "diy_store");
+	add_to_store("water_pouch", 28, "survival_store");
+	add_to_store("bottle_of_cleanwater", 1841, "survival_store");
+	add_to_store("net", 500, "survival_store");
+	add_to_store("string", 150, "survival_store");
+	add_to_store("gas_mask", 550, "survival_store");
+	add_to_store("air_canister", 150, "survival_store");
+	add_to_store("fishing_pole", 100, "survival_store");
+	//add_to_store("candle",15,"survival_store");
+	add_to_store("folding_bed", 310, "survival_store");
+	add_to_store("boat", 500, "survival_store");
+	add_to_store("paddle", 250, "survival_store");
+	add_to_store("spoon", 350, "kitchen_store");
+	add_to_store("fork", 350, "kitchen_store");
+	add_to_store("bottle_opener", 350, "kitchen_store");
+	add_to_store("empty_glass", 250, "kitchen_store");
+	add_to_store("cup", 150, "kitchen_store");
+	add_to_store("skillet", 1000, "kitchen_store");
+	add_to_store("bowl", 150, "kitchen_store");
+	add_to_store("knife", 500, "kitchen_store");
+	add_to_store("long_knife", 505, "kitchen_store");
+	add_to_store("smart_phone", 55000, "technology_store");
+	add_to_store("phone_battery", 2500, "technology_store");
+	add_to_store("battery", 500, "technology_store");
+	add_to_store("wand", 15650, "technology_store");
+	add_to_store("mana", 55, "technology_store");
+	add_to_store("item_carier", 20000, "technology_store");
+	//add_to_store("item_grabber",145,"technology_store");
+	add_to_store("robot", 125550, "technology_store");
+	add_to_store("robot_remote", 1900, "technology_store");
+	add_to_store("tiket_for_main_continent", 50, "ghosttiketmachine_store");
+	add_to_store("tiket_for_ghost_continent", 50, "tiketmachine_store");
+	add_to_store("chocolate", 20, "lindowbrasserie_store");
+	add_to_store("tomato_with_mozzarella", 100, "lindowbrasserie_store");
+	add_to_store("cheese_puff", 100, "lindowbrasserie_store");
+	add_to_store("ravioli_with_truffles", 150, "lindowbrasserie_store");
+	add_to_store("steak_frites", 150, "lindowbrasserie_store");
+	add_to_store("tiramisu_with_pistachios", 50, "lindowbrasserie_store");
+	add_to_store("krem_brule", 50, "lindowbrasserie_store");
+	add_vending_item("biscuit", random(10, 100));
+	add_vending_item("candy", random(10, 100));
+	add_vending_item("cracker", random(10, 100));
+	add_vending_item("pretzel", random(10, 100));
+	add_vending_item("chips", random(60, 260));
+	add_vending_item("popcorn_pack", random(60, 260));
+	add_vending_item("beer_bottle", random(1500, 3500));
+	add_vending_item("water_bottle", random(10, 20));
+	add_vending_item("cola", random(20, 40));
+	garbage_collect();
+}
+void mapupdate(string map) {
+	load(map);
+	int mi = get_map_index(map);
+	if (mi < 0) return;
+	string mdata = maps[mi].rawdata.replace("\r\n", "\n");
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == map) {
+			players[i].map = map;
+			playermapupdate(map, players[i].x, players[i].y, players[i].z, players[i]);
+		}
+	}
+}
+void playermapupdate(string map, int x, int y, int z, player@ p) {
+	check_maps_for(p.name);
+	string mdata = get_map_text(map);
+	p.x = x;
+	p.y = y;
+	p.z = z;
+	p.map = map;
+	send_reliable(p, "m_data " + mdata + "\nx:" + x + "\ny:" + y + "\nz:" + z + "\n", 0);
+}
+void move_player(player@p, string map, int x, int y, int z, bool command = false) {
+	p.x = x;
+	p.y = y;
+	p.z = z;
+	if (map != p.map or command == false) {
+		p.map = map;
+		p.mapavoltar = map;
+		playermapupdate(map, x, y, z, p);
+	}
+	send_reliable(p, "move " + p.x + " " + p.y + " " + p.z, 7);
+}
+void send_vpacket(int channel, string packet, string mapname, bool map_required = true, string name = "") {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == mapname and map_required == true)
+			send_reliable(players[i], packet, channel);
+		else {
+			if (players[i].is_muted(name) == false)
+				send_reliable(players[i], packet, channel);
+		}
+	}
+}
+void send_packet(int channel, string packet, int x, int y, int z, mapdata@m, bool map_required = true, bool language = false, string lchan = "", string name = "") {
+	if (@m == null) return;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == m.name and players[i].x > x - 30 and players[i].x < x + 30 and players[i].y > y - 30 and players[i].y < y + 30 and players[i].z > z - 30 and players[i].z < z + 30)
+			send_reliable(players[i], packet, channel);
+		else {
+			if (players[i].langchan == lchan)
+				send_reliable(players[i], packet, channel);
+		}
+	}
+}
+void send_dpacket(int channel, string packet, mapdata@m, bool map_required = true, bool language = false, string lchan = "", string name = "") {
+	for (uint i = 0; i < players.length(); i++) {
+		if (@m != null and players[i].map == m.name)
+			send_reliable(players[i], packet, channel);
+		else {
+			if (players[i].langchan == lchan)
+				send_reliable(players[i], packet, channel);
+		}
+	}
+}
+void send_packet2(int channel, string packet, string packet2, int x, int y, int z, mapdata@m) {
+	if (@m == null) return;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == m.name and players[i].x > x - 30 and players[i].x < x + 30 and players[i].y > y - 30 and players[i].y < y + 30 and players[i].z > z - 30 and players[i].z < z + 30)
+			send_reliable(players[i], packet, 6);
+	}
+}
+void send_packet3(int channel, string packet, int x, int y, int z, mapdata@m) {
+	if (@m == null) return;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == m.name and players[i].x > x - 30 and players[i].x < x + 30 and players[i].y > y - 30 and players[i].y < y + 30 and players[i].z > z - 30 and players[i].z < z + 30)
+			send_reliable(players[i], packet, channel);
+	}
+}
+void send_packetn(int channel, string nnome, string packet, int x, int y, int z, mapdata@m) {
+	if (@m == null) return;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].name != nnome and players[i].map == m.name and players[i].x > x - 30 and players[i].x < x + 30 and players[i].y > y - 30 and players[i].y < y + 30 and players[i].z > z - 30 and players[i].z < z + 30)
+			send_reliable(players[i], packet, channel);
+	}
+}
+void send_packetn2(int channel, string nnome, string packet, int x, int y, int z, mapdata@m) {
+	if (@m == null) return;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].name == nnome and players[i].map == m.name and players[i].x > x - 30 and players[i].x < x + 30 and players[i].y > y - 30 and players[i].y < y + 30 and players[i].z > z - 30 and players[i].z < z + 30)
+			send_reliable(players[i], packet, channel);
+	}
+}
+void send_dpacketn(int channel, string nnome, string packet, mapdata@m) {
+	if (@m == null) return;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].name != nnome and players[i].map == m.name)
+			send_reliable(players[i], packet, channel);
+	}
+}
+void send_packetn2(int channel, string nnome, string packet, mapdata@m) {
+	if (@m == null) return;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].name == nnome and players[i].map == m.name)
+			send_reliable(players[i], packet, channel);
+	}
+}
+void send_packetn3(int channel, string nnome, string packet) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].name == nnome) send_reliable(players[i], packet, channel);
+	}
+}
+void send_packet10(uint canal, string jogador1, string jogador2, string pacote, int x, int y, int z, mapdata@m) {
+	if (@m == null) return;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == m.name and players[i].x > x - 30 and players[i].x < x + 30 and players[i].y > y - 30 and players[i].y < y + 30 and players[i].z > z - 30 and players[i].z < z + 30) {
+			if (players[i].name == jogador1 or players[i].name == jogador2)send_reliable(players[i], "ps " + pacote, 0);
+			else if (players[i].name != jogador1 and players[i].name != jogador2)send_reliable(players[i], "play " + pacote, 0);
+		}
+	}
+}
+void login(string u, string p, string yv, uint id, string compid, string node_id) {
+	bool can_login = true;
+	multiversion yver(yv);
+	multiversion lv(version);
+	string ip = n.get_peer_address(id);
+	ban@ banned = load_ban(u, true, {{"compid", compid}, {"node_id", node_id}});
+	check_ban(@banned);
+	if (@banned != null) {
+		if (banned.compid == "") banned.compid = compid;
+		if (banned.node_id == "") banned.node_id = node_id;
+		string msg = "Error. You are banned from the game";
+		if (banned.minutes > 0) msg += " for " + banned.minutes + " minutes";
+		msg += ".";
+		if (banned.reason != "") msg += " Reason: " + banned.reason;
+		send(id, join({"block", msg}, " "), 0);
+		can_login = false;
+	}
+	if (yver < lv) {
+		send_reliable(id, "block your client is out of date. Your version: " + yv + ". Minimum required version is " + version + ". Get the newest version by checking for updates, or from the following link:https://uw.posix.live", 0);
+		can_login = false;
+	}
+	for (uint i = 0; i < players.length(); i++) {
+		if (string_to_lower_case(players[i].name) == string_to_lower_case(u)) {
+			if (u == "kannadiga" or u == "RachelK" or u == "patricus" or u == "powermon" or u == "kiwi-james") {
+				remove_player(players[i].name);
+				can_login = true;
+			} else {
+				send_reliable(id, "block this account is already logged in", 0);
+				can_login = false;
+			}
+		}
+	}
+	if (can_login == true) {
+		if (!compid_handlercheck(compid))
+			add_compid(compid, u);
+		string charfolder = "chars/" + u;
+		file chardata;
+		file f;
+		if (!directory_exists("chars/" + u))
+			send_reliable(id, "nochar", 0);
+		else {
+			f.open("chars/" + u + "/password.usr", "rb");
+			string charpass = f.read();
+			f.close();
+			if (charpass != string_aes_encrypt(p, passkey))
+				send_reliable(id, "wrongpass", 0);
+			else {
+				if (file_get_contents(charfolder + "/map.usr") == "")
+					file_put(charfolder + "/map.usr", "main_map", FILE_WRITE);
+				f.open(charfolder + "/map.usr", "rb");
+				string m = f.read();
+				f.close();
+				send_reliable(id, "mapname " + m, 0);
+				if (file_get_contents(charfolder + "/facing.usr") == "") file_put(charfolder + "/facing.usr", "0", FILE_WRITE);
+				if (file_get_contents(charfolder + "/x.usr") == "") file_put(charfolder + "/x.usr", "0", FILE_WRITE);
+				if (file_get_contents(charfolder + "/y.usr") == "") file_put(charfolder + "/y.usr", "0", FILE_WRITE);
+				if (file_get_contents(charfolder + "/z.usr") == "") file_put(charfolder + "/z.usr", "0", FILE_WRITE);
+				f.open(charfolder + "/facing.usr", "rb");
+				send_reliable(id, "facing " + f.read(), 0);
+				f.close();
+				f.open(charfolder + "/x.usr", "rb");
+				send_reliable(id, "x " + f.read(), 0);
+				f.close();
+				f.open(charfolder + "/y.usr", "rb");
+				send_reliable(id, "y " + f.read(), 0);
+				f.close();
+				f.open(charfolder + "/z.usr", "rb");
+				send_reliable(id, "z " + f.read(), 0);
+				f.close();
+				if (get_charval(u, "node_id") != node_id) writeto(u, "node_id", node_id);
+				calendar d;
+				writeto(u, "data", "", "lastseen", join({d.year, d.month, d.day, d.hour, d.minute, d.second}, "/"));
+				log("connections", u + " logged in.", true, true);
+				send_reliable(id, "loggedin", 0);
+			}
+		}
+	}
+}
+int get_player_index(uint id) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].peer_id == id)
+			return i;
+	}
+	return -1;
+}
+int get_player_index_from(string name, bool evenhidden = true) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].name == name) {
+			if (!evenhidden) continue;
+			return i;
+		}
+	}
+	return -1;
+}
+int get_player_index_from(player@p, bool evenhidden = true) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].name == p.name) {
+			if (!evenhidden) continue;
+			return i;
+		}
+	}
+	return -1;
+}
+void create_char(string username, string password, string email, int gender, uint id, string yv, string compid, string node_id) {
+	string ip = n.get_peer_address(id);
+	ban@ banned = load_ban(username, true, {{"compid", compid}, {"node_id", node_id}});
+	check_ban(@banned);
+	if (@banned != null) {
+		if (banned.compid == "") banned.compid = compid;
+		if (banned.node_id == "") banned.node_id = node_id;
+		string msg = "Error. This username / computer is banned from the game";
+		if (banned.minutes > 0) msg += " for " + banned.minutes + " minutes";
+		msg += ".";
+		if (banned.reason != "") msg += " Reason: " + banned.reason;
+		send(id, join({"Error:", msg}, " "), 0);
+		return;
+	}
+	if (compjails.exists(username) or ipjails.exists(username)) {
+		send_reliable(id, "Error: You have been jailed.", 0);
+		return;
+	}
+	if (is_ipjailed(ip) > -1) {
+		send_reliable(id, "Error: you have been jailed.", 0);
+		return;
+	}
+	if (yv < version) {
+		send_reliable(id, "block your client is out of date. Your version: " + yv + ". Minimum required version is " + version + ". Get the newest version by checking for updates, or from the following link: https://posix.live/downloads/uw.zip", 0);
+		return;
+	}
+	string charfolder = "chars/" + username;
+	file f;
+	if (!directory_exists("chars"))
+		directory_create("chars");
+	if (directory_exists(charfolder) == false) {
+		directory_create(charfolder);
+		f.open(charfolder + "/health.usr", "wb");
+		f.write("10000");
+		f.close();
+		f.open(charfolder + "/level.usr", "wb");
+		f.write(1 + "\r\n" + 1);
+		f.close();
+		f.open(charfolder + "/energy.usr", "wb");
+		f.write("10000");
+		f.close();
+		f.open(charfolder + "/thirst.usr", "wb");
+		f.write(100 + "\r\n" + 0 + "\r\n" + 0);
+		f.close();
+		f.open(charfolder + "/hunger.usr", "wb");
+		f.write(50 + "\r\n" + 0 + "\r\n" + 0);
+		f.close();
+		f.open(charfolder + "/password.usr", "wb");
+		f.write(string_aes_encrypt(password, passkey));
+		f.close();
+		f.open(charfolder + "/eml.usr", "wb");
+		f.write(email);
+		f.close();
+		f.open(charfolder + "/vs.usr", "wb");
+		f.write(100 + "\r\n" + 25000 + "\r\n" + 100 + "\r\n" + 25000 + "\r\n" + 100 + "\r\n" + 30000 + "\r\n" + 100 + "\r\n" + 35000 + "\r\n" + 100 + "\r\n" + 40000 + "\r\n" + 100 + "\r\n" + 33000 + "\r\n" + 100 + "\r\n" + 20000 + "\r\n" + 100 + "\r\n" + 30000 + "\r\n" + 100 + "\r\n" + 40000 + "\r\n" + 100 + "\r\n" + 60000 + "\r\n" + 100 + "\r\n" + 60000 + "\r\n" + 100 + "\r\n" + 35000 + "\r\n" + 100 + "\r\n" + 22000 + "\r\n" + 100 + "\r\n" + 24000 + "\r\n" + 100 + "\r\n" + 32000 + "\r\n" + 100 + "\r\n" + 45000);
+		f.close();
+		f.open(charfolder + "/clothing.usr", "wb");
+		f.write(0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0 + "\r\n" + 0);
+		f.close();
+		f.open(charfolder + "/antidote.usr", "wb");
+		f.write(0 + "\r\n" + 1 + "\r\n" + 0);
+		f.close();
+		f.open(charfolder + "/swigs.usr", "wb");
+		f.write(0 + "\r\n" + 0 + "\r\n" + 35);
+		f.close();
+		f.open(charfolder + "/bank.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/balance.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/balance2.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/smartphone.usr", "wb");
+		f.write(100 + "\r\n" + 300000 + "\r\n" + 1);
+		f.close();
+		f.open(charfolder + "/weaponpings.usr", "wb");
+		f.write(1);
+		f.close();
+		f.open(charfolder + "/pvp.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/paid.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/paidstats.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/sitting.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/compid.usr", "wb");
+		f.close();
+		f.open(charfolder + "/air.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/muted.usr", "wb");
+		f.close();
+		f.open(charfolder + "/trusted.usr", "wb");
+		f.close();
+		f.open(charfolder + "/lang.usr", "wb");
+		f.write("english");
+		f.close();
+		f.open(charfolder + "/job.usr", "wb");
+		f.close();
+		f.open(charfolder + "/nickname.usr", "wb");
+		f.write(username);
+		f.close();
+		f.open(charfolder + "/sick.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/dirty.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/wet.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/newb.usr", "wb");
+		f.write(1);
+		f.close();
+		f.open(charfolder + "/chats.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/voted.usr", "wb");
+		f.close();
+		f.open(charfolder + "/playtime.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/nicknametime.usr", "wb");
+		f.write(1800000);
+		f.close();
+		f.open(charfolder + "/kills.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/deaths.usr", "wb");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/gender.usr", "wb");
+		f.write(gender);
+		f.close();
+		f.open(charfolder + "/levelsound.usr", "wb");
+		f.write(1);
+		f.close();
+		f.open(charfolder + "/mapavoltar.usr", "wb");
+		f.write("main_map");
+		f.close();
+		f.open(charfolder + "/xp.usr", "w");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/voice.usr", "w");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/pitch.usr", "w");
+		f.write(0);
+		f.close();
+		f.open(charfolder + "/x.usr", "wb");
+		f.write(5);
+		f.close();
+		f.open(charfolder + "/y.usr", "wb");
+		f.write(1);
+		f.close();
+		f.open(charfolder + "/z.usr", "wb");
+		f.write("0");
+		f.close();
+		writeto(username, "node_id", node_id);
+		add_compid(compid, username);
+		//url_post("http://balls.com/dl/mail.php","who="+email+"&from=balls.com&name=Ultra World&sub=Welcome!&mess=Hello.\r\nThank you for creating an account on Ultra World! thank you for joining us!\r\n\r\nThis message was automated by Ultra World. Please do not reply.");
+		send_reliable(id, "createdchar", 0);
+		send_reliable(0, "play_s newchar2.ogg", 6);
+		send_reliable(0, "the player " + username + " has been created!", 2);
+	} else
+		send_reliable(id, "alreadyexists", 0);
+}
+string read_from(string name, string val) {
+	string ret;
+	int index = get_player_index(e.peer_id);
+	file f;
+	if (index > -1) {
+		string charfolder = "chars/" + players[index].name;
+		f.open(charfolder + "/" + val + ".usr", "rb");
+		ret = f.read();
+		f.close();
+		return ret;
+	} else
+		return "error";
+}
+void write_to(string name, string fn, string c) {
+	file f;
+	f.open("chars/" + name + "/" + fn, "wb");
+	f.write(c);
+	f.close();
+}
+void write_to(string name, string fn, double c) {
+	file f;
+	f.open("chars/" + name + "/" + fn, "wb");
+	f.write(c);
+	f.close();
+}
+void write_to(string name, string fn, dictionary c) {
+	file f;
+	f.open("chars/" + name + "/" + fn, "wb");
+	f.write(serialize(c));
+	f.close();
+}
+void respawn(player@p) {
+	if (p.cp == true) {
+		move_player(p, p.cmap, p.cx, p.cy, p.cz);
+		p.cp = false;
+	} else if (p.pvp == 1)
+		move_player(p, p.map, p.x, p.y, p.z, true);
+	else
+		move_player(p, p.map, p.x, p.y, p.z);
+	p.is_dead = false;
+	p.sitting = 1;
+	send_reliable(p, "sitstart", 0);
+	p.statchangetimer.force(60000);
+}
+void moveplayermap(string map, player@p, int x = 0, int y = 0, int z = 0, bool command = false) {
+	p.x = x;
+	p.y = y;
+	p.z = z;
+	bool mapchanged = false;
+	if (map != p.map or command == false) mapchanged = true;
+	if (map != p.map) {
+	}
+	if (mapchanged) {
+		p.map = map;
+		p.mapavoltar = map;
+		send_reliable(p, "m_data " + get_map_text(maps[get_map_index(map)]), 0);
+	}
+	send_reliable(p, "move " + p.x + " " + p.y + " " + p.z, 7);
+}
+void exitsvr(bool restart = false) {
+	svd::save();
+	svd::destruct();
+	send_reliable(0, "killclient", 0);
+	on_web(delete = true, lock = true);
+	file_put("profile.log", generate_profile());
+	wait(500);
+	n.destroy();
+	if (restart) {
+		#if linux
+			run("/home/uw/svr/start.sh", "", false, false);
+		#endif
+		#if windows
+			run((SCRIPT_COMPILED ? "svr.exe" : SCRIPT_EXECUTABLE), (SCRIPT_COMPILED ? "" : "uwserver.nvgt"), false, false);
+		#endif
+		wait(500);
+	}
+	exit();
+}
+void svshutdown(string reason = "") {
+	send(0, "servershutdown" + (reason != "" ? " " + reason : ""), 0);
+	wait(250);
+	extimer.restart();
+	exrestart = false;
+	exiting = true;
+}
+void svreboot(string reason = "") {
+	send(0, "serverreboot" + (reason != "" ? " " + reason : ""), 0);
+	wait(250);
+	extimer.restart();
+	exrestart = true;
+	exiting = true;
+}
+string randomstring(uint length = 10, int mode = 1) {
+	string lets = "abcdefghijklmnopqrstuvwxyz";
+	string nums = "1234567890";
+	string temp;
+	if (mode == 1)
+		temp = lets + nums;
+	else if (mode == 2)
+		temp = nums;
+	else if (mode == 3)
+		temp = lets;
+	string ret;
+	for (uint i = 0; i < length; i++)
+		ret = ret + temp[random(0, (temp.length() - 1))];
+	return ret;
+}
+string[] delete_array_item(string[] array, string value) {
+	string inv = linear(array);
+	string itemname = value;
+	string[] peramitors = array;
+	string[] values;
+	string srt;
+	for (uint i = 0; i < peramitors.length(); i++) {
+		values.insert_at(i, string_replace(peramitors[i], string_left(peramitors[i], string_contains(peramitors[i], "=", 1) + 1), "", true));
+		peramitors[i] = string_replace(peramitors[i], "=" + values[i], "", true);
+	}
+	for (uint i = 0; i < peramitors.length(); i++) {
+		if (peramitors[i] == itemname)
+			inv = string_replace(inv, itemname + "=" + values[i] + "\r\n", "", false);
+	}
+	return delinear(inv);
+}
+void send_serverbox(int peerid, int mode = 0, int maxlength = -1, int autosend = 0, int keypresses = -1, string sendtext = "server_box", string text = "enter text") {
+	send_reliable(peerid, "input ++" + mode + "++" + maxlength + "++" + autosend + "++" + keypresses + "++" + sendtext + "++" + text, 0);
+}
+void send_menu(int id, string menuintro, string text, string items) {
+	menuintro = string_replace(menuintro, " ", "[SPCE]", true);
+	text = string_replace(text, " ", "[SPCE", true);
+	send_reliable(id, "launchmenu " + menuintro + " " + text + " " + items, 0);
+}
+void send_menu2(int id, string menuintro, string text, string items) {
+	menuintro = string_replace(menuintro, " ", "[SPCE]", true);
+	text = string_replace(text, " ", "[SPCE", true);
+	send_reliable(id, "launchmenu2 " + menuintro + " " + text + " " + items, 0);
+}
+void sendmenu(uint peer_id, string title, string items, bool interactable = false, string actions = "") {
+	if (interactable == true)
+		send_reliable(peer_id, "srmenu " + title + ":" + items + "-_" + actions, 0);
+	else
+		send_reliable(peer_id, "srmenu " + title + ":" + items, 0);
+}
+string random_string_from_array(string[] arraystring) {
+	string retval = arraystring[random(0, arraystring.length() - 1)];
+	return retval;
+}
+bool filter(string message) {
+	if (filterstuff == 0) return false;
+	return false;
+}
+bool filterchar(string message, bool strict = false, string additional = "") {
+	string filter;
+	if (!strict) filter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 !\" $%^&*()-_=+[]{};:'@#\\|,./<>?`~\t\r\n";
+	else filter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_";
+	filter += additional;
+	bool found = false;
+	for (int counter = 0; counter < message.length(); counter++) {
+		found = false;
+		for (int search = 0; search < filter.length(); search++) {
+			if (message[counter] == filter[search]) {
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			return true;
+	}
+	return false;
+}
+string internal_killmsg(string act, string died) {
+	if (act == "drown") return "" + died + " has drowned!";
+	if (act == "rg:expire") return "" + died + " has expired!";
+	else if (act == "rg:destruct") return "" + died + " just self destructed!";
+	else if (string_left(act, 8) == "vehicle:") return "" + died + " was died by the explosion of their " + string_trim_left(act, 8);
+	else if (string_left(act, 11) == "motorcycle:") return "" + died + " was died by the explosion of their " + string_trim_left(act, 11);
+	else return "" + died + " was terminated by " + act;
+}
+void playmap(string sound, string map) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == map)
+			send_reliable(players[i], "play_s " + sound + ".ogg", 6);
+	}
+}
+void sendmap(string packet, string map, int channel = 0, bool reliable = true) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == map) {
+			if (reliable) send_reliable(players[i], packet, channel);
+			else send_reliable(players[i], packet, channel);
+		}
+	}
+}
+string localgrab_url(string filename) {
+	return file_get_contents("../../var/www/html/" + filename);
+}
+bool write_to_webfile(string filename, string content) {
+	return file_put("../../var/www/html/" + filename, content, 250);
+}
+void admintell(string msg) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].is_admin())
+			send_reliable(players[i], "admintells " + msg, 0);
+	}
+}
+void asttell(string msg, string snd = "notify5.ogg", string buffer = "astt") {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].assistant)
+			bsend(players[i].peer_id, buffer, snd, msg);
+	}
+}
+string email(string address, string from, string subject, string message) {
+	string n = "Ultra World server"; //change name if other game!
+	return url_post("http://balls.com/dl/mail.php", "who=" + address + "&name=" + n + "&from=" + from + "&sub=" + subject + "&mess=" + message);
+}
+double get_closest_value(double num, int[] arr) {
+	double diff = 0;
+	double result;
+	for (uint i = 0; i < arr.length(); i++) {
+		int d = absolute(num - arr[i]);
+		if (d < diff or diff == 0) {
+			diff = d;
+			result = arr[i];
+		}
+	}
+	return result;
+}
+string get_script_path(bool prefer_slash) {
+	string scriptpath;
+	if (!SCRIPT_COMPILED)
+		scriptpath = SCRIPT_CURRENT_FILE;
+	else
+		scriptpath = SCRIPT_EXECUTABLE;
+	if (prefer_slash) scriptpath = scriptpath.replace("\\", "/", true);
+	else scriptpath = scriptpath.replace("/", "\\", true);
+	return scriptpath;
+}
+string get_script_path() property {
+	//Will return the script path with the slash based.
+	return get_script_path(true);
+}
+string get_script_dir(bool prefer_slash) {
+	string sdir = script_path;
+	sdir = sdir.replace("\\", "/", true);
+	string[] lines = sdir.split("/", false);
+	if (lines.length() > 1) lines.remove_at((lines.length() - 1));
+	return join(lines, (prefer_slash ? "/" : "\\"));
+}
+string get_script_dir() property {
+	//Will return the script directory with the slash based.
+	return get_script_dir(true);
+}
+string convert_to_list(string[] arr) {
+	string list;
+	if (arr.length() == 0) return "";
+	if (arr.length() == 1) return arr[0];
+	for (uint i = 0; i < arr.length(); i++) {
+		if (i == arr.length() - 1)
+			list += " and " + arr[i];
+		else
+			list += arr[i] + ", ";
+	}
+	return list;
+}
+bool dm(string username, string mess) {
+	return run("dm.exe", "--username " + username + " --message \"" + mess + "\"", true, true);
+}
+double calculate_movetime_per_tile(int ms, int tiles_to_move) {
+	return (ms / tiles_to_move);
+}
+string pegartelhado(string mapa) {
+	file f;
+	f.open("maps/" + mapa + "/!.map", "r");
+	string[] m = string_split(f.read(), "\r\n", false);
+	for (uint i = 0; i < m.length(); i++) {
+		if (string_contains(m[i], "rain", 1) > -1) {
+			string[] mm = string_split(m[i], ":", false);
+			return mm[1];
+		}
+	}
+	return "rain" + random(1, 12) + ".ogg";
+}
+bool tjogador(string nome) {
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == nome)return true;
+	}
+	return false;
+}
+string get_draw_and_get_sound(string itemname) {
+	string final;
+	if (string_contains(itemname, "skillet", 1) > -1)
+		final = "skillet";
+	else if (string_contains(itemname, "box_of_", 1) > -1)
+		final = "box";
+	else if (string_contains(itemname, "pack_of_", 1) > -1 || itemname.starts_with("package_of_"))
+		final = "pack";
+	else if (string_contains(itemname, "corrupted_", 1) > -1 and string_contains(itemname, "_meat", 1) > -1)
+		final = "meat";
+	else if (string_contains(itemname, "heated_", 1) > -1)
+		final = "beer_bottle";
+	else {
+		file f;
+		f.open("drawsounds.svr", "rb");
+		string[] parsed = string_split(f.read(), "\r\n", false);
+		f.close();
+		if (parsed.length() > 1) {
+			for (uint i = 0; i < parsed.length(); i++) {
+				string[] parsed2 = string_split(parsed[i], "=", false);
+				if (parsed2.length() > 1) {
+					if (itemname == parsed2[0])
+						final = parsed2[1];
+				}
+			}
+		} else
+			final = "";
+	}
+	return final;
+}
+void jraio() {
+	int j = random(1, 100);
+	if (j <= 30)
+		send_reliable(0, "play_s thunder" + random(1, 40) + ".ogg", 6);
+}
+bool hasammo(string w) {
+	if (guns.find(w) > -1)
+		return true;
+	return false;
+}
+int get_gun_reload_length(string weaponname) {
+	if (weaponname == "a90sniper_rifle")
+		return 2917;
+	if (weaponname == "ak47assault_rifle")
+		return 2280;
+	if (weaponname == "ak48")
+		return 4531;
+	if (weaponname == "arrow_gun")
+		return 1304;
+	if (weaponname == "bow")
+		return 1375;
+	if (weaponname == "long_bow")
+		return 2431;
+	if (weaponname == "blue_assault_rifle")
+		return 1549;
+	if (weaponname == "blue_bolt_action_sniper")
+		return 2365;
+	if (weaponname == "blue_burst_assault_rifle")
+		return 1985;
+	if (weaponname == "blue_heavy_assault_rifle")
+		return 600;
+	if (weaponname == "blue_hunting_rifle")
+		return 1765;
+	if (weaponname == "blue_infintry_rifle")
+		return 2077;
+	if (weaponname == "blue_tacticle_shotgun")
+		return 2772;
+	if (weaponname == "drum_shotgun")
+		return 4702;
+	if (weaponname == "gold_burst_assault_rifle")
+		return 1985;
+	if (weaponname == "gold_drum_gun")
+		return 2652;
+	if (weaponname == "gold_heavy_assault_rifle")
+		return 600;
+	if (weaponname == "gold_scar")
+		return 1765;
+	if (weaponname == "gold_tacticle_shotgun")
+		return 2772;
+	if (weaponname == "heavy_sniper")
+		return 3253;
+	if (weaponname == "colt_m9")
+		return 3268;
+	if (weaponname == "colt_m19")
+		return 3268;
+	if (weaponname == "e9pistol")
+		return 2758;
+	if (weaponname == "e20shotgun")
+		return 3271;
+	if (weaponname == "e235shotgun")
+		return 3271;
+	if (weaponname == "mb3shotgun")
+		return 3078;
+	if (weaponname == "mb5shotgun")
+		return 3257;
+	if (weaponname == "mpt_special_shotgun")
+		return 570;
+	if (weaponname == "mp5machinegun")
+		return 2070;
+	if (weaponname == "tranquilizer_gun")
+		return 567;
+	if (weaponname == "famas_g2")
+		return 3700;
+	if (weaponname == "k222rifle")
+		return 4072;
+	if (weaponname == "p3hunting_shotgun")
+		return 3683;
+	if (weaponname == "taser")
+		return 917;
+	if (weaponname == "tiny_mg")
+		return 1883;
+	if (weaponname == "rocket_launcher")
+		return 3433;
+	if (weaponname == "ar15machinegun")
+		return 1405;
+	if (weaponname == "crossbow")
+		return 2051;
+	if (weaponname == "mj420machinegun")
+		return 2068;
+	if (weaponname == "pcs_handgun")
+		return 1634;
+	if (weaponname == "rpg_launcher")
+		return 2371;
+	if (weaponname == "sp3heavy_machinegun")
+		return 9720;
+	if (weaponname == "rpg7")
+		return 2221;
+	if (weaponname == "nak_nk1000_decimater")
+		return 10111;
+	if (weaponname == "mb93machinegun")
+		return 2645;
+	if (weaponname == "tsp_grenade_launcher")
+		return 2736;
+	if (weaponname == "missile_launcher")
+		return 3034;
+	if (weaponname == "m234minigun")
+		return 9090;
+	if (weaponname == "ak9automatic_machinegun")
+		return 2240;
+	if (weaponname == "ump45machinegun")
+		return 2022;
+	if (weaponname == "tac50rifle")
+		return 2066;
+	if (weaponname == "uzi_machinegun")
+		return 2249;
+	if (weaponname == "stp15rifle")
+		return 2409;
+	if (weaponname == "stp106_long_barreled_pistol")
+		return 2448;
+	if (weaponname == "b96machinegun")
+		return 2502;
+	if (weaponname == "kalashnikov_rifle")
+		return 3012;
+	if (weaponname == "m28mini_machinegun")
+		return 3094;
+	if (weaponname == "m90machinegun")
+		return 2518;
+	if (weaponname == "qt_machinegun")
+		return 2267;
+	if (weaponname == "sfx12machinegun")
+		return 1971;
+	if (weaponname == "mkv43machinegun")
+		return 2164;
+	if (weaponname == "pst500shotgun")
+		return 4201;
+	if (weaponname == "mlr_assault_rifle")
+		return 2359;
+	if (weaponname == "chainsaw")
+		return 3675;
+	if (weaponname == "ruga22revolver")
+		return 2000;
+	if (weaponname == "barett_m1500sniper_rifle")
+		return 4075;
+	if (weaponname == "browning_m2heavy_machinegun")
+		return 7536;
+	if (weaponname == "fn2000pistol")
+		return 1153;
+	if (weaponname == "m16machinegun")
+		return 1701;
+	if (weaponname == "msb530shotgun")
+		return 3226;
+	if (weaponname == "mlk290rifle")
+		return 2224;
+	if (weaponname == "fnm_pistol")
+		return 1495;
+	if (weaponname == "g36pistol")
+		return 2533;
+	if (weaponname == "gouse_pistol")
+		return 2797;
+	if (weaponname == "lr12pistol")
+		return 2322;
+	if (weaponname == "m9pistol")
+		return 3479;
+	if (weaponname == "m125assault_rifle")
+		return 3950;
+	if (weaponname == "m152minigun")
+		return 3541;
+	if (weaponname == "m560sniper_rifle")
+		return 3593;
+	if (weaponname == "mg4machinegun")
+		return 4615;
+	if (weaponname == "mk_long_machinegun")
+		return 3561;
+	if (weaponname == "mk52_assault_rifle")
+		return 6240;
+	if (weaponname == "mk215machinegun")
+		return 1570;
+	if (weaponname == "ml7rifle")
+		return 4033;
+	if (weaponname == "ml15rifle")
+		return 3603;
+	if (weaponname == "s55assault_rifle")
+		return 3584;
+	if (weaponname == "sp5shotgun")
+		return 4370;
+	if (weaponname == "sp150shotgun")
+		return 3894;
+	if (weaponname == "hk_machinegun")
+		return 1501;
+	if (weaponname == "m10machinegun")
+		return 2565;
+	if (weaponname == "mp12machinegun")
+		return 2923;
+	if (weaponname == "m155minigun")
+		return 4568;
+	if (weaponname == "s110assault_rifle")
+		return 2834;
+	if (weaponname == "str301machinegun ")
+		return 1747;
+	if (weaponname == "blz5machinegun")
+		return 4154;
+	return -1;
+}
+void clothing(player@p, bool todos = true) {
+	string final, texto;
+	string[] lista;
+	if (p.bonemizuno == 1) lista.insert_last("hat on your head");
+	if (p.capacetepolicia == 1) lista.insert_last("police_helmet on your head");
+	if (p.chapeupanama == 1) lista.insert_last("panaml_hat on your head");
+	if (p.oculosmizuno == 1) lista.insert_last("sun_glasses on your face");
+	if (p.camisamalha == 1) lista.insert_last("knitted_shirt on your body");
+	if (p.coletemizuno == 1) lista.insert_last("rubber_vest on your body");
+	if (p.bullet_proof_vested == 1) lista.insert_last("bullet_proof_vest on your body");
+	if (p.armored == 1) lista.insert_last("armor around your body");
+	if (p.large_armor_plated == 1) lista.insert_last("large armor plate around your body");
+	if (p.shielded == 1) lista.insert_last("shield around your body");
+	if (p.steel_shielded == 1) lista.insert_last("steel shield around your body");
+	if (p.coletecamuflado == 1) lista.insert_last("camouflage_vest on your body");
+	if (p.coletemilitar == 1) lista.insert_last("military_vest on your body");
+	if (p.jaquetacouro == 1) lista.insert_last("leather_jacket on your body");
+	if (p.bracadeira == 1) lista.insert_last("clamp around your body");
+	if (p.luvas == 1) lista.insert_last("Gloves_pair on your hands");
+	if (p.relogio == 1) lista.insert_last("Watch on your rist");
+	if (p.bra == 1) lista.insert_last("one " + p.b1 + " on you're brests");
+	if (p.pulseiraouro == 1) lista.insert_last("golden_bracelet on your hand");
+	if (p.pulseiraprata == 1) lista.insert_last("silver_bracelet on your hand");
+	if (p.pulseirabronze == 1) lista.insert_last("bronze_bracelet on your hand");
+	if (p.anel == 1) lista.insert_last("ring on your middle finger");
+	if (p.marriage_ring == 1) lista.insert_last("marriage ring on your ring finger");
+	if (p.pulseira == 1) lista.insert_last("bracelet on your hand");
+	if (p.calcamizuno == 1) lista.insert_last("social_pants on your legs");
+	if (p.calcacamuflada == 1) lista.insert_last("camouflage_pants on your legs");
+	if (p.calcajeans == 1) lista.insert_last("jeans_pants on your legs");
+	if (p.calcalegging == 1) lista.insert_last("legging_pants on your legs");
+	if (p.sapatoscarpin == 1) lista.insert_last("scarpin_shoes on your feat");
+	if (p.coturnomilitar == 1) lista.insert_last("military_boots on your feat");
+	if (p.botamizuno == 1) lista.insert_last("social_shoes on your feat");
+	if (p.tenisadidas == 1) lista.insert_last("sandal on your feat");
+	if (p.tenisnike == 1) lista.insert_last("nike_shoes on your feat");
+	if (p.short_fitting_dresses_with_deep_neckline == 1) lista.insert_last("" + p.b2 + " on your body");
+	if (p.easy_summer_dress == 1) lista.insert_last("" + p.b3 + " on your body");
+	if (p.short_fitting_top == 1) lista.insert_last("" + p.b4 + " on your body");
+	if (p.denim_short_shorts == 1) lista.insert_last("" + p.b5 + " on your legs");
+	if (p.denim_shirt == 1) lista.insert_last("" + p.b6 + " on your body");
+	if (p.t_shirt == 1) lista.insert_last("" + p.b7 + " on your body");
+	if (p.sweat_pants == 1) lista.insert_last("one " + p.b8 + " on your legs");
+	if (p.sports_jacket == 1) lista.insert_last("one " + p.b9 + " on your body");
+	if (p.baseball_cap == 1) lista.insert_last("one " + p.b10 + " on your head");
+	if (p.open_shoes_with_high_thin_heel == 1) lista.insert_last("one " + p.b11 + " on your feat");
+	if (p.bathrobe == 1) lista.insert_last("one " + p.b12 + " on your body");
+	if (p.slippers == 1) lista.insert_last("one " + p.b13 + " on your feat");
+	if (p.leather_pants == 1) lista.insert_last("one " + p.b14 + " on your legs");
+	if (p.leather_fitting_short_dress == 1) lista.insert_last("one " + p.b15 + " on your body");
+	if (p.denim_short_skirt == 1) lista.insert_last("one " + p.b16 + " on your body");
+	if (p.long_light_skirt == 1) lista.insert_last("one " + p.b17 + " on your body");
+	if (p.blouse_tight_with_deep_neckline == 1) lista.insert_last("one " + p.b18 + " on your chest");
+	if (p.female_closed_swimsuit == 1) lista.insert_last("one " + p.b19 + " on your body");
+	if (p.female_outdoor_swimsuit == 1) lista.insert_last("one " + p.b20 + " on your body");
+	if (p.male_bathing_panties == 1) lista.insert_last("one " + p.b21 + " on your buts");
+	if (p.heavy_studded_leather_boots == 1) lista.insert_last("heavy_studded_leather_boots on your feat");
+	if (p.classic_straight_pants == 1) lista.insert_last("classic_straight_pants on your legs");
+	if (p.classic_jacket == 1) lista.insert_last("classic_jacket on your body");
+	if (p.classic_shirt == 1) lista.insert_last("classic_shirt on your body");
+	if (p.tie == 1) lista.insert_last("tie on your neck");
+	if (p.classic_shoes == 1) lista.insert_last("classic_shoes on your feat");
+	if (p.openwork_stockings == 1) lista.insert_last("one openwork_stockings");
+	if (p.wedding_dress == 1) lista.insert_last("wedding_dres on your body");
+	if (p.wedding_wreath == 1) lista.insert_last("wedding_wreath on your body");
+	if (p.mens_panties == 1) lista.insert_last("mens_panties on your buts");
+	if (p.womens_lace_panties == 1) lista.insert_last("womens_lace_panties on your buts");
+	if (p.warm_knitted_hat == 1) lista.insert_last("warm_knitted_hat on your head");
+	if (p.down_jacket == 1) lista.insert_last("down_jacket on your body");
+	if (p.leather_jacket_with_fur_trim_on_collar_and_sleeves == 1) lista.insert_last("leather_jacket_with_fur_trim_on_collar_and_sleeves on your body");
+	if (p.fur_coat_short_with_a_hood == 1) lista.insert_last("fur_coat_short_with_a_hood on your body");
+	if (p.warm_male_boots == 1) lista.insert_last("warm_male_boots on your feat");
+	if (p.warm_High_Womens_High_Heel_Boots == 1) lista.insert_last("warm_High_Womens_High_Heel_Boots on your feat");
+	if (p.warm_sports_jacket_with_hood == 1) lista.insert_last("warm_sports_jacket_with_hood on your body");
+	if (p.leather_cloak == 1) lista.insert_last("one leather_cloak");
+	if (p.shit_filled_pants == 1) lista.insert_last("shit_filled_pants on your legs");
+	if (p.warmed_sports_pants == 1) lista.insert_last("warmed_sports_pants on your legs");
+	if (p.mens_sweater == 1) lista.insert_last("mens_sweater on your body");
+	if (p.female_sweater_with_deep_neckline == 1) lista.insert_last("female_sweater_with_deep_neckline on your body");
+	if (p.warm_pants == 1) lista.insert_last("warm_pants on your legs");
+	if (p.warm_high_collar_sweater == 1) lista.insert_last("warm_high_collar_sweater on your body");
+	if (p.soft_scarf == 1) lista.insert_last("one soft_scarf");
+	if (p.warm_leather_boots == 1) lista.insert_last("warm_leather_boots on your feat");
+	if (p.roll_bandage == 1) lista.insert_last("roll bandage on your injured part");
+	if (p.mens_denim_shorts == 1) lista.insert_last("one " + p.b22 + " on your legs");
+	if (p.mens_lightweight_shorts == 1) lista.insert_last("one " + p.b23 + " on your legs");
+	if (p.mens_lightweight_pants == 1) lista.insert_last("one " + p.b24 + "");
+	if (p.lightweight_sneakers == 1) lista.insert_last("one " + p.b25 + " on your legs");
+	if (p.womens_sneakers_on_a_high_platform == 1) lista.insert_last("one " + p.b26 + " on your feat");
+	if (p.mens_lightweight_shirt == 1) lista.insert_last("one " + p.b27 + " on your body");
+	if (p.womens_tight_jeans == 1) lista.insert_last("one " + p.b28 + " on your legs");
+	for (uint contador = 0; contador < lista.length(); contador++) {
+		if (contador < lista.length() - 1) texto += lista[contador] + ", ";
+		if (contador == lista.length() - 1) texto += "and " + lista[contador];
+	}
+	if (lista.length() == 0) final = " You are wearing nothing!";
+	else if (lista.length() == 1) final = "You are wearing just a " + lista[0];
+	else final = "You are wearing: " + texto;
+	lista.resize(0);
+	texto = "";
+	final += ". ";
+	if (todos == true) {
+		for (int i = p.x - 30; i <= p.x + 30; i++) {
+			for (uint i2 = 0; i2 < players.length(); i2++) {
+				if (players[i2].x == i and players[i2].name != p.name and players[i2].map == p.map) {
+					if (players[i2].bonemizuno == 1) lista.insert_last("hat on " + get_gender(players[i2].gender, gender_pd) + " head");
+					if (players[i2].capacetepolicia == 1) lista.insert_last("police_helmet on " + get_gender(players[i2].gender, gender_pd) + " head");
+					if (players[i2].chapeupanama == 1) lista.insert_last("panaml_hat on " + get_gender(players[i2].gender, gender_pd) + " head");
+					if (players[i2].oculosmizuno == 1) lista.insert_last("sun_glasses on " + get_gender(players[i2].gender, gender_pd) + " face");
+					if (players[i2].camisamalha == 1) lista.insert_last("knitted_shirt on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].coletemizuno == 1) lista.insert_last("rubber_vest on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].bullet_proof_vested == 1) lista.insert_last("bullet_proof_vest on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].armored == 1) lista.insert_last("armor around " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].large_armor_plated == 1) lista.insert_last("large armor plate around " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].shielded == 1) lista.insert_last("shield around " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].steel_shielded == 1) lista.insert_last("steel shield around " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].coletecamuflado == 1) lista.insert_last("camouflage_vest on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].coletemilitar == 1) lista.insert_last("military_vest on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].jaquetacouro == 1) lista.insert_last("leather_jacket on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].bracadeira == 1) lista.insert_last("clamp around " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].relogio == 1) lista.insert_last("watch on " + get_gender(players[i2].gender, gender_pd) + " rist");
+					if (players[i2].gender == 0)players[i2].gender2 = "his";
+					else players[i2].gender2 = "her";
+					if (players[i2].bra == 1) lista.insert_last("one " + players[i2].b1 + " in " + players[i2].gender2 + " brests");
+					if (players[i2].anel == 1) lista.insert_last("ring on " + get_gender(players[i2].gender, gender_pd) + " finger");
+					if (players[i2].marriage_ring == 1) lista.insert_last("marriage ring on " + get_gender(players[i2].gender, gender_pd) + " ring finger");
+					if (players[i2].pulseiraouro == 1) lista.insert_last("golden_bracelet on " + get_gender(players[i2].gender, gender_pd) + " hand");
+					if (players[i2].pulseiraprata == 1) lista.insert_last("silver_bracelet on " + get_gender(players[i2].gender, gender_pd) + " hand");
+					if (players[i2].pulseirabronze == 1) lista.insert_last("bronze_bracelet on " + get_gender(players[i2].gender, gender_pd) + " hand");
+					if (players[i2].pulseira == 1) lista.insert_last("bracelet on " + get_gender(players[i2].gender, gender_pd) + " hand");
+					if (players[i2].calcamizuno == 1) lista.insert_last("social_pants on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].calcajeans == 1) lista.insert_last("jeans_pants on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].calcacamuflada == 1) lista.insert_last("camouflage_pants on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].calcalegging == 1) lista.insert_last("legging_pants on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].sapatoscarpin == 1) lista.insert_last("scarpin_shoes on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].coturnomilitar == 1) lista.insert_last("military_boots on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].botamizuno == 1) lista.insert_last("social_shoes on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].tenisadidas == 1) lista.insert_last("sandal on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].tenisnike == 1) lista.insert_last("nike_shoes on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].short_fitting_dresses_with_deep_neckline == 1) lista.insert_last("one " + players[i2].b2 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].easy_summer_dress == 1) lista.insert_last("one " + players[i2].b3 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].short_fitting_top == 1) lista.insert_last("one " + players[i2].b4 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].denim_short_shorts == 1) lista.insert_last("one " + players[i2].b5 + " on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].denim_shirt == 1) lista.insert_last("one " + players[i2].b6 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].t_shirt == 1) lista.insert_last("one " + players[i2].b7 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].sweat_pants == 1) lista.insert_last("one " + players[i2].b8 + " on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].sports_jacket == 1) lista.insert_last("one " + players[i2].b9 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].baseball_cap == 1) lista.insert_last("one " + players[i2].b10 + " on " + get_gender(players[i2].gender, gender_pd) + " head");
+					if (players[i2].open_shoes_with_high_thin_heel == 1) lista.insert_last("one " + players[i2].b11 + " on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].bathrobe == 1) lista.insert_last("one " + players[i2].b12 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].slippers == 1) lista.insert_last("one " + players[i2].b13 + " on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].leather_pants == 1) lista.insert_last("one " + players[i2].b14 + " on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].leather_fitting_short_dress == 1) lista.insert_last("one " + players[i2].b15 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].denim_short_skirt == 1) lista.insert_last("one " + players[i2].b16 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].long_light_skirt == 1) lista.insert_last("one " + players[i2].b17 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].blouse_tight_with_deep_neckline == 1) lista.insert_last("one " + players[i2].b18 + " on " + get_gender(players[i2].gender, gender_pd) + " chest");
+					if (players[i2].female_closed_swimsuit == 1) lista.insert_last("one " + players[i2].b19 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].female_outdoor_swimsuit == 1) lista.insert_last("one " + players[i2].b20 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].male_bathing_panties == 1) lista.insert_last("one " + players[i2].b21 + " on " + get_gender(players[i2].gender, gender_pd) + " buts");
+					if (players[i2].heavy_studded_leather_boots == 1) lista.insert_last("heavy_studded_leather_boots on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].classic_straight_pants == 1) lista.insert_last("classic_straight_pants on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].classic_jacket == 1) lista.insert_last("classic_jacket on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].classic_shirt == 1) lista.insert_last("classic_shirt on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].tie == 1) lista.insert_last("tie on " + get_gender(players[i2].gender, gender_pd) + " neck");
+					if (players[i2].classic_shoes == 1) lista.insert_last("classic_shoes on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].openwork_stockings == 1) lista.insert_last("one openwork_stockings");
+					if (players[i2].wedding_dress == 1) lista.insert_last("wedding_dress on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].wedding_wreath == 1) lista.insert_last("wedding_wreath on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].mens_panties == 1) lista.insert_last("mens_panties on " + get_gender(players[i2].gender, gender_pd) + " buts");
+					if (players[i2].womens_lace_panties == 1) lista.insert_last("womens_lace_panties on " + get_gender(players[i2].gender, gender_pd) + " buts");
+					if (players[i2].warm_knitted_hat == 1) lista.insert_last("warm_knitted_hat on " + get_gender(players[i2].gender, gender_pd) + " head");
+					if (players[i2].down_jacket == 1) lista.insert_last("down_jacket on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].leather_jacket_with_fur_trim_on_collar_and_sleeves == 1) lista.insert_last("leather_jacket_with_fur_trim_on_collar_and_sleeve son " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].fur_coat_short_with_a_hood == 1) lista.insert_last("fur_coat_short_with_a_hood on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].warm_male_boots == 1) lista.insert_last("warm_male_boots on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].warm_High_Womens_High_Heel_Boots == 1) lista.insert_last("warm_High_Womens_High_Heel_Boots on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].warm_sports_jacket_with_hood == 1) lista.insert_last("warm_sports_jacket_with_hood on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].leather_cloak == 1) lista.insert_last("one leather_cloak");
+					if (players[i2].warmed_sports_pants == 1) lista.insert_last("warmed_sports_pants on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].shit_filled_pants == 1) lista.insert_last("shit_filled_pants on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].mens_sweater == 1) lista.insert_last("mens_sweater on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].female_sweater_with_deep_neckline == 1) lista.insert_last("female_sweater_with_deep_neckline on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].warm_pants == 1) lista.insert_last("warm_pants on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].warm_high_collar_sweater == 1) lista.insert_last("warm_high_collar_sweater on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].soft_scarf == 1) lista.insert_last("one soft_scarf");
+					if (players[i2].warm_leather_boots == 1) lista.insert_last("warm_leather_boots on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].roll_bandage == 1) lista.insert_last("roll bandage on " + get_gender(players[i2].gender, gender_pd) + " injured part");
+					if (players[i2].mens_denim_shorts == 1) lista.insert_last("one " + players[i2].b22 + " on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].mens_lightweight_shorts == 1) lista.insert_last("one " + players[i2].b23 + " on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].mens_lightweight_pants == 1) lista.insert_last("one " + players[i2].b24 + " on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					if (players[i2].lightweight_sneakers == 1) lista.insert_last("one " + players[i2].b25 + " on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].womens_sneakers_on_a_high_platform == 1) lista.insert_last("one " + players[i2].b26 + " on " + get_gender(players[i2].gender, gender_pd) + " feat");
+					if (players[i2].mens_lightweight_shirt == 1) lista.insert_last("one " + players[i2].b27 + " on " + get_gender(players[i2].gender, gender_pd) + " body");
+					if (players[i2].womens_tight_jeans == 1) lista.insert_last("one " + players[i2].b28 + " on " + get_gender(players[i2].gender, gender_pd) + " legs");
+					for (uint contador = 0; contador < lista.length(); contador++) {
+						if (contador < lista.length() - 1) texto += lista[contador] + ", ";
+						if (contador == lista.length() - 1) texto += "and " + lista[contador];
+					}
+					texto += ". ";
+					if (lista.length() == 0) final += players[i2].name + " is wearing just a!";
+					else if (lista.length() == 1) final += players[i2].name + " is wearing just a " + lista[0];
+					else final += players[i2].name + " is wearing: " + texto;
+					lista.resize(0);
+					texto = "";
+				}
+			}
+		}
+	}
+	send_reliable(p, "clothing " + final, 0);
+}
+string convert_to_list(int[] arr) {
+	string list;
+	if (arr.length() == 0) return "";
+	if (arr.length() == 1) return arr[0];
+	for (uint i = 0; i < arr.length(); i++) {
+		if (i == arr.length() - 1)
+			list += " and " + arr[i];
+		else
+			list += arr[i] + ", ";
+	}
+	return list;
+}
+string get_player_password(string name) {
+	file f;
+	if (!file_exists("chars/" + name + "/password.usr")) return false;
+	else {
+		f.open("chars/" + name + "/password.usr", "wb");
+		string ret = f.read();
+		f.close();
+		return ret;
+	}
+}
+bool changepassword(string name, string newpassword) {
+	if (!file_exists("chars/" + name + "/password.usr")) return false;
+	else {
+		file f;
+		f.open("chars/" + name + "/password.usr", "wb");
+		f.write(string_aes_encrypt(newpassword, passkey));
+		f.close();
+		return true;
+	}
+}
+bool string_to_bool(string i) {
+	if (i == "yes")
+		return true;
+	return false;
+}
+string bool_to_string(bool b) {
+	if (b == true)
+		return "yes";
+	return "no";
+}
+int stng(string the_string) {
+	return string_to_number(the_string);
+}
+string[] get_registered_users() {
+	string[] pls;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].registered > 0) pls.insert_last(i);
+	}
+	return pls;
+}
+string get_registered_names() {
+	string[] chars = find_directories("chars/*");
+	string info;
+	int reg = 0;
+	for (uint i = 0; i < chars.length(); i++) {
+		if (file_exists("chars/" + chars[i] + "/reginfo.usr")) {
+			reg++;
+			info += chars[i] + ", ";
+		}
+	}
+	return "There are " + chars.length() + " characters on the server. Out of all of them, " + reg + " are registered. They are: " + info;
+}
+string arraycut(string[] a, int index) {
+	if (index > -1 and index < a.length())
+		return a[index];
+	return "";
+}
+string name2name(string name) {
+	if (string_left(name, 6) != "robot ") {
+		for (uint i = 0; i < players.length(); i++) {
+			if (players[i].name == name) return players[i].name;
+		}
+	} else {
+		string id = string_trim_left(name, 6);
+		for (uint i = 0; i < players.length(); i++) {
+			if (players[i].rid == id) return players[i].name + "'s robot";
+		}
+	}
+	return name;
+}
+string read(string filename) {
+	file f;
+	f.open(filename, "rb");
+	return f.read();
+}
+int get_item_index(string name) {
+	string[] items;
+	for (int i = 0; i < stores.length(); i++) {
+		for (int i2 = 0; i2 < stores[i].item_names.length(); i2++)
+			items.insert_last(stores[i].item_names[i2]);
+	}
+	for (int i = 0; i < items.length(); i++) {
+		if (items[i] == name) return i;
+	}
+	return -1;
+}
+void send_store(int playerindex) {
+	if (playerindex > -1) {
+		int coins = players[playerindex].inv_item_number("coins");
+		server_menu menu;
+		menu.initial_packet = "buysomething";
+		menu.intro = "What do you wish to buy";
+		for (uint i = 0; i < store_items.length(); i++) {
+			int canbuy = coins / amounts[i];
+			menu.add(store_items[i] + " for " + amounts[i] + " coins. You can buy " + canbuy, store_items[i]);
+		}
+		menu.send(players[playerindex].peer_id);
+	}
+}
+void purchase(string name, double amount, player@p) {
+	int itemindex = get_item_index(name);
+	if (itemindex > -1) {
+		int[] a = get_amounts();
+		double totalamount = amount * a[itemindex];
+		if (totalamount > 0) {
+			double coin = p.inv_item_number("coins");
+			if (coin < totalamount) {
+				send_reliable(p, "Error. Not enough coins. You need " + totalamount + " coins and you only have " + p.inv_item_number("coins") + ".", 0);
+				send_packet(6, "play store_error.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				for (int i = 0; i < stores.length(); i++) {
+					if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == stores[i].name)
+						stores[i].send(p.peer_id, false);
+				}
+			} else {
+				p.inv_add_item("coins", -totalamount);
+				if (string_contains(name, "bag_of_", 1) > -1 or string_contains(name, "pack_of_", 1) > -1 or string_contains(name, "box_of_", 1) > -1 or string_contains(name, "skillet_with_", 1) > -1) {
+					int c = get_corpses_from(string_right(name, 5));
+					if (c < 0) {
+						string cid = randomstring(5);
+						new_corpse(name, cid);
+						p.inv_add_item(name + "_" + cid, amount);
+						send_reliable(p, "" + amount + " " + name + " purchased", 2);
+					}
+				} else {
+					p.inv_add_item(name, amount);
+					send_reliable(p, "" + amount + " " + name + " purchased", 2);
+				}
+				p.add_log_entry("player_actions", "bought " + amount + " " + name + "");
+				servermoney += totalamount;
+				send_packet(6, "play buy.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				for (int i = 0; i < stores.length(); i++) {
+					if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == stores[i].name)
+						stores[i].send(p.peer_id, false);
+				}
+			}
+		} else if (totalamount < 0) {
+			if (absolute(amount) <= p.inv_item_number(name)) {
+				p.inv_add_item("coins", (0 - totalamount) / 4);
+				p.inv_add_item(name, amount);
+				send_reliable(p, "" + amount + " " + name + " sold", 2);
+				servermoney -= totalamount;
+				send_packet(6, "play buy.ogg", p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			} else {
+				send_packet(6, "play noud.ogg", p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "Sorry! You don't have " + absolute(amount) + " " + name + ".", 2);
+			}
+		}
+	}
+}
+void pspurchase(string name, double amount, player@p) {
+	int ps = in_playerstore(p);
+	if (ps > -1) {
+		int psowner = get_player_index_from(playerstores[ps].owner);
+		if (psowner > -1) {
+			if (p.name == players[psowner].name) {
+				int itemindex = get_item_index(name);
+				if (itemindex > -1) {
+					int[] a = get_amounts();
+					double totalamount = amount * a[itemindex];
+					if (totalamount > 0) {
+						double coin = p.inv_item_number("coins");
+						if (coin < totalamount) {
+							send_reliable(p, "Error. Not enough coins. You need " + totalamount + " coins and you only have " + p.inv_item_number("coins") + ".", 0);
+							send_packet(6, "play store_error.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+							for (int i = 0; i < stores.length(); i++) {
+								if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == stores[i].name)
+									stores[i].send(p.peer_id, false);
+							}
+						} else {
+							p.inv_add_item("coins", -totalamount);
+							if (string_contains(name, "bag_of_", 1) > -1 or string_contains(name, "pack_of_", 1) > -1 or string_contains(name, "box_of_", 1) > -1 or string_contains(name, "skillet_with_", 1) > -1) {
+								int c = get_corpses_from(string_right(name, 5));
+								if (c < 0) {
+									string cid = randomstring(5);
+									new_corpse(name, cid);
+									p.inv_add_item(name + "_" + cid, amount);
+									send_reliable(p, "" + amount + " " + name + " purchased", 2);
+								}
+							} else {
+								p.inv_add_item(name, amount);
+								send_reliable(p, "" + amount + " " + name + " purchased", 2);
+							}
+							p.add_log_entry("player_actions", "bought " + amount + " " + name + "");
+							servermoney += totalamount;
+							send_packet(6, "play buy.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+							for (int i = 0; i < stores.length(); i++) {
+								if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == stores[i].name)
+									stores[i].send(p.peer_id, false);
+							}
+						}
+					} else if (totalamount < 0) {
+						if (absolute(amount) <= p.inv_item_number(name)) {
+							p.inv_add_item("coins", (0 - totalamount) / 4);
+							p.inv_add_item(name, amount);
+							send_reliable(p, "" + amount + " " + name + " sold", 2);
+							servermoney -= totalamount;
+							send_packet(6, "play buy.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						} else {
+							send_packet(6, "play noud.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+							send_reliable(p, "Sorry! You don't have " + absolute(amount) + " " + name + ".", 2);
+						}
+					}
+				}
+			} else {
+				int itemindex = get_item_index(name);
+				if (itemindex > -1) {
+					int[] a = get_amounts();
+					double totalamount = amount * a[itemindex];
+					if (totalamount > 0) {
+						double coin = p.inv_item_number("coins");
+						if (coin < totalamount) {
+							send_reliable(p, "Error. Not enough coins. You need " + totalamount + " coins and you only have " + p.inv_item_number("coins") + ".", 0);
+							send_packet(6, "play store_error.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+							for (int i = 0; i < stores.length(); i++) {
+								if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == stores[i].name)
+									stores[i].send(p.peer_id, false);
+							}
+						} else {
+							p.inv_add_item("coins", -totalamount);
+							p.inv_add_item(name, amount);
+							send_reliable(p, "" + amount + " " + name + " purchased", 2);
+							p.add_log_entry("player_actions", "bought " + amount + " " + name + "");
+							if (players[psowner].job == "salesman")
+								players[psowner].balance += totalamount;
+							else servermoney += totalamount;
+							send_packet(6, "play buy.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+							if (players[psowner].smartphoneon == 1) send_reliable(players[psowner], "spnotify " + p.name + " has purchased " + amount + " " + name + " and paid " + totalamount + " coins", 0);
+							for (int i = 0; i < stores.length(); i++) {
+								if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == stores[i].name)
+									stores[i].send(p.peer_id, false);
+							}
+						}
+					} else if (totalamount < 0) {
+						if (absolute(amount) <= p.inv_item_number(name)) {
+							p.inv_add_item("coins", (0 - totalamount) / 4);
+							p.inv_add_item(name, amount);
+							if (players[psowner].job == "salesman") {
+								if (players[psowner].balance >= totalamount) {
+									send_reliable(p, "I won't sell this item", 2);
+									if (players[psowner].smartphoneon == 1) send_reliable(players[psowner], "spnotify " + p.name + " couldn't sell " + amount + " " + name + ". Your bank balance: " + players[psowner].balance + "", 0);
+									return;
+								}
+								players[psowner].balance -= totalamount;
+							} else servermoney -= totalamount;
+							send_reliable(p, "" + amount + " " + name + " sold", 2);
+							send_packet(6, "play buy.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+							if (players[psowner].smartphoneon == 1) send_reliable(players[psowner], "spnotify " + p.name + " has soled " + amount + " " + name + " for " + totalamount + " coins", 0);
+						} else {
+							send_packet(6, "play noud.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+							send_reliable(p, "Sorry! You don't have " + absolute(amount) + " " + name + ".", 2);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+/*void storeplay(string what, int max, int x, bool custom = false, int xx = 0, int y = 0, int z = 0) {
+	if (x > -1 and announcertimer.elapsed >= 25000) {
+		announcertimer.restart();
+		string soundfile = "store_v_" + what + random(1, max);
+		if (custom == false) {
+			playint(soundfile, players[x].name);
+			playext(soundfile, players[x].x, players[x].y, players[x].z, maps[get_map_index("store")], players[x].name);
+		} else {
+			playint(soundfile, players[x].name);
+			playext(soundfile, xx, y, z, maps[get_map_index("store")], players[x].name);
+		}
+	}
+}*/
+int[] get_amounts() {
+	int[] a;
+	for (int i = 0; i < stores.length(); i++) {
+		for (int i2 = 0; i2 < stores[i].prices.length(); i2++)
+			a.insert_last(stores[i].prices[i2]);
+	}
+	return a;
+}
+int get_paid_item_index(string name) {
+	string[] items;
+	for (int i = 0; i < paid_stores.length(); i++) {
+		for (int i2 = 0; i2 < paid_stores[i].item_names.length(); i2++)
+			items.insert_last(paid_stores[i].item_names[i2]);
+	}
+	for (int i = 0; i < items.length(); i++) {
+		if (items[i] == name) return i;
+	}
+	return -1;
+}
+void send_paid_store(int playerindex) {
+	if (playerindex > -1) {
+		int credit = players[playerindex].inv_item_number("credit");
+		server_menu menu;
+		menu.initial_packet = "paidbuysomething";
+		menu.intro = "What do you wish to buy";
+		for (uint i = 0; i < paid_store_items.length(); i++) {
+			int canbuy = credit / amounts[i];
+			menu.add(paid_store_items[i] + " for " + amounts[i] + " credit. You can buy " + canbuy, paid_store_items[i]);
+		}
+		menu.send(players[playerindex].peer_id);
+	}
+}
+void paid_purchase(string name, double amount, player@p) {
+	int itemindex = get_paid_item_index(name);
+	if (itemindex > -1) {
+		int[] a = get_paid_amounts();
+		double totalamount = amount * a[itemindex];
+		if (totalamount < 1) {
+			send_reliable(p, "you can't buy negative amounts", 2);
+			for (int i = 0; i < paid_stores.length(); i++) {
+				if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == paid_stores[i].name)
+					paid_stores[i].send(p.peer_id, false);
+			}
+			return;
+		}
+		double credit = p.inv_item_number("credit");
+		if (credit < totalamount) {
+			send_reliable(p, "Error. Not enough credit. You need " + totalamount + " credit and you only have " + p.inv_item_number("credit") + ".", 0);
+			send_packet(6, "play store_error.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			for (int i = 0; i < paid_stores.length(); i++) {
+				if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == paid_stores[i].name)
+					paid_stores[i].send(p.peer_id, false);
+			}
+		} else {
+			p.inv_add_item("credit", -totalamount);
+			if (name == "xp_potion") {
+				p.xppotiontime += totalamount * 60000;
+				p.inv_add_item(name, 1);
+				if (amount == 1) {
+					send_reliable(p, "paid_store a " + amount + " hour xp potion has been purchased", 0);
+					send_reliable(0, "paid_store " + p.name + " has just purchased " + amount + " hour xp potion from the paid store!", 0);
+				} else {
+					send_reliable(p, "paid_store a " + amount + " hours xp potion has been purchased", 0);
+					send_reliable(0, "paid_store " + p.name + " has just purchased " + amount + " hours xp potion from the paid store!", 0);
+				}
+			} else {
+				if (name == "energy")
+					p.energy += amount;
+				else
+					p.inv_add_item(name, amount);
+				send_reliable(p, "paid_store " + amount + " " + name + " purchased", 0);
+				send_reliable(0, "paid_store " + p.name + " has just purchased " + amount + " " + name + " from the paid store!", 0);
+			}
+			p.add_log_entry("player_actions", "bought " + amount + " " + name + "");
+			send_packet(6, "play buy.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			for (int i = 0; i < paid_stores.length(); i++) {
+				if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == paid_stores[i].name)
+					paid_stores[i].send(p.peer_id, false);
+			}
+		}
+	}
+}
+int[] get_paid_amounts() {
+	int[] a;
+	for (int i = 0; i < paid_stores.length(); i++) {
+		for (int i2 = 0; i2 < paid_stores[i].prices.length(); i2++)
+			a.insert_last(paid_stores[i].prices[i2]);
+	}
+	return a;
+}
+int get_team_item_index(string name) {
+	string[] items;
+	for (int i = 0; i < team_stores.length(); i++) {
+		for (int i2 = 0; i2 < team_stores[i].item_names.length(); i2++)
+			items.insert_last(team_stores[i].item_names[i2]);
+	}
+	for (int i = 0; i < items.length(); i++) {
+		if (items[i] == name) return i;
+	}
+	return -1;
+}
+void send_team_store(int playerindex) {
+	if (playerindex > -1) {
+		int points = players[playerindex].inv_item_number("points");
+		server_menu menu;
+		menu.initial_packet = "teambuysomething";
+		menu.intro = "What do you wish to buy";
+		for (uint i = 0; i < team_store_items.length(); i++) {
+			int canbuy = points / amounts[i];
+			menu.add(team_store_items[i] + " for " + amounts[i] + " points. You can buy " + canbuy, team_store_items[i]);
+		}
+		menu.send(players[playerindex].peer_id);
+	}
+}
+void team_purchase(string name, double amount, player@p) {
+	int itemindex = get_team_item_index(name);
+	if (itemindex > -1) {
+		int[] a = get_team_amounts();
+		double totalamount = amount * a[itemindex];
+		if (totalamount > 0) {
+			int ind = is_in_team(p.name);
+			if (ind < 0) {
+				send_reliable(p, "Error. You are not in a team.", 0);
+				send_packet(6, "play store_error.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				return;
+			}
+			if (teams[ind].points < totalamount) {
+				send_reliable(p, "Error. Not enough points. You need " + totalamount + " points and you only have " + teams[ind].points + ".", 0);
+				send_packet(6, "play store_error.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				for (int i = 0; i < team_stores.length(); i++) {
+					if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == team_stores[i].name)
+						team_stores[i].send(p.peer_id, false);
+				}
+			} else {
+				teams[ind].points -= totalamount;
+				p.inv_add_item(name, amount);
+				send_reliable(p, "" + amount + " " + name + " purchased", 2);
+				p.add_log_entry("player_actions", "bought " + amount + " " + name + "");
+				send_packet(6, "play buy.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				for (int i = 0; i < team_stores.length(); i++) {
+					if (get_zone_at(p.x, p.y, p.z, maps[get_map_index(p.map)]) == team_stores[i].name)
+						team_stores[i].send(p.peer_id, false);
+				}
+			}
+		}
+	}
+}
+int[] get_team_amounts() {
+	int[] a;
+	for (int i = 0; i < team_stores.length(); i++) {
+		for (int i2 = 0; i2 < team_stores[i].prices.length(); i2++)
+			a.insert_last(team_stores[i].prices[i2]);
+	}
+	return a;
+}
+void en_and_write(string filename, string text) {
+	file f;
+	f.open(filename, "wb");
+	f.write(string_encrypt(text, acode));
+	f.close();
+}
+string read_prm(string file_name) {
+	file f;
+	f.open(file_name, "rb");
+	string rt = string_decrypt(f.read(), acode);
+	f.close();
+	return rt;
+}
+bool igual(string n1, string n2) {
+	if (string_to_lower_case(n1) == string_to_lower_case(n2))return true;
+	return false;
+}
+bool is_unbannable(string username) {
+	if (!file_exists("unbannables.txt")) return false;
+	file f;
+	f.open("unbannables.txt", "rb");
+	string[] unbannables = string_split(f.read(), "\r\n", false);
+	f.close();
+	if (unbannables.find(username) > -1) return true;
+	else return false;
+}
+bool is_unkickable(string username) {
+	if (!file_exists("unkickables.txt")) return false;
+	file f;
+	f.open("unkickables.txt", "rb");
+	string[] unkickables = string_split(f.read(), "\r\n", false);
+	f.close();
+	if (unkickables.find(username) > -1) return true;
+	else return false;
+}
+bool is_bannable(string username) {
+	if (!file_exists("bannables.txt")) return false;
+	file f;
+	f.open("bannables.txt", "rb");
+	string[] bannables = string_split(f.read(), "\r\n", false);
+	f.close();
+	if (bannables.find(username) > -1) return true;
+	else return false;
+}
+bool is_unjailable(string username) {
+	if (!file_exists("unjailables.txt")) return false;
+	file f;
+	f.open("unjailables.txt", "rb");
+	string[] unjailables = string_split(f.read(), "\r\n", false);
+	f.close();
+	if (unjailables.find(username) > -1) return true;
+	else return false;
+}
+int get_index_string(string[] a, string find) {
+	for (uint i = 0; i < a.length(); i++) {
+		if (a[i] == find)return i;
+	}
+	return -1;
+}
+void add_to_store(string item_name, int amount) {
+	store_items.insert_last(item_name);
+	amounts.insert_last(amount);
+}
+void add_to_team_store(string item, int amount) {
+	titems.insert_last(item);
+	tamounts.insert_last(amount);
+}
+int get_team_store_index(string item) {
+	for (uint i = 0; i < titems.length(); i++) {
+		if (item == titems[i])
+			return i;
+	}
+	return -1;
+}
+int mts(int s) {
+	return s * 1000;
+}
+string menu(string prefix, string intro, string if_pressed_escape, string[]menu_items, string[]menu_items2) {
+	d2.delete_all();
+	string item;
+	string item2;
+	for (int i = 0; i < menu_items.length(); i++)
+		item += menu_items[i] + "^";
+	for (int i = 0; i < menu_items2.length(); i++)
+		item2 += menu_items2[i] + "^";
+	d2.set("items", item);
+	d2.set("items2", item2);
+	d2.set("intro", intro);
+	d2.set("esc", if_pressed_escape);
+	d2.set("prefix", prefix);
+	return serialize(d2);
+}
+string input(string prefix, string intro, string if_pressed_escape, string text) {
+	d2.delete_all();
+	d2.set("text", text);
+	d2.set("intro", intro);
+	d2.set("esc", if_pressed_escape);
+	d2.set("prefix", prefix);
+	return serialize(d2);
+}
+void titlecheck(player@p) {
+	p.title = ""; p.ptitle = ""; p.pvptitle = ""; p.jobtitle = ""; p.newbtitle = ""; p.awaytitle = ""; p.afktitle = ""; p.prisontitle = "";
+	if (p.map == "jail" or p.map == "prison") p.prisontitle = "prisoner";
+	if (p.admin) p.title = "admin";
+	if (p.manager) p.title = "manager";
+	if (p.dev) p.title = "developer";
+	if (p.job != "") p.jobtitle = "" + p.job + "";
+	if (p.newb == 1) p.newbtitle = "newbie";
+	if (p.pvp == 1) p.pvptitle = "PVp";
+	if (p.afk == true) p.afktitle = "AFK";
+	if (p.away == true) p.awaytitle = "away";
+}
+string killmsg(string died, string killer, string zone) {
+	return death_message(vector(0, 0, 0), zone, died, died, killer, "None");
+}
+string killmsg2(string died, string killer, string zone) {
+	return death_message(vector(0, 0, 0), zone, died, died, killer, "None");
+}
+string killmsg3(string died, string killer, string zone) {
+	return death_message(vector(0, 0, 0), zone, died, died, killer, "None");
+}
+string[] get_admin_list() {
+	string[] a;
+	string[] chars = find_directories("chars/*");
+	for (uint i = 0; i < chars.length(); i++) {
+		if (file_exists("chars/" + chars[i] + "/admin.usr"))
+			a.insert_last(chars[i]);
+	}
+	return a;
+}
+string[] get_manager_list() {
+	string[] a;
+	string[] chars = find_directories("chars/*");
+	for (uint i = 0; i < chars.length(); i++) {
+		if (file_exists("chars/" + chars[i] + "/manager.usr"))
+			a.insert_last(chars[i]);
+	}
+	return a;
+}
+string[] get_developer_list() {
+	string[] a;
+	string[] chars = find_directories("chars/*");
+	for (uint i = 0; i < chars.length(); i++) {
+		if (file_exists("chars/" + chars[i] + "/dev.usr"))
+			a.insert_last(chars[i]);
+	}
+	return a;
+}
+string name2nickname(string name) {
+	if (string_left(name, 6) != "robot ") {
+		for (uint i = 0; i < players.length(); i++) {
+			if (players[i].name == name) return players[i].nickname;
+		}
+	} else {
+		string id = string_trim_left(name, 6);
+		for (uint i = 0; i < players.length(); i++) {
+			if (players[i].rid == id) return players[i].nickname + "'s robot";
+		}
+	}
+	return name;
+}
+void givexp(player@ p, double amount) {
+	int mult = 1;
+	if (doublexp == 1) mult = 2;
+	else if (superxp == 1) mult = 10;
+	else if (megaxp == 1) mult = 20;
+	else if (gigaxp == 1) mult = 50;
+	else if (masterxp == 1) mult = 100;
+	bool hasPotion = (p.xppotion == 1);
+	player@ partner = (p.partner != "" ? get_player_obj_from(p.partner) : null);
+	bool hasPartner = @partner != null;
+	// Potion doubles multiplier
+	if (hasPotion) mult *= 2;
+	// Partner sharing
+	if (hasPartner) {
+		double gained = amount * mult / 2;
+		// Self
+		p.xp += gained;
+		send_reliable(p, "you got " + gained + " experience", 2);
+		// Partner
+		partner.xp += gained;
+		send_reliable(partner, "you got " + gained + " experience", 2);
+		return;
+	}
+	// Solo XP
+	double gained = amount * mult;
+	p.xp += gained;
+	send_reliable(p, "you got " + gained + " experience", 2);
+}
+void loosxp(player@ p, double amount) {
+	// No partner set
+	if (p.partner == "") {
+		p.xp -= amount;
+		send_reliable(p, "you lost " + amount + " experience", 2);
+		return;
+	}
+	// Try to fetch actual partner
+	player@ other = get_player_obj_from(p.partner);
+	// Partner exists and valid
+	if (other !is null) {
+		double lost = amount / 2;
+		p.xp -= lost;
+		send_reliable(p, "you lost " + lost + " experience", 2);
+		other.xp -= lost;
+		send_reliable(other, "you lost " + lost + " experience", 2);
+		return;
+	}
+	// Partner not found, lose full experience
+	p.xp -= amount;
+	send_reliable(p, "you lost " + amount + " experience", 2);
+}
+void load_descriptions() {
+	file f;
+	if (f.open("item_descriptions.svr", "rb")) {
+		string content = f.read();
+		string[] lines = string_split(content, "\r\n", false);
+		f.close();
+		for (uint i = 0; i < lines.length(); i++) {
+			string[] parsed = string_split(lines[i], "=", false);
+			if (parsed.length() > 1)
+				descryptions.set(parsed[0], parsed[1]);
+		}
+	}
+}
+void save_descriptions() {
+	file f;
+	f.open("item_descriptions.svr", "wb");
+	string[] keys = descryptions.get_keys();
+	for (uint i = 0; i < keys.length(); i++) {
+		string value;
+		descryptions.get(keys[i], value);
+		f.write(keys[i] + "=" + value + "\r\n");
+	}
+	f.close();
+}
+string get_item_descryption(string itemname) {
+	if (descryptions.exists(itemname) == false) return "No description available for " + itemname;
+	else {
+		string temp;
+		descryptions.get(itemname, temp);
+		return temp;
+	}
+}
+bool bsend(uint id, string buffer, string soundname, string message, bool reliable = true, string name = "") {
+	messager a;
+	a.add("message", "bsend");
+	a.add("buffer", buffer);
+	if (soundname != "") a.add("soundname", soundname);
+	if (name != "") a.add("name", name);
+	a.add("text", message);
+	return send(id, a, 0, reliable);
+}
+bool pesend(uint id, string msg, string snd = "", string buffer = "playere", string name = "") {
+	return bsend(id, buffer, snd, msg, name = name);
+}
+bool snotify(uint id, string msg, string snd = "notify" + sndtype, bool reliable = true, string buffer = "notifications") {
+	return bsend(id, buffer, snd, msg, reliable);
+}
+bool chnotify(string lang, string msg, string snd = "notify" + sndtype, bool reliable = true, string buffer = "notifications") {
+	int c = 0;
+	foreach (player@ l: players) {
+		if (@l == null) continue;
+		if (l.langchan != lang) continue;
+		if (bsend(l.peer_id, buffer, snd, msg, reliable)) c ++;
+	}
+	return c > 0;
+}
+string motd {
+	get {
+		return file_get("motd.md").replace("\r\n", "\n");
+	} set {
+		file_put("motd.md", value.replace("\r\n", "\n"));
+	}
+}
+string get_lmotd(string lang) {
+	string f = motd;
+	if (lang != "disable_chat" && lang != deflang) f = file_get("motd/" + lang + ".md");
+	return f.replace("\r\n", "\n");
+}
+void set_lmotd(string lang, string value) {
+	if (!directory_exists("motd")) directory_create("motd");
+	file_put("motd/" + lang + ".md", value.replace("\r\n", "\n"));
+}
+bool is_lcm(string w, string c) {
+	return file_exists("chars/" + verify_charname_case(w) + "/lcm/" + c + ".staff");
+}
+void set_language_message(player@ p, string msg, string lang = "", bool silent = false) {
+	if (@p == null || msg == "") return;
+	if (lang == "") lang = p.langchan;
+	string[] exc = {"disable_chat", "free_channel"};
+	if (exc.find(lang) > -1) return;
+	set_lmotd(lang, msg);
+	if (!silent) {
+		chnotify(lang, "A new message of the day has been set:\n" + get_lmotd(lang), "newmotd" + random(1, 2) + ".ogg");
+		admintell(p.nickname + " - " + p.name + " - set the " + lang + " channel message of the day: " + msg);
+	}
+}
+double difftime(string type, double a, double b, double c, double d, double e, double f) {
+	calendar pa, now;
+	pa.set(a, b, c, d, e, f);
+	timespan t = pa.timestamp.elapsed - now.timestamp.elapsed;
+	type = type.lower();
+	if (type == "second") return t.total_seconds;
+	else return 0;
+}
+bool name_is_valid(string t) {
+	string noa = "`+=/,\\\"~!@#$%^&*()|[]{}';:><? ";
+	return !t.is_digits() && !t.is_punctuation() && t != " " && !t.empty() && !is_disallowed_char(t, noa);
+}
+string get_version() property {
+	return app.version;
+}
+string printinv(inventory@ v) {
+	if (@v == null) return "";
+	string[] f;
+	foreach (inventory_item@ l: v.items) {
+		if (@l == null) continue;
+		f.insert_last(l.amount + " " + l.name);
+	}
+	return join(f, ", ");
+}
+string printinv(inventory_item@[] items) {
+	inventory v;
+	v.items = items;
+	return printinv(v);
+}
+string death_message(vector cd, string map, string name, string nickname, string by, string gender) {
+	string f = get_dmg(cd.x, cd.y, cd.z, map);
+	if (f == "") f = "%nickname% died on %zone% by %by%";
+	if (nickname == "") nickname = name;
+	dictionary args;
+	args.set("name", by);
+	args.set("gender", gender);
+	string zone = map;
+	if (mapname_is_valid(map)) zone = get_zone_at(cd.x, cd.y, cd.z, map, args = args);
+	f = 
+		f.replace("%name%", name)
+		.replace("%nickname%", nickname)
+		.replace("%map%", map)
+		.replace("%zone%", zone)
+		.replace("%by%", by);
+	f = genderreplace(gender, f, "%g_");
+	return f;
+}
+string[] onwebs = {"player"};
+bool weblock = false;
+void on_web(string[] whats = onwebs, bool delete = false, bool lock = false) {
+	if (weblock) return;
+	if (delete) {
+		if (whats.find("player") > -1) file_delete("onlinep.json");
+		weblock = lock;
+		return;
+	}
+	json j;
+	if (whats.find("player") > -1) {
+		foreach (player@ l: players) {
+			json_object v;
+			if (l.nickname != l.name) v.set("nickname", l.nickname);
+			if (l.level > 0) v.set("level", l.level);
+			if (l.reinforcement > 0) v.set("reinforcement", l.reinforcement);
+			v.set("gender", get_gender(l.gender));
+			if (l.partner != "") v.set("partner", l.partner);
+			j.set(l.name, v);
+		}
+		string val = j.dump(2);
+		if (j.size() > 0)
+			file_put("onlinep.json", val);
+		else
+			file_delete("onlinep.json");
+	}
+	weblock = lock;
+}

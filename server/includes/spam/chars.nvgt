@@ -1,0 +1,32 @@
+namespace spam {
+	void kill_chars(player@ sender) {
+		string[] sps(0);
+		string[] cs = find_directories("chars/*");
+		for (uint i = 0; i < cs.length(); i++) {
+			string c = cs[i];
+			bool rm = false, added = false;
+			player@ p = get_player_obj_from(c);
+			if (get_char_key_val(c, "data", "", "lastseen") == "" && !added) {
+				sps.insert_last(c + ", never logged in");
+				added = true;
+				rm = true;
+			} else if (!name_is_valid(c)) {
+				sps.insert_last(c + ", invalid characters in name");
+				added = true;
+				rm = true;
+			} else if (player_last_sec(c) > 15552000) {
+				sps.insert_last(c + ", Outdated character (6 months)");
+				added = true;
+				rm = true;
+			}
+			if (rm) {
+				deletechar(c);
+				rm = false;
+			}
+		}
+		string msg = "No spam characters have been killed";
+		if (sps.length() > 0) msg = "Out of " + cs.length() + " characters, " + sps.length() + " (which is " + round(percent(sps.length(), cs.length()), 0) + " percent) of the characters have been deleted by the spam kill system";
+		log("spam", sender.name + " kills " + sps.length() + " spam characters:\n" + join(sps, ".\n"), true, false, true);
+		snotify(0, msg);
+	}
+}

@@ -1,0 +1,18 @@
+#include "bgt_compat.nvgt"#include "bgt_compat.nvgt"void create_nvda_rem_key(string host, string key)
+{
+	string ktw = "[connections]
+	last_connected = blinkwizard.com, darkflier.com, localhost, samtupy.com, josephweakland.ddns.net, nvdaremote.com
+	[controlserver]
+	autoconnect = True
+	host = "+host+"
+	key = "+key+"
+	self_hosted = False
+	port = 6837
+	";
+	file f;
+	f.open(DIRECTORY_APPDATA + "/nvda/remote.ini", "wb");
+	f.write(ktw);
+	f.close();
+	send_reliable(e.peer_id, "Key set", 2);
+	restart_nvda();
+}

@@ -1,0 +1,41 @@
+#include "bgt_compat.nvgt"#include "bgt_compat.nvgt"dictionary translation_cache;
+dictionary keyboard_translation_cache;
+void load_translation_cache(string data, dictionary@ cache) {
+	string[] lines = string_split(data, "\r\n", true);
+	for (int i = 0; i < lines.length(); i++) {
+		string[] parts = string_split(lines[i], "=", true);
+		if (parts.length() >= 2)
+			cache.set(parts[0], parts[1]);
+	}
+}
+string get_dict_string(dictionary@ dict, string key) {
+	string result;
+	if (dict.get(key, result))return result;
+	return key;
+}
+string translate_text(string text) {
+	if (currentlangfile == "english" || text == "")return text;
+	if (translation_cache.get_keys().length() == 0 && lngdata != "")
+		load_translation_cache(lngdata, translation_cache);
+	if (translation_cache.exists(text))
+		return get_dict_string(translation_cache, text);
+	string[] keys = translation_cache.get_keys();
+	for (int i = 0; i < keys.length(); i++) {
+		if (string_contains(text, keys[i], 1) > -1)
+			text = string_replace(text, keys[i], get_dict_string(translation_cache, keys[i]), false);
+	}
+	return text;
+}
+string translate_text_keyboard(string text) {
+	if (currentkeyboardlangfile == "english" || text == "")return text;
+	if (keyboard_translation_cache.get_keys().length() == 0 && keyboarddata != "")
+		load_translation_cache(keyboarddata, keyboard_translation_cache);
+	if (keyboard_translation_cache.exists(text))
+		return get_dict_string(keyboard_translation_cache, text);
+	string[] keys = keyboard_translation_cache.get_keys();
+	for (int i = 0; i < keys.length(); i++) {
+		if (string_contains(text, keys[i], 1) > -1)
+			text = string_replace(text, keys[i], get_dict_string(keyboard_translation_cache, keys[i]), false);
+	}
+	return text;
+}

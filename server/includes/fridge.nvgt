@@ -1,0 +1,347 @@
+#include "bgt_compat.nvgt"#include "bgt_compat.nvgt"fridge@[]fridges(0);
+class fridge {
+	double x, y, z, health;
+	string id, map, owner, hitby = "nothing", mid;
+	fridge(int lx, int ly, int lz, string lmap, string lowner, int lhealth, string lid = "") {
+		x = lx;
+		y = ly;
+		z = lz;
+		map = lmap;
+		owner = lowner;
+		health = lhealth;
+		id = lid;
+		mid = spawn_moving_sound("fridge6.ogg", x, y, z, map);
+	}
+	inventory invy;
+	double count_total_items() {
+		double amount = 0;
+		for (uint i = 0; i < invy.items.length(); i++) {
+			amount += invy.items[i].amount;
+		}
+		return amount;
+	}
+	double get_item_count(string item) {
+		return invy.get_item_amount(item);
+	}
+	string invdic_to_string(bool showall = true) {
+		return invy.export();
+	}
+	void main_ui(player@pl) {
+		if (@pl == null) return;
+		server_menu m;
+		m.initial_packet = "fridgecommand";
+		m.intro = "Select an option";
+		m.add("Get items", "g");
+		m.add("store items", "s");
+		m.send(pl.peer_id);
+	}
+	bool give(string item, double amount) {
+		return invy.give(item, amount);
+	}
+	void neg_inv_check() {
+	}
+	void command(string cmd, int peer) {
+		string[] parsed = string_split(cmd, " ", false);
+		if (parsed[0] == "g") {
+			if (invy.get_size() == 0) {
+				send_reliable(peer, "You look at the fridge, but there's nothing inside", 0);
+				return;
+			} else {
+				string menuitems;
+				menuitems += "the entire items:invall[]";
+				for (uint i = 0; i < invy.get_size(); i++) {
+					string[] another_p = {invy.items[i].name, invy.items[i].amount};
+					menuitems += another_p[0] + ", " + another_p[1] + ":" + another_p[0] + "[]";
+				}
+				send_menu(peer, "Select the item you would like to take out of the fridge ", "fridgetake", menuitems);
+			}
+		} else if (parsed[0] == "s") {
+			int index = get_player_index(peer);
+			string menuitems;
+			string items = players[index].inv.export();
+			if (items == "") {
+				send_reliable(peer, "Sorry, your inventory is empty", 0);
+				return;
+			}
+			string[] p = string_split(items, "\n");
+			string[] a = string_split(file_get_contents("notadg.svr"), "\r\n", false);
+			menuitems = "Your entire foods:invall[]";
+			for (uint i = 0; i < p.length(); i++) {
+				string[] another_p = string_split(p[i], "=");
+				if ((can_store_fridge_item(another_p[0]) || file_exists("foods_and_drinks/" + another_p[0] + ".fad") || fridgestuff.find(another_p[0]) > -1) && a.find(another_p[0]) < 0)
+					menuitems += another_p[0] + ", " + another_p[1] + ":" + another_p[0] + "[]";
+			}
+			send_menu(peer, "What would you like to put inside the fridge ?", "fridgegive", menuitems);
+		} else if (parsed[0] == "[cncel]") {
+			send_packet(6, "play base_fridge_close.ogg " + x + " " + y + " " + z, x, y, z, maps[get_map_index(map)]);
+			send_reliable(peer, "You slide the  door closed", 0);
+		}
+	}
+	void loop(int i) {
+		if (health <= 0) {
+			send_packet(6, "play base_fridge_off.ogg " + x + " " + y + " " + z, x, y, z, maps[get_map_index(map)]);
+			send_packet(6, "play base_fridge_dest.ogg " + x + " " + y + " " + z, x, y, z, maps[get_map_index(map)]);
+			send_dpacket(6, "distsound explode18 " + x + " " + y + " " + z + " " + map, maps[get_map_index(map)]);
+			destroy_moving_sound(mid);
+			file_delete("fridges/" + id + ".fridge");
+			send_reliable(0, "kills " + killmsg3(owner + "'s_fridge", hitby, get_zone_at(x, y, z, maps[get_map_index(map)])), 0);
+			string hb;
+			if (string_contains(hitby, "'", 1) > -1) {
+				string[] parsed_data = string_split(hitby, "'", false);
+				hb = parsed_data[0];
+			} else
+				hb = hitby;
+			int index = get_player_index_from(hb);
+			if (index > -1) {
+				givexp(players[index], random(100, 300)*players[index].reinforcement);
+				int t = is_in_team(players[index].name);
+				if (t > -1) {
+					int l = random(50, 100);
+					teams[t].points += l;
+					teams[t].transmit("This team just got " + l + " points!");
+				}
+			}
+			@fridges[i] = null;
+			fridges.remove_at(i);
+			return;
+		}
+	}
+}
+void spawn_fridge(int x, int y, int z, string map, string owner, int health, string id) {
+	fridge frdg(x, y, z, map, owner, health, id);
+	fridges.insert_last(frdg);
+}
+int find_fridge(string i) {
+	for (uint l = 0; l < fridges.length(); l++) {
+		if (fridges[l].id == i)
+			return l;
+	}
+	return -1;
+}
+int get_fridge_at(int x, int y, int z, mapdata@m) {
+	for (uint i = 0; i < fridges.length(); i++) {
+		if (fridges[i].map == m.name and fridges[i].x == x and fridges[i].y == y and fridges[i].z == z)
+			return i;
+	}
+	return -1;
+}
+int has_fridge(string who) {
+	for (uint i = 0; i < fridges.length(); i++) {
+		if (fridges[i].owner == who)
+			return i;
+	}
+	return -1;
+}
+void savefridges() {
+	file ffile;
+	if (directory_exists("fridges") == false)
+		directory_create("fridges");
+	for (uint i = 0; i < fridges.length(); i++) {
+		string inv = fridges[i].invdic_to_string();
+		inv = inv.replace("\n", ";");
+		ffile.open("fridges/" + fridges[i].id + ".fridge", "wb");
+		ffile.write("id:" + fridges[i].id + "\nx:" + fridges[i].x + "\ny:" + fridges[i].y + "\nz:" + fridges[i].z + "\nmap:" + fridges[i].map + "\nowner:" + fridges[i].owner + "\nhealth:" + fridges[i].health);
+		if (inv != "") ffile.write("\ninventory:" + inv);
+		ffile.close();
+	}
+}
+void load_fridge(string n) {
+	if (n == "") return;
+	double x, y, z, health;
+	string id, map, owner;
+	string invvalues;
+	if (string_contains(n, ".", 1) > -1)
+		return;
+	file f;
+	f.open("fridges/" + n + ".fridge", "rb");
+	string[] sdata = string_split(f.read().replace("\r\n", "\n"), "\n");
+	f.close();
+	for (uint i = 0; i < sdata.length(); i++) {
+		string[] parsed = sdata[i].split(":");
+		if (parsed[0] == "id" and parsed.length() > 1)
+			id = parsed[1];
+		else if (parsed[0] == "x")
+			x = string_to_number(parsed[1]);
+		else if (parsed[0] == "y")
+			y = string_to_number(parsed[1]);
+		else if (parsed[0] == "z")
+			z = string_to_number(parsed[1]);
+		else if (parsed[0] == "map")
+			map = parsed[1];
+		else if (parsed[0] == "owner")
+			owner = parsed[1];
+		else if (parsed[0] == "health")
+			health = string_to_number(parsed[1]);
+		else if (parsed[0] == "inventory" and parsed.length() > 1)
+			invvalues = parsed[1];
+	}
+	fridge frdg(x, y, z, map, owner, health, id);
+	frdg.x = string_to_number(x);
+	frdg.y = string_to_number(y);
+	frdg.z = string_to_number(z);
+	frdg.map = map;
+	frdg.owner = owner;
+	frdg.health = health;
+	frdg.invy.import_inv(invvalues);
+	fridges.insert_last(frdg);
+}
+bool can_store_fridge_item(string w) {
+	if (w == "") return false;
+	if (fridgestuff.find(w) > -1) return true;
+	if (file_exists("foods_and_drinks/" + w + ".fad")) return true;
+	for (uint i = 0; i < fridgestartstuff.length(); i++) {
+		if (w.starts_with(fridgestartstuff[i])) return true;
+	}
+	return false;
+}
+string[] fridgestuff = {
+	"creamy_ice_cream",
+	"vanilla_ice_cream",
+	"caramel_ice_cream",
+	"smoothie",
+	"iced_tea",
+	"lemonade",
+	"lime_cordial",
+	"milkshake",
+	"orange_squash",
+	"squash",
+	"cocoa",
+	"coffee",
+	"black_coffee",
+	"decaffeinated_coffee",
+	"fruit_tea",
+	"green_tea",
+	"herbal_tea",
+	"hot_chocolate",
+	"tea",
+	"fruit_juice",
+	"grapefruit_juice",
+	"orange_juice",
+	"pineapple_juice",
+	"tomato_juice",
+	"cola",
+	"opened_cola",
+	"sos",
+	"ice",
+	"snow",
+	"cup_of_water",
+	"cup_of_cola",
+	"glass_of_water",
+	"cup_of_boiling_water",
+	"glass_of_boiling_water",
+	"cup_of_beer",
+	"glass_of_beer",
+	"glass_of_cola",
+	"water_bottle",
+	"beer_bottle",
+	// Cooked / gutted / eatable / skillet-with handled through string_contains
+	"open_water_bottle",
+	"open_beer_bottle",
+	"pot_of_water",
+	"fish",
+	"hotdog",
+	"hamburger",
+	"cheeseburger",
+	"chicken_sandwich",
+	"piece_of_hotdog",
+	"piece_of_hamburger",
+	"piece_of_cheeseburger",
+	"piece_of_chicken_sandwich",
+	"hotdog_with_sos",
+	"hamburger_with_sos",
+	"cheeseburger_with_sos",
+	"chicken_sandwich_with_sos",
+	"piece_of_hotdog_with_sos",
+	"piece_of_hamburger_with_sos",
+	"piece_of_cheeseburger_with_sos",
+	"piece_of_chicken_sandwich_with_sos",
+	"piece_of_cake",
+	"cake",
+	"apple",
+	"watermelon",
+	"orange",
+	"pear",
+	"cherry",
+	"strawberry",
+	"berry",
+	"nectarine",
+	"grape",
+	"mango",
+	"blueberry",
+	"pomegranate",
+	"carambola",
+	"plum",
+	"banana",
+	"raspberry",
+	"mandarin",
+	"jackfruit",
+	"papaya",
+	"kiwi",
+	"pineapple",
+	"lime",
+	"lemon",
+	"apricot",
+	"grapefruit",
+	"melon",
+	"coconut",
+	"avocado",
+	"peach",
+	"green_almond",
+	"tamarind",
+	"cornelian_cherry",
+	"rhubarb",
+	"persimmon",
+	"fig",
+	"sour_cherry",
+	"sour_grapes",
+	"sitron",
+	"sour_orange",
+	"mushroom",
+	"broccoli",
+	"cucumber",
+	"red_pepper",
+	"tomato",
+	"swede",
+	"carrot",
+	"brussels_sprout",
+	"pumpkin",
+	"cabbage",
+	"potato",
+	"eggplant",
+	"sweet_potato",
+	"turnip",
+	"courgette",
+	"green_chilli",
+	"onion",
+	"lettuce",
+	"radish",
+	"pea",
+	"asparagus",
+	"selery",
+	"green_pepper",
+	"french_beans",
+	"spinach",
+	"beetroot",
+	"red_chillies",
+	"bean",
+	"cilantro",
+	"artichoke",
+	"rosemary",
+	"bay_leaves",
+	"mint_leaves",
+	"basil",
+	"clove",
+	"olive",
+	"shallot",
+	"turmeric",
+	"garlic",
+	"ginger",
+	"spring_onions",
+	"lemongrass",
+	"chives",
+	"nut"
+};
+string[] fridgestartstuff = {
+	"gutted_",
+	"cooked_"
+};

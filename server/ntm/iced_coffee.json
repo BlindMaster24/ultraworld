@@ -1,0 +1,9 @@
+{
+  "item": "coffee",
+  "items": "milk;sugar;ice",
+  "ritems": {
+    "water": 1,
+    "sugar": 1,
+    "ice": 1
+  }
+}

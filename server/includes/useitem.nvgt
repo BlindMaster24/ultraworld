@@ -1,0 +1,692 @@
+void useitem(player@p, string message) {
+	if (p.combinetimer.elapsed < 250) return;
+	p.combinetimer.restart();
+	string[] parsed = string_split(message, " ", true);
+	if (parsed[0] == "useitem") {
+		if (p.afk or p.away or p.stunned or p.is_dead) return;
+		if (can_use_item_at(p.x, p.y, p.z, maps[get_map_index(p.map)], parsed[1]) == false) {
+			send_reliable(p, "you can't use " + parsed[1] + " here", 2);
+			return;
+		}
+		if (p.inv_item_number(parsed[1]) > 0) {
+			p.add_log_entry("use", "used a " + parsed[1]);
+			if (drawwep(parsed[1], @p)) {
+				send_packet(6, "play draw" + get_draw_and_get_sound(parsed[1]) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				return;
+			}
+			else if (parsed[1] == "wood") {
+				for (uint i = 0; i < houses.length(); i++) {
+					if (houses[i].x == p.x and houses[i].y == p.y and houses[i].z == p.z and houses[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						houses[i].health += random(100, 380);
+						p.inv_add_item("wood", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < microwaves.length(); i++) {
+					if (microwaves[i].x == p.x and microwaves[i].y == p.y and microwaves[i].z == p.z and microwaves[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						microwaves[i].health += random(100, 380);
+						p.inv_add_item("wood", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < lockers.length(); i++) {
+					if (lockers[i].x == p.x and lockers[i].y == p.y and lockers[i].z == p.z and lockers[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						lockers[i].health += random(100, 380);
+						p.inv_add_item("wood", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < fridges.length(); i++) {
+					if (fridges[i].x == p.x and fridges[i].y == p.y and fridges[i].z == p.z and fridges[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						fridges[i].health += random(100, 380);
+						p.inv_add_item("wood", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < beehives.length(); i++) {
+					if (beehives[i].x == p.x and beehives[i].y == p.y and beehives[i].z == p.z and beehives[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						beehives[i].health += random(100, 380);
+						p.inv_add_item("wood", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < playerstores.length(); i++) {
+					if (playerstores[i].x == p.x and playerstores[i].y == p.y and playerstores[i].z == p.z and playerstores[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						playerstores[i].health += random(100, 380);
+						p.inv_add_item("wood", -1);
+						return;
+					}
+				}
+				if (p.pvp == 1 and is_safe(p.x, p.y, p.z, maps[get_map_index(p.map)]) == false and p.safe == false) {
+					send_packet(6, "play stonethrow.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					string wname = parsed[1];
+					spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+					if (p.cthing < 10)
+						p.cthing++;
+					else if (p.cthing == 10) {
+						p.cthing = 0;
+						p.inv_add_item("wood", -1);
+					}
+				}
+			} else if (parsed[1] == "blue_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("kannadigas_potion", 10);
+				send_packet(6, "play getbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "10 kannadigas potion", 2);
+				p.inv_add_item("blue_dream_box", -1);
+			} else if (parsed[1] == "red_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("grenade", 25);
+				send_packet(6, "play getgrenade.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "25 grenade", 2);
+				p.inv_add_item("red_dream_box", -1);
+			} else if (parsed[1] == "green_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("patricus_potion", 5);
+				send_packet(6, "play getpop_can.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "5 patricus potions", 2);
+				p.inv_add_item("green_dream_box", -1);
+			} else if (parsed[1] == "yellow_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("friendship_sphere", 5);
+				send_packet(6, "play getcard.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "5 friendship spheres.", 2);
+				p.inv_add_item("yellow_dream_box", -1);
+			} else if (parsed[1] == "brown_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("credit", 1000);
+				send_packet(6, "play getstw_credit.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "1000  credits", 2);
+				p.inv_add_item("brown_dream_box", -1);
+			} else if (parsed[1] == "white_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("safe_card", 50);
+				send_packet(6, "play getdeath_free_card.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "50 safe cards", 2);
+				p.inv_add_item("white_dream_box", -1);
+			} else if (parsed[1] == "purple_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("large_armor_plate", 1);
+				send_packet(6, "play getvest.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "1 large_armor_plate", 2);
+				p.inv_add_item("purple_dream_box", -1);
+			} else if (parsed[1] == "orange_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("advanced_bone_repair_kit", 5);
+				send_packet(6, "play getmedical_item.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "5 advanced bone repair kits", 2);
+				p.inv_add_item("orange_dream_box", -1);
+			} else if (parsed[1] == "pink_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("staff_gift", 5);
+				send_packet(6, "play getgift.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "5 staff_gifts", 2);
+				p.inv_add_item("pink_dream_box", -1);
+			} else if (parsed[1] == "golden_dream_box") {
+				send_packet(6, "play openbox.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("advanced_bone_repair_kit", 5); p.inv_add_item("advanced_bone_repair_kit", 5);
+				p.inv_add_item("kannadigas_potion", 10);
+				p.inv_add_item("grenade", 25);
+				p.inv_add_item("patricus_potion", 5);
+				p.inv_add_item("friendship_sphere", 5);
+				p.inv_add_item("credit", 1000);
+				p.inv_add_item("safe_card", 50);
+				p.inv_add_item("large_armor_plate", 1);
+				p.inv_add_item("staff_gift", 5);
+				send_packet(6, "play getpackage.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				send_reliable(p, "5 advanced repair kits, 25 grenades, 50 safe cards, 1000 credits, 10 kannadigas_potions, 1 large_armor_plate, 5 patricus potions, 5 friend ship spheres and 5 staff_gifts", 2);
+				p.inv_add_item("golden_dream_box", -1);
+			} else if (parsed[1] == "gift") {
+				if (p.waitingtimer.elapsed >= 1001) {
+					p.waitingtimer.restart();
+					string[] t;
+					t.insert_last(random(75, 125) + " coins");
+					t.insert_last(random(15, 45) + " wood");
+					t.insert_last(random(10, 35) + " metal");
+					t.insert_last(1 + " towel");
+					t.insert_last(1 + " antibiotic");
+					t.insert_last(1 + " cup");
+					t.insert_last(random(15, 25) + " clay");
+					t.insert_last(1 + " empty_bottle");
+					t.insert_last(1 + " energy_drink");
+					t.insert_last(random(1, 3) + " cigarette");
+					t.insert_last(random(1, 3) + " gas_bottle");
+					t.insert_last(random(1, 5) + " grenade");
+					t.insert_last(random(1, 5) + " air_canister");
+					t.insert_last(random(1, 2) + " shield");
+					t.insert_last(1 + " steel_shield");
+					t.insert_last(random(1, 10) + " firework");
+					t.insert_last(random(1, 10) + " firecracker");
+					int nitem = random(0, t.length() - 1);
+					string[] a = string_split(t[nitem], " ", false);
+					int numero = string_to_number(a[0]);
+					string nome = a[1];
+					send_packet(6, "play getgift.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					send_packet(6, "play get" + get_draw_and_get_sound(nome) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					p.inv_add_item(nome, numero);
+					send_reliable(p, " " + numero + " " + nome, 2);
+					p.inv_add_item("gift", -1);
+					p.inv_add_item("empty_pack", 1);
+				}
+			} else if (parsed[1] == "staff_gift") {
+				if (p.waitingtimer.elapsed >= 500) {
+					p.waitingtimer.restart();
+					string[] t;
+					t.insert_last(random(100, 500) + " credit");
+					t.insert_last(random(2, 3) + " safe_card");
+					t.insert_last(random(2, 3) + " teleporter");
+					t.insert_last(random(100000, 200000) + " coins");
+					t.insert_last(random(50, 100) + " grenade");
+					t.insert_last(random(1, 3) + " kannadigas_potion");
+					int nitem = random(0, t.length() - 1);
+					string[] a = string_split(t[nitem], " ", false);
+					int numero = string_to_number(a[0]);
+					string nome = a[1];
+					send_packet(6, "play getgift.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					send_packet(6, "play get" + get_draw_and_get_sound(nome) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					p.inv_add_item(nome, numero);
+					send_reliable(p, " " + numero + " " + nome, 2);
+					p.inv_add_item("staff_gift", -1);
+					p.inv_add_item("box", 1);
+				}
+			} else if (parsed[1] == "paid_gift") {
+				if (p.waitingtimer.elapsed >= 500) {
+					p.waitingtimer.restart();
+					string[] t;
+					t.insert_last(random(2, 4) + " safe_card");
+					t.insert_last(random(4, 6) + " teleporter");
+					t.insert_last(random(1, 2) + " energy_pill");
+					t.insert_last(random(1, 3) + " advanced_bone_repair_kit");
+					t.insert_last(1 + " kannadigas_reality_drink");
+					int nitem = random(0, t.length() - 1);
+					string[] a = string_split(t[nitem], " ", false);
+					int numero = string_to_number(a[0]);
+					string nome = a[1];
+					send_packet(6, "play getgift.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					send_packet(6, "play get" + get_draw_and_get_sound(nome) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					p.inv_add_item(nome, numero);
+					send_reliable(p, " " + numero + " " + nome, 2);
+					p.inv_add_item("paid_gift", -1);
+					p.inv_add_item("box", 1);
+				}
+			} else if (parsed[1] == "grenade") {
+				if (p.safe == false and is_safe(p.x, p.y, p.z, maps[get_map_index(p.map)]) == false and p.afk == false) {
+					send_packet(6, "play fraggrenadethrow.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					string wname = parsed[1];
+					spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+					p.grenadetimer.restart();
+					p.inv_add_item("grenade", -1);
+				}
+			} else if (parsed[1] == "teleporter") {
+				string tile = get_tile_at(p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				if (p.prison == false)
+					if (p.pvp != 1) {
+						server_menu menu;
+						menu.intro = "select map to teleport to";
+						menu.initial_packet = "tlpset";
+						for (uint i = 0; i < tlps.length(); i += 1) {
+							string[] ld = string_split(tlps[i], ":", false);
+							menu.add(ld[0], ld[1]);
+						}
+						menu.send(e.peer_id);
+					} else
+						send_reliable(p, "error. You can't use this when you are pvp", 2);
+			} else if (parsed[1] == "starter_pack") {
+				send_packet(6, "play opendlpack.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("starter_pack", -1);
+				p.inv_add_item("wallet", 1);
+				p.inv_add_item("knife", 1);
+				p.inv_add_item("colt_m9", 1);
+				p.inv_add_item("9mm_ammo", random(45, 55));
+				p.inv_add_item("e235shotgun", 1);
+				p.inv_add_item("shotgun_shell", random(15, 30));
+				p.inv_add_item("hat", 1);
+				p.inv_add_item("watch", 1);
+				p.inv_add_item("leather_jacket", 1);
+				p.inv_add_item("shield", 5);
+				p.inv_add_item("gift", 5);
+				p.inv_add_item("warm_pants", 1);
+				p.inv_add_item("warm_leather_boots", 1);
+				p.inv_add_item("fishing_pole", 1);
+				p.inv_add_item("sleeping_pill", random(3, 5));
+				p.inv_add_item("glue_bottle", 1);
+				p.inv_add_item("match_box", 1);
+				p.inv_add_item("water_bottle", 1);
+				p.inv_add_item("smart_phone", 1);
+				p.inv_add_item("phone_battery", random(3, 6));
+				p.inv_add_item("cooked_fish", random(10, 15));
+				p.inv_add_item("roll_bandage", random(3, 5));
+				send_reliable(p, "you've opened the starter pack and it contained:  1 wallet, 1 knife, 1 colt m9, some 9mm ammos, 1 e235shotgun, some shotgun shells, 1 hat, 1 watch, 1 leather jacket, 5 shields, 5 gifts, 1 warm pants, 1 warm leather boots, 1 fishing pol, some sleeping pills, 1 glue bottle, 1 match box, some cooked fish, 1 water bottle, 1 smart phone, some phone batteries and some roll bandages", 2);
+				p.inv_add_item("empty_pack", 1);
+			} else if (parsed[1] == "100_credit_pack") {
+				p.inv_add_item("credit", 100);
+				send_packet(6, "play openpack.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("100_credit_pack", -1);
+				p.inv_add_item("empty_pack", 1);
+			} else if (parsed[1] == "500_credit_pack") {
+				p.inv_add_item("credit", 500);
+				send_packet(6, "play openpack.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("500_credit_pack", -1);
+				p.inv_add_item("empty_pack", 1);
+			} else if (parsed[1] == "1000_credit_pack") {
+				p.inv_add_item("credit", 1000);
+				send_packet(6, "play openpack.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("1000_credit_pack", -1);
+				p.inv_add_item("empty_pack", 1);
+			} else if (parsed[1] == "5000_credit_pack") {
+				p.inv_add_item("credit", 5000);
+				send_packet(6, "play openpack.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("5000_credit_pack", -1);
+				p.inv_add_item("empty_pack", 1);
+			} else if (parsed[1] == "7000_credit_pack") {
+				p.inv_add_item("credit", 7000);
+				send_packet(6, "play openpack.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("7000_credit_pack", -1);
+				p.inv_add_item("empty_pack", 1);
+			} else if (parsed[1] == "7000_credit_pack") {
+				p.inv_add_item("credit", 7000);
+				send_packet(6, "play openpack.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("7000_credit_pack", -1);
+				p.inv_add_item("empty_pack", 1);
+			} else if (parsed[1] == "10000_credit_pack") {
+				p.inv_add_item("credit", 10000);
+				send_packet(6, "play openpack.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("10000_credit_pack", -1);
+				p.inv_add_item("empty_pack", 1);
+			} else if (parsed[1] == "security_booster") {
+				int l = get_locker_at(p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				if (l > -1) {
+					lockers[l].security_boosts += random(3, 25);
+					lockers[l].lockplay("security_booster");
+					p.stun(720, false, false);
+					p.inv_add_item("security_booster", -1);
+				}
+				int h = get_house_index(p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				if (h > -1) {
+					houses[h].security_boosts += random(3, 25);
+					houses[h].houseplay("security_booster");
+					p.stun(720, false, false);
+					p.inv_add_item("security_booster", -1);
+				}
+			}
+
+			else if (parsed[1] == "brick") {
+				for (uint i = 0; i < houses.length(); i++) {
+					if (houses[i].x == p.x and houses[i].y == p.y and houses[i].z == p.z and houses[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						houses[i].health += random(905, 1270);
+						p.inv_add_item("brick", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < microwaves.length(); i++) {
+					if (microwaves[i].x == p.x and microwaves[i].y == p.y and microwaves[i].z == p.z and microwaves[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						microwaves[i].health += random(905, 1270);
+						p.inv_add_item("brick", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < lockers.length(); i++) {
+					if (lockers[i].x == p.x and lockers[i].y == p.y and lockers[i].z == p.z and lockers[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						lockers[i].health += random(905, 1270);
+						p.inv_add_item("brick", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < fridges.length(); i++) {
+					if (fridges[i].x == p.x and fridges[i].y == p.y and fridges[i].z == p.z and fridges[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						fridges[i].health += random(905, 1270);
+						p.inv_add_item("brick", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < beehives.length(); i++) {
+					if (beehives[i].x == p.x and beehives[i].y == p.y and beehives[i].z == p.z and beehives[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						beehives[i].health += random(905, 1270);
+						p.inv_add_item("brick", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < playerstores.length(); i++) {
+					if (playerstores[i].x == p.x and playerstores[i].y == p.y and playerstores[i].z == p.z and playerstores[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						playerstores[i].health += random(905, 1270);
+						p.inv_add_item("brick", -1);
+						return;
+					}
+				}
+				if (p.pvp == 1 and is_safe(p.x, p.y, p.z, maps[get_map_index(p.map)]) == false and p.safe == false) {
+					send_packet(6, "play stonethrow.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					string wname = parsed[1];
+					spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+					p.inv_add_item("brick", -1);
+				}
+			} else if (parsed[1] == "concrete") {
+				for (uint i = 0; i < houses.length(); i++) {
+					if (houses[i].x == p.x and houses[i].y == p.y and houses[i].z == p.z and houses[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						houses[i].health += random(1000, 2000);
+						p.inv_add_item("concrete", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < microwaves.length(); i++) {
+					if (microwaves[i].x == p.x and microwaves[i].y == p.y and microwaves[i].z == p.z and microwaves[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						microwaves[i].health += random(1000, 2000);
+						p.inv_add_item("concrete", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < lockers.length(); i++) {
+					if (lockers[i].x == p.x and lockers[i].y == p.y and lockers[i].z == p.z and lockers[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						lockers[i].health += random(1000, 2000);
+						p.inv_add_item("concrete", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < fridges.length(); i++) {
+					if (fridges[i].x == p.x and fridges[i].y == p.y and fridges[i].z == p.z and fridges[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						fridges[i].health += random(1000, 2000);
+						p.inv_add_item("concrete", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < beehives.length(); i++) {
+					if (beehives[i].x == p.x and beehives[i].y == p.y and beehives[i].z == p.z and beehives[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						beehives[i].health += random(1000, 2000);
+						p.inv_add_item("concrete", -1);
+						return;
+					}
+				}
+				for (uint i = 0; i < playerstores.length(); i++) {
+					if (playerstores[i].x == p.x and playerstores[i].y == p.y and playerstores[i].z == p.z and playerstores[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						playerstores[i].health += random(1000, 2000);
+						p.inv_add_item("concrete", -1);
+						return;
+					}
+				}
+				if (p.pvp == 1 and is_safe(p.x, p.y, p.z, maps[get_map_index(p.map)]) == false and p.safe == false) {
+					send_packet(6, "play stonethrow.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+					string wname = parsed[1];
+					spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+					p.inv_add_item("concrete", -1);
+				}
+			} else if (parsed[1] == "metal") {
+				for (uint i = 0; i < houses.length(); i++) {
+					if (houses[i].x == p.x and houses[i].y == p.y and houses[i].z == p.z and houses[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						houses[i].health += random(530, 990);
+						p.inv_add_item("metal", -1);
+					}
+				}
+				for (uint i = 0; i < microwaves.length(); i++) {
+					if (microwaves[i].x == p.x and microwaves[i].y == p.y and microwaves[i].z == p.z and microwaves[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						microwaves[i].health += random(530, 990);
+						p.inv_add_item("metal", -1);
+					}
+				}
+				for (uint i = 0; i < lockers.length(); i++) {
+					if (lockers[i].x == p.x and lockers[i].y == p.y and lockers[i].z == p.z and lockers[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						lockers[i].health += random(530, 990);
+						p.inv_add_item("metal", -1);
+					}
+				}
+				for (uint i = 0; i < fridges.length(); i++) {
+					if (fridges[i].x == p.x and fridges[i].y == p.y and fridges[i].z == p.z and fridges[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						fridges[i].health += random(530, 990);
+						p.inv_add_item("metal", -1);
+					}
+				}
+				for (uint i = 0; i < beehives.length(); i++) {
+					if (beehives[i].x == p.x and beehives[i].y == p.y and beehives[i].z == p.z and beehives[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						beehives[i].health += random(530, 990);
+						p.inv_add_item("metal", -1);
+					}
+				}
+				for (uint i = 0; i < playerstores.length(); i++) {
+					if (playerstores[i].x == p.x and playerstores[i].y == p.y and playerstores[i].z == p.z and playerstores[i].map == p.map) {
+						send_packet(6, "play base_build" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						playerstores[i].health += random(530, 990);
+						p.inv_add_item("metal", -1);
+					}
+				}
+			} else if (parsed[1] == "robot") {
+				if (is_safe(p.x, p.y, p.z, maps[get_map_index(p.map)]) == true or p.pvp == 0 or has_robot(p.name) > 1) {
+					send_reliable(p, "you can't do this!", 2);
+					return;
+				}
+				int index = get_player_index(e.peer_id);
+				spawn_robot(index);
+				send_reliable(p, "play_s notify_mario_nes_pause.ogg", 6);
+				p.inv_add_item("robot", -1);
+			} else if (parsed[1] == "robot_remote") {
+				server_menu m;
+				m.intro = "robot remote menu. What would you like to do?";
+				m.initial_packet = "rremote1";
+				m.add("select a player to find", "player");
+				m.add("select an action to perform", "action");
+				m.add("status report", "stats");
+				m.send(p.peer_id);
+			} else if (parsed[1] == "espionage_camera") {
+				if (is_safe(p.x, p.y, p.z, maps[get_map_index(p.map)]) == true or p.pvp == 0) {
+					send_reliable(p, "you can't do this!", 2);
+					return;
+				}
+				string newid = randomstring(6);
+				send_packet(6, "play place" + random(1, 5) + ".ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				spawn_espionage_camera(p.x, p.y, p.z, maps[get_map_index(p.map)], p, p.facing, newid);
+				p.inv_add_item("espionage_camera", -1);
+			} else if (parsed[1] == "espionage_camera_controler") {
+				server_menu m;
+				m.intro = "spy camera controler menu. What would you like to do?";
+				m.initial_packet = "spycameracontroler";
+				for (uint i = 0; i < espionage_cameras.length(); i++) {
+					if (espionage_cameras[i].owner.name == p.name)
+						m.add("spy camera " + espionage_cameras[i].id + "", espionage_cameras[i].id);
+				}
+				m.send(p.peer_id);
+			} else if (parsed[1] == "15000_credit_pack") {
+				p.inv_add_item("credit", 15000);
+				send_packet(6, "play openpack.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("15000_credit_pack", -1);
+				p.inv_add_item("empty_pack", 1);
+			}
+		}
+	}
+	if (p.pvp == 1 and is_safe(p.x, p.y, p.z, maps[get_map_index(p.map)]) == false and p.safe == false) {
+		if (parsed[1] == "time_bomb") {
+			spawn_time_bomb(p.x, p.y, p.z, maps[get_map_index(p.map)], p);
+			p.inv_add_item("time_bomb", -1);
+		} else if (parsed[1] == "stone") {
+			send_packet(6, "play stonethrow.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			string wname = parsed[1];
+			spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+			p.inv_add_item("stone", -1);
+		} else if (parsed[1] == "ball") {
+			send_packet(6, "play jump9.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			string wname = parsed[1];
+			spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+			p.inv_add_item("ball", -1);
+		} else if (parsed[1] == "turret") {
+			send_packet(6, "play turretplace.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			send_reliable(p, "stopmoving", 0);
+			p.turrettimer.restart();
+			p.turretspawning = true;
+			p.inv_add_item("turret", -1);
+		} else if (parsed[1] == "turret_cartridge") {
+			for (uint i = 0; i < turrets.length(); i++) {
+				if (p.x == turrets[i].x and p.y == turrets[i].y and p.z == turrets[i].z and p.map == turrets[i].map.name) {
+					if (turrets[i].clipsize >= 1)
+						send_reliable(p, "this turret is already loaded.", 0);
+					else {
+						send_packet(6, "play turretreload.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						turrets[i].clipsize += 100;
+						p.inv_add_item("turret_cartridge", -1);
+					}
+				}
+			}
+		} else if (parsed[1] == "turret_battery") {
+			for (uint i = 0; i < turrets.length(); i++) {
+				if (p.x == turrets[i].x and p.y == turrets[i].y and p.z == turrets[i].z and p.map == turrets[i].map.name) {
+					if (turrets[i].chargelevel >= 500)
+						send_reliable(p, "this turret is fully charged.", 0);
+					else {
+						send_packet(6, "play turretbattery.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+						turrets[i].chargelevel += 30;
+						p.inv_add_item("turret_battery", -1);
+					}
+				}
+			}
+		} else if (parsed[1] == "nuclear_bomb") {
+			bool t = false;
+			for (uint i = 0; i < nuclear_bombs.length(); i++) {
+				if (nuclear_bombs[i].owner.name == p.name) {
+					t = true;
+					break;
+				}
+			}
+			if (t)return;
+			spawn_nuclear_bomb(p.x, p.y, p.z, maps[get_map_index(p.map)], p);
+			p.nuclearbombspawned = 1;
+			p.inv_add_item("nuclear_bomb", -1);
+		} else if (parsed[1] == "small_nuclear_bomb") {
+			bool t = false;
+			for (uint i = 0; i < small_nuclear_bombs.length(); i++) {
+				if (small_nuclear_bombs[i].owner.name == p.name) {
+					t = true;
+					break;
+				}
+			}
+			if (t)return;
+			spawn_small_nuclear_bomb(p.x, p.y, p.z, maps[get_map_index(p.map)], p);
+			p.nuclearbombspawned = 1;
+			p.inv_add_item("small_nuclear_bomb", -1);
+		} else if (parsed[1] == "large_nuclear_bomb") {
+			bool t = false;
+			for (uint i = 0; i < large_nuclear_bombs.length(); i++) {
+				if (large_nuclear_bombs[i].owner.name == p.name) {
+					t = true;
+					break;
+				}
+			}
+			if (t)return;
+			spawn_large_nuclear_bomb(p.x, p.y, p.z, maps[get_map_index(p.map)], p);
+			p.nuclearbombspawned = 1;
+			p.inv_add_item("large_nuclear_bomb", -1);
+		} else if (parsed[1] == "mine") {
+			spawn_mine(p.x, p.y, p.z, maps[get_map_index(p.map)], p);
+			p.inv_add_item("mine", -1);
+		} else if (parsed[1] == "auto_healer") {
+			if (p.health >= p.maxhealth)
+				send_reliable(p, "you are at max health and you can't go any higher.", 0);
+			else {
+				send_packet(6, "play auto_healer_start.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				spawn_auto_healer(p.x, p.y, p.z, maps[get_map_index(p.map)]);
+				p.inv_add_item("auto_healer", -1);
+			}
+		} else if (parsed[1] == "poison_drink") {
+			p.poisoned = false;
+			p.poisonlosses = 0;
+			p.poisonowner = "";
+			p.health += random(100, 350);
+			p.inv_add_item("poison_drink", -1);
+			send_packet(6, "play storedhealth.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+		} else if (parsed[1] == "gas_canister") {
+			spawn_canister(p.x, p.y, p.z, maps[get_map_index(p.map)], "gas");
+			p.inv_add_item("gas_canister", -1);
+		} else if (parsed[1] == "antibiotic_canister") {
+			spawn_canister(p.x, p.y, p.z, maps[get_map_index(p.map)], "antibiotic");
+			p.inv_add_item("antibiotic_canister", -1);
+		} else if (parsed[1] == "energogenic_canister") {
+			spawn_canister(p.x, p.y, p.z, maps[get_map_index(p.map)], "energogenic");
+			p.inv_add_item("energogenic_canister", -1);
+		} else if (parsed[1] == "energy_reducing_canister") {
+			spawn_canister(p.x, p.y, p.z, maps[get_map_index(p.map)], "energy_reducing");
+			p.inv_add_item("energy_reducing_canister", -1);
+		} else if (parsed[1] == "thirsting_canister") {
+			spawn_canister(p.x, p.y, p.z, maps[get_map_index(p.map)], "thirsting");
+			p.inv_add_item("thirsting_canister", -1);
+		} else if (parsed[1] == "starvogenic_canister") {
+			spawn_canister(p.x, p.y, p.z, maps[get_map_index(p.map)], "starvogenic");
+			p.inv_add_item("starvogenic_canister", -1);
+		} else if (parsed[1] == "pathogenic_canister") {
+			spawn_canister(p.x, p.y, p.z, maps[get_map_index(p.map)], "pathogenic");
+			p.inv_add_item("pathogenic_canister", -1);
+		} else if (parsed[1] == "experience_canister") {
+			spawn_canister(p.x, p.y, p.z, maps[get_map_index(p.map)], "experience");
+			p.inv_add_item("experience_canister", -1);
+		} else if (parsed[1] == "snare") {
+			if (p.snaretimer.elapsed < 15000)
+				return;
+			else
+				p.snaretimer.restart();
+			spawn_snare(p.x, p.y, p.z, maps[get_map_index(p.map)], p);
+			p.inv_add_item("snare", -1);
+		} else if (parsed[1] == "wand") {
+			server_menu m;
+			m.intro = "what's the magic going on your head today?";
+			m.initial_packet = "usewand";
+			m.add("shield unwealder. Costs 35 mana. Range: 25 feet", "shield_unwealder");
+			m.add("life drain. Costs 55 mana. Range: 15 feet", "life_drain");
+			m.add("fore to death. Costs 5 mana", "fore_to_death");
+			m.send(p.peer_id);
+		} else if (parsed[1] == "censor_bomb" and p.cbombplacing == false) {
+			string tile = get_tile_at(p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			if (tile == "" or tile == "air") {
+				send_reliable(p, "You can't do this in the air!", 0);
+				return;
+			}
+			for (uint i = 0; i < censor_bombs.length(); i++) {
+				if (censor_bombs[i].x == p.x and censor_bombs[i].y == p.y and censor_bombs[i].z == p.z and censor_bombs[i].map.name == p.map) {
+					send_reliable(p, "there is already a censor bomb here. No point in wasting such powerful things on only one square", 0);
+					return;
+				}
+			}
+			send_reliable(p, "stopmoving", 0);
+			send_packet(6, "play censor_bombplace.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			p.cbombtimer.restart();
+			p.cbombplacing = true;
+			p.inv_add_item("censor_bomb", -1);
+		} else if (parsed[1] == "gas_bottle") {
+			send_packet(6, "play stonethrow.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			string wname = parsed[1];
+			spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+			p.inv_add_item("gas_bottle", -1);
+			p.inv_add_item("empty_bottle", 1);
+		} else if (parsed[1] == "glass") {
+			send_packet(6, "play stonethrow.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			string wname = parsed[1];
+			spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+			p.inv_add_item("glass", -1);
+		} else if (parsed[1] == "mud") {
+			send_packet(6, "play mudthrow.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			string wname = parsed[1];
+			spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+			p.inv_add_item("mud", -1);
+		} else if (parsed[1] == "empty_bottle") {
+			send_packet(6, "play empty-bottlethrow.ogg " + p.x + " " + p.y + " " + p.z, p.x, p.y, p.z, maps[get_map_index(p.map)]);
+			string wname = parsed[1];
+			spawn_weapon(p.x, p.y, p.z, p.facing, p.ffacing, wname, p, maps[get_map_index(p.map)]);
+			p.inv_add_item("empty_bottle", -1);
+		}
+	}
+}

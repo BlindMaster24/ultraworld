@@ -1,0 +1,495 @@
+void helpmenu() {
+	custom_menu c;
+	setupmenu(c);
+	c.add("changes: shows you the recent change log.", "changes");
+	c.add("mutelist: shows list of players that you've muted", "mutelist");
+	c.add("mute playername: mutes playername. It means he can't send you pm", "mute");
+	c.add("unmute playername: unmutes playername. It means muted player can send you pm again", "unmute");
+	c.add("setemail EmailAddress: sets you're email", "setemail");
+	c.add("me msg: says a me message.", "me");
+	c.add("pm playername messsage: sends them a private message ", "pm");
+	c.add("r message: replys to the last person who sent you a message. and you can use /reply zone. Also if you wanna leave you can use /leavefight", "r");
+	c.add("staff: shows you game staff", "staff");
+	c.add(" admintell message: Sends a message to current online admins. ", "admintell");
+	c.add("rules: display the game's rules.", "rules");
+	c.add("nicknamefind playername: finds playername's nickname", "nicknamefind");
+	c.add("afk: turns on or off you're AFK", "afk");
+	c.add("bid amount: bids the amount of item that auctioner requested if there's any auction available", "bid");
+	c.add("currentauction: it tells you whats in the auction currently", "currentauction");
+	c.add("playtime: checks total playtime of everyone", "playtime");
+	c.add("vote yes: you say yes to current voting", "vote");
+	c.add("vote no: you say no to current voting", "vote");
+	c.add("pvp: toggles your pvp mode", "pvp");
+	c.add("suicide: you can suicide to safe zone with this command only when you are in the public maps", "suicide");
+	c.add("teamcreate teamid teamname: create: a team with a random password", "teamcreate");
+	c.add("teammembers: Lists your team's members.", "teammembers");
+	c.add("teampoints: shows how much points your team have", "teampoints");
+	c.add("teamkills: shows how much kills your team have", "teamkills");
+	c.add("getteampass: gets your team's password. Only works if you are leader of the team.", "getteampass");
+	c.add("changeteampass <password>: changes your team's password. Only works if you are leader of the team.", "changeteampass");
+	c.add("changeteamleader <name>: changes your team's leader if you are the leader of the team.", "changeteamleader");
+	c.add("teamkick <playername>: removes a player from your team.", "teamkick");
+	c.add("teamcancel: cancels your team", "teamcancel");
+	c.add("teamleave: leaves a team you are in, if you're not the leader. If you are the leader use cancel.", "teamleave");
+	c.add("t <message>: sends a message to your team.", "t");
+	c.add("jointeam <teamid> <teampassword>: Joins a team.", "jointeam");
+	c.add("team playername: shows in what team the player is", "team");
+	c.add("zones: checks for trackable zones in your map", "zones");
+	c.add("trust playername: trusts the playername and he'll be able to check your map or looking at you", "trust");
+	c.add("untrust playername: untrusts the player name. It means he can't check your location and look at you", "untrust");
+	c.add("look playername: looks the player", "look");
+	c.add("lookstop: stops looking at who you were looking", "lookstop");
+	c.add("setonlinemsg message: sets your online message", "setonlinemsg");
+	c.add("setofflinemsg message: sets your offline message", "setofflinemsg");
+	c.add("go x y z: move you in to given coordinates in your map", "go");
+	c.add("channelusers: shows who is in your current language channel", "channelusers");
+	c.add("setstatus message: set your status message", "setstatus");
+	c.add("clearstatus: clears your status message", "clearstatus");
+	c.add("status playername: gets status of the player name", "status");
+	c.add("pvplist: shows all pvp players", "pvplist");
+	c.add("getmyinv: retrieves your inventory backup", "getmyinv");
+	c.add("muteclear: clears your mute list", "muteclear");
+	c.add("trustclear: clears your trust list", "trustclear");
+	c.add("xpstatus: will tell you if any special xp is enabled", "xpstatus");
+	c.add("xppotion: will tell you the remaining xp potion's time", "xppotion");
+	if (lcm == true or admin == true or manager == true or !SCRIPT_COMPILED) {
+		c.add("cnotify message: notifies the channel that you are it's lcm", "cnotify");
+		c.add("adminrules: View the admin rules.", "adminrules");
+	}
+	if (admin) {
+		c.add("compinfo playername: gets playername's computer info", "compinfo");
+		c.add("mineclear: clears all mines", "mineclear");
+		c.add("timebombsweeper: puts 250 timebombs on you're map", "timebombsweeper");
+		c.add("censorbombsweeper: puts 250 timebombs on you're map", "timebombsweeper");
+		c.add("aiinfo: checks information of ai's which are currently in the maps", "aiinfo");
+		c.add("ailist: Gets list of ai's", "ailist");
+		c.add("anote: get the admin note Written by the developers.", "anote");
+		c.add("backupinv: Backs up all inventories.", "backupinv");
+		c.add("getbackupinv playername: retrieves the backup inventory of the player specified, use this if they lost their inventory.", "getbackupinv");
+		c.add("getinv playername: returns the entire inventory of a player", "getinv");
+		c.add("setinv playername invdata: sets player's entire inventory to invdata", "setinv");
+		c.add("backupmap: Backs up all maps.", "backupmap");
+		c.add("getbackupmap mapname: retrieves the backup of the map specified, use this if a map is lost.", "getbackupmap");
+		c.add("move  playername x y z optional_map_name: will move a player to a set of coordinates and if needed in to a new map.", "move");
+		c.add("fastpvp: This command may optionally take a player name, if none is given then it defaults to you. It makes player pvp so fast, or stops it", "fastpvp");
+		c.add("safe: This command may optionally take a player name, if none is given then it defaults to you. It makes player safe or unsafe", "safe");
+		c.add("supersafe: This command may optionally take a player name, if none is given then it defaults to you. It makes player supersafe or un super safe. Super safe means when player is falling he won't loos any health", "supersafe");
+		c.add("give playername itemname value: gives value of itemname to playername's inventory.", "give");
+		c.add("giveall item amount: gives spesified amount  of an item to all players", "giveall");
+		c.add("newmotd message: sets the message of the day.", "newmotd");
+		c.add("notify Message: will notify the server", "notify");
+		c.add("playernotify PlayerName FileName.ogg Message: notifies a player only", "playernotify");
+		c.add("kick playername : kicks the playername", "kick");
+		c.add("kickall: kicks all the players out of the server", "kickall");
+		c.add("moveplayer player1 player2: will move a player to another player.", "moveplayer");
+		c.add("changemap playername map: will change a map of a player.", "changemap");
+		c.add("ban PlayerName: bans playername's computer from the server. You must only type a PlayerName, However behind the scenes it is using product ids.", "ban");
+		c.add("banned: returns a list of all banned users, by the playername they were banned with.", "banned");
+		c.add("unban playername: you must type a playername that will unban their computer, again the product ids are used!.", "unban");
+		c.add("settitle playername title: sets playername's title", "settitle");
+		c.add("cleartitle playername: clears playername's title", "cleartitle");
+		c.add("kill playername: sets playername's health to 0", "kill");
+		c.add("sethealth playername health: sets playername's health", "sethealth");
+		c.add("setlevel playername level: sets playername's level", "setlevel");
+		c.add("setreinforcement playername reinforcement: sets playername's reinforcement", "setreinforcement");
+		c.add("setxp playername xp: sets playername's experience", "setxp");
+		c.add("setstatus playername message: sets playername's status message", "setstatus");
+		c.add("setthirst playername thirst: sets playername's thirst", "setthirst");
+		c.add("sethunger playername hunger: sets playername's hunger", "sethunger");
+		c.add("setsick playername sick: sets playername's sickness", "setsick");
+		c.add("setenergy playername energy: sets playername's energy", "setenergy");
+		c.add("setfull playername full percentage: sets playername's full", "setfull");
+		c.add("seturine playername urine: sets playername's urine", "seturine");
+		c.add("setfeces playername feces: sets playername's feces", "setfeces");
+		c.add("banguide: shows ban commands", "banguide");
+		c.add("eventhelp: shows event commands", "eventhelp");
+		c.add("changemymap mapname: changes you're map", "changemymap");
+		c.add("mapexists mapname: checks existence of a map", "mapexists");
+		c.add("maps: brings up a menu contains all available map names. Press enter to go to the each one", "maps");
+		c.add("maplist: gives a list of the available maps. ", "maplist");
+		c.add("rawdata MapData: : Sets the map's data to MapData , This could be useless if you got the map data from /rawmap, Modified it, then you and want it back in the map.", "rawdata");
+		c.add("rawmap: : Returns the entire map data, This could be eusless while you are building maps. ", "rawmap");
+		c.add("datasave: saves all data", "datasave");
+		c.add("doublexp: enables or disables double xp", "doublexp");
+		c.add("superxp: enables or disables super xp", "superxp");
+		c.add("megaxp: enables or disables mega xp", "megaxp");
+		c.add("gigaxp: enables or disables giga xp", "gigaxp");
+		c.add("masterxp: enables or disables master xp", "masterxp");
+		c.add("stop_motorcycles: stops all motorcycles", "stop_motorcycles");
+		c.add("stop_vehicles: stops all vehicles", "stop_vehicles");
+		c.add("adminlog: shows adminlog", "adminlog");
+		c.add("addalog message: adds message to admin log", "addalog");
+		c.add("gamestop: freezes the game", "gamestop");
+		c.add("gamestart: unfreazes the game", "gamestart");
+		c.add("mapmove params: can move one or more players matching certain criteria to random spots on a map. Params can be one or more of: <playername>: a player to match directly: map:<name>: All players on a specified map: dest:<name>: a map they should be dumped to. Default value for this is main.", "mapmove");
+		c.add("blockfeature playername feature: blocks a feature from a player. example: /blockfeature mahdi chat. Blocks mahdi from sending chats.", "blockfeature");
+		c.add("cdata playername value: this command returns the player's value. For example: /cdata mahdi level: returns the level of the player mahdi. This can be any file in their char folder, examples are location and health. Some values update in realtime, such as inventory, and health.", "cdata");
+		c.add("cdataset playername value new value: changes a player's value to the one specified here. For this to work correctly it saves the player's data, overwrites the stored value, and then reloads it. This can be used to set a player's inventory or nickname.", "cdataset");
+		c.add("warn playername level message: Warns a player of something. Levels are indicated to what this person is doing. For example: /warn mahdi 5 You are speedhacking! Levels are 1 through 5. It is good admin practice to warn players before taking serious actions, generally how many times you do it depends on the level and it should increase.", "warn");
+		c.add("hideme: hides you", "hideme");
+		c.add("unhideme: unhides you", "unhideme");
+		c.add("chat message: if you are hidden, you can chat by this way", "chat");
+		c.add("spawn_obj x y z map item amount: spawns an object of type item, containing amount of this item, at x y z on map. For example: /spawn_obj 0 0 0 store coin 1000", "spawn_obj");
+		c.add("intmaps: shows length of all loaded maps", "intmaps");
+		c.add("ip playername: gets ip of playername", "ip");
+		c.add("ipcheck IPAddress: checks specefied IPAddress", "ipcheck");
+		c.add("temporary_ban playername minutes: Temporary bans player for specefied minutes", "temporary_ban");
+		c.add("temporary_bans: shows list of Temporary banned players", "temporary_bans");
+		c.add("ban PlayerName: bans playername's computer from the server", "ban");
+		c.add("banned: returns a list of all banned users, by the playername they were banned with.", "banned");
+		c.add("unban playername: you must type a playername that will unban their computer", "unban");
+		c.add("banid: shows list of players that banned by id", "banid");
+		c.add("getpass playername: gets playername's password", "getpass");
+		c.add("changepass playername: changes playername's password", "changepass");
+		c.add("cnotify message: notifies the channel that you are it's lcm", "cnotify");
+		c.add("lcnotify channel message: notifies specified channnel. For example /lcnotify english hi", "notifyChannel");
+		c.add("chars: shows list of created accounts", "chars");
+		c.add("fastrestart: restarts the server without notifying players", "fastrestart");
+		c.add("sleep playername: sleeps the playername", "sleep");
+		c.add("wake playername: wakes up the playername", "wake");
+		c.add("restart: restarts the server", "restart");
+		c.add("respond playername: answers playername", "respond");
+		c.add("getkillmsgs: gets all kill messages", "getkillmsgs");
+		c.add("getkillmsg: gets kill messages", "getkillmsg");
+		c.add("setgender playername number: sets someones gender. Please note: number is 0 or 1: if gender sets to 0, it will be male, if sets to 1, it'll be female", "setgender");
+		c.add("votelist: checks the list of votes", "votelist");
+		c.add("clearvotes: clears votes", "clearvotes");
+		c.add("aiinfo: tells you the spawned AI's", "aiinfo");
+		c.add("jail playername: Will send the player to the prison. ", "jail");
+		c.add("unjail playername: Unjail the jailed player. ", "unjail");
+		c.add("jaillist: checks for the list of jailed players", "jaillist");
+		c.add("tthirst: starts or stops the thirst timer", "tthirst");
+		c.add("thunger: starts or stops the hunger timer", "thunger");
+		c.add("teamdestroy teamname: destroys the specified teamname", "teamdestroy");
+		c.add("teamdestroyold: tells you how much teams distroyed", "teamdestroyold");
+		c.add("setteampoints teamname points: sets the amount of points to a team", "setteampoints");
+		c.add("setteamkills teamname kills: sets the amount of kills to a team", "setteamkills");
+		c.add("votes: checks the list of votes", "votes");
+		c.add("init_maps: reboot map list", "init_maps");
+		c.add("ais: gives you list of ais", "ais");
+		c.add("teaminfo teamname: gets information of the given team", "teaminfo");
+		c.add("changeteamleader teamname leader: changes leader of the given team", "changeteamleader");
+		c.add("garbage_collect: clears garbage from the server", "garbage_collect");
+		c.add("spawn_vehicle x y z mapname health type: spawns a vehicle", "spawn_vehicle");
+		c.add("spawn_motor x y z mapname health type: spawns a motor", "spawn_motor");
+		c.add("clientclose <playername>: closes client of a special player", "clientclose");
+		c.add("clientcloseall closes everyone's client", "clientcloseall");
+		c.add("refreshai. Refresh AI's", "refreshai");
+		c.add("addnotadg item name: adds the item in to the restriction list", "addnotadg");
+	}
+	if (manager == true or !SCRIPT_COMPILED) {
+		c.add("teamkill: kills all teams", "teamkill");
+		c.add("chartrash: kills the spam players", "chartrash");
+		c.add("delmap mapname: delete the map", "delmap");
+		c.add("addanote note: adds admin note", "addanote");
+		c.add("varset veriable value: sets a saved variable to a specified value", "varset");
+		c.add("varremove veriable: removes the saved variable", "varremove");
+		c.add("sendemail <reciever's e-mail> <sender's e-mail> <email name> <subject> <message>: sends email to the reciever. Just message can have spaces", "sendemail");
+	}
+	c.add("Go back", "back");
+	m.set_callback(netclb, "");
+	string mres = menu("help menu. Press enter on each command to see it in action and escape to exit this menu", c);
+	c.reset(true);
+	if (mres == "back" or mres == "")
+		return;
+	else if (mres == "mute" or mres == "unmute" or mres == "nicknamefind" or mres == "changeteamleader" or mres == "teamkick" or mres == "team" or mres == "trust" or mres == "untrust" or mres == "look" or mres == "status" or mres == "compinfo" or mres == "getbackupinv" or mres == "getinv" or mres == "kick" or mres == "ckick" or mres == "suicide" or mres == "ban" or mres == "unban" or mres == "cleartitle" or mres == "kill" or mres == "sethealth" or mres == "ip" or mres == "getpass" or mres == "sleep" or mres == "wake" or mres == "respond" or mres == "jail" or mres == "unjail" or mres == "tthirst" or mres == "thunger" or mres == "setpaid" or mres == "delpaid" or mres == "clientclose") {
+		string playername = v.input("enter username");
+		if (playername != "")
+			send_reliable(peer_id, "/" + mres + " " + playername + "", 1);
+		else
+			send_reliable(peer_id, "/" + mres + "", 1);
+	} else if (mres == "setemail") {
+		string msg = v.input("enter your e-mail address");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "me" or mres == "t" or mres == "r" or mres == "admintell" or mres == "setonlinemsg" or mres == "setofflinemsg" or mres == "setstatus" or mres == "notify" or mres == "cnotify" or mres == "addalog" or mres == "chat") {
+		string msg = v.input("type your message here");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "joinevent") {
+		string msg = v.input("enter id");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "bid") {
+		string msg = v.input("how much would you like to bid?");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + string_to_number(msg) + "", 1);
+	} else if (mres == "vote") {
+		string msg = v.input("enter yes or no?");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "teamcreate" or mres == "teamdestroy" or mres == "teaminfo") {
+		string msgid = input("ID", "Type the team ID, no space");
+		if (msgid == "") return;
+		string msg = v.input("type the team name here (optional)");
+		send_reliable(peer_id, "/" + mres + " " + msgid + (msg != "" ? " " + msg : ""), 1);
+	} else if (mres == "changeteampass") {
+		string msg = v.input("enter the new password");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "jointeam") {
+		string msg = v.input("type the team name here");
+		if (msg != "") {
+			string msg2 = v.input("type the team password here");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "varset") {
+		string msg = v.input("variable");
+		if (msg != "") {
+			string msg2 = v.input("value");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + string_to_number(msg2) + "", 1);
+		}
+	} else if (mres == "varremove") {
+		string msg = v.input("variable");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "go") {
+		string msg = v.input("x");
+		if (msg != "") {
+			string msg2 = v.input("y");
+			if (msg2 != "") {
+				string msg3 = v.input("z");
+				if (msg3 != "")
+					send_reliable(peer_id, "/" + mres + " " + string_to_number(msg) + " " + string_to_number(msg2) + " " + string_to_number(msg3) + " ", 1);
+			}
+		}
+	} else if (mres == "recieve") {
+		string msg = v.input("type the item name here");
+		if (msg != "") {
+			string msg2 = v.input("type the amount here");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + string_to_number(msg2) + "", 1);
+		}
+	} else if (mres == "addnotadg") {
+		string msg = v.input("type the item name here");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "sendemail") {
+		string msg = v.input("reciever's e-mail");
+		string msg2 = v.input("sender's e-mail");
+		string msg3 = v.input("e-mail name");
+		string msg4 = v.input("subject");
+		string msg5 = v.input("message");
+		send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + " " + msg3 + " " + msg4 + " " + msg5 + "", 1);
+	} else if (mres == "setinv") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("enter the data here");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "pm") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("type your message here");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "move") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("x");
+			if (msg2 != "") {
+				string msg3 = v.input("y");
+				if (msg3 != "") {
+					string msg4 = v.input("z");
+					if (msg4 != "") {
+						string msg5 = v.input("mapname(optional)");
+						if (msg5 == "") send_reliable(peer_id, "/" + mres + " " + msg + " " + string_to_number(msg2) + " " + string_to_number(msg3) + " " + string_to_number(msg4) + "", 1);
+						else send_reliable(peer_id, "/" + mres + " " + msg + " " + string_to_number(msg2) + " " + string_to_number(msg3) + " " + string_to_number(msg4) + " " + msg5 + "", 1);
+					}
+				}
+			}
+		}
+	} else if (mres == "give") {
+		string msg = v.input("player name");
+		if (msg != "") {
+			string msg2 = v.input("enter item name");
+			if (msg2 != "") {
+				string msg3 = v.input("amount");
+				if (msg3 != "")
+					send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + " " + string_to_number(msg3) + "", 1);
+			}
+		}
+	} else if (mres == "giveall") {
+		string msg = v.input("itemname");
+		if (msg != "") {
+			string msg2 = v.input("amount");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + string_to_number(msg2) + "", 1);
+		}
+	} else if (mres == "newmotd") {
+		string msg2 = input("Message", "Type the message of the day", multiline = true);
+		if (msg2 != "")
+			send_reliable(peer_id, "/newmotd " + msg2, 1);
+	} else if (mres == "playernotify") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("enter the file name with it's extention");
+			if (msg2 != "") {
+				string msg3 = v.input("type your message here");
+				if (msg3 != "")
+					send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + " " + msg3 + "", 1);
+			}
+		}
+	} else if (mres == "moveplayer") {
+		string msg = v.input("enter the first username");
+		if (msg != "") {
+			string msg2 = v.input("enter the second username");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "changemap") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("enter map name");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "getbackupmap") {
+		string msg = v.input("enter map name");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "settitle") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("type the title here");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "sethealth" or mres == "setlevel" or mres == "setreinforcement" or mres == "setxp" or mres == "setstatus" or mres == "setthirst" or mres == "sethunger" or mres == "setsick" or mres == "setenergy" or mres == "setfull" or mres == "seturine" or mres == "setfeces" or mres == "setgender") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("type the value here");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + string_to_number(msg2) + "", 1);
+		}
+	} else if (mres == "changemymap" or mres == "mapexists") {
+		string msg = v.input("enter map name");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "rawdata") {
+		string msg = v.input("type the  data here");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "mapmove") {
+		string msg = v.input("enter username(optional)");
+		string msg2 = v.input("enter map name(optional)");
+		string msg3 = v.input("enter destination(optional)");
+		send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + " " + msg3 + "", 1);
+	} else if (mres == "cdata") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("enter value");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "cdataset") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("enter value");
+			if (msg2 != "") {
+				string msg3 = v.input("enter new value");
+				if (msg3 != "")
+					send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + " " + msg3 + "", 1);
+			}
+		}
+	} else if (mres == "warn") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("level");
+			if (msg2 != "") {
+				string msg3 = v.input("type your message here");
+				if (msg3 != "")
+					send_reliable(peer_id, "/" + mres + " " + msg + " " + string_to_number(msg2) + " " + msg3 + "", 1);
+			}
+		}
+	} else if (mres == "spawn_obj") {
+		string msg = v.input("x");
+		if (msg != "") {
+			string msg2 = v.input("y");
+			if (msg2 != "") {
+				string msg3 = v.input("z");
+				if (msg3 != "") {
+					string msg4 = v.input("map name");
+					if (msg4 != "") {
+						string msg5 = v.input("item name");
+						if (msg5 != "") {
+							string msg6 = v.input("amount");
+							if (msg6 != "")
+								send_reliable(peer_id, "/" + mres + " " + string_to_number(msg) + " " + string_to_number(msg2) + " " + string_to_number(msg3) + " " + msg4 + " " + msg5 + " " + string_to_number(msg6) + "", 1);
+						}
+					}
+				}
+			}
+		}
+	} else if (mres == "ipcheck") {
+		string msg = v.input("enter ip address");
+		if (msg != "")
+			send_reliable(peer_id, "/" + mres + " " + msg + "", 1);
+	} else if (mres == "temporary_ban") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("for how much minutes?");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + string_to_number(msg2) + "", 1);
+		}
+	} else if (mres == "changepass") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("type the new password here");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "notifyChannel") {
+		string msg = v.input("channel name");
+		if (msg != "") {
+			string msg2 = v.input("type your message here");
+			if (msg2 != "")
+				send_reliable(peer_id, "/lcnotify " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "setteampoints" or mres == "setteamkills") {
+		string msg = v.input("team name");
+		if (msg != "") {
+			string msg2 = v.input("value");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + string_to_number(msg2) + "", 1);
+		}
+	} else if (mres == "changeteamleader") {
+		string msg = v.input("team name");
+		if (msg != "") {
+			string msg2 = v.input("enter new leader's name");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else if (mres == "spawn_vehicle" or mres == "spawn_motor") {
+		string msg = v.input("x");
+		if (msg != "") {
+			string msg2 = v.input("y");
+			if (msg2 != "") {
+				string msg3 = v.input("z");
+				if (msg3 != "") {
+					string msg4 = v.input("map name");
+					if (msg4 != "") {
+						string msg5 = v.input("type");
+						if (msg5 != "") {
+							string msg6 = v.input("health");
+							if (msg6 != "")
+								send_reliable(peer_id, "/" + mres + " " + string_to_number(msg) + " " + string_to_number(msg2) + " " + string_to_number(msg3) + " " + msg4 + " " + msg5 + " " + string_to_number(msg6) + "", 1);
+						}
+					}
+				}
+			}
+		}
+	} else if (mres == "setpacket" or mres == "setpacketplayer" or mres == "setplayerpacket" or mres == "setpacketpluss") {
+		string msg = v.input("enter username");
+		if (msg != "") {
+			string msg2 = v.input("action");
+			if (msg2 != "")
+				send_reliable(peer_id, "/" + mres + " " + msg + " " + msg2 + "", 1);
+		}
+	} else
+		send_reliable(peer_id, "/" + mres + "", 1);
+}

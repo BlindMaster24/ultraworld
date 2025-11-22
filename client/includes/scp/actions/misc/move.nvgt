@@ -1,0 +1,34 @@
+namespace scp::actions::misc {
+	void move() {
+		nv_form f;
+		f.create_window("Move Player", false);
+		nv_form_input@ user = f.add_input("Username to move", "user");
+		string coords = "0123456789-";
+		nv_form_input@ x = f.add_input("X coordinate to move", "x");
+		x.set_disallowed_chars(coords, true, "Only numbers");
+		nv_form_input@ y = f.add_input("Y coordinate to move", "y");
+		y.set_disallowed_chars(coords, true, "Only numbers");
+		nv_form_input@ z = f.add_input("Z coordinate to move", "z");
+		z.set_disallowed_chars(coords, true, "Only numbers");
+		nv_form_input@ map = f.add_input("Map to move (optional)", "x");
+		nv_form_button@ ok = f.add_button("Move", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(user, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (user.text == "" || x.text == "" || y.text == "" || z.text == "") {
+					speak("One or more arguments are missing");
+					continue;
+				}
+				string[] args = {user.text, x.text, y.text, z.text};
+				if (map.text != "") args.insert_last(map.text);
+				sendcommand("/move " + join(args, " "));
+				break;
+			}
+		}
+		f.reset();
+	}
+}

@@ -1,0 +1,10 @@
+dictionary@ default_vars = dictionary();
+string dvars(string t, dictionary@ args = default_vars, string o = "%", string c = "%") {
+	if (@args == null) @args = dictionary();
+	string v = o + "%0" + c;
+	string[] k = args.get_keys();
+	for (uint i = 0; i < k.length(); i++) {
+		t.replace_this(v.format(k[i]), dgets(args, k[i]));
+	}
+	return t;
+}

@@ -1,0 +1,82 @@
+#include "actions/*/*.nvgt" /**/
+#include "menus/*.nvgt" /**/
+void scpmenu() {
+	custom_menu c;
+	setupmenu(c);
+	if (assistant) c.add("Checklist", "check");
+	if (admin) {
+		c.add("Multicommand", "mcmd");
+		c.add("item_management", "itemmag");
+	}
+	if (assistant) {
+		c.add("server_management", "servermag");
+		c.add("Player Offense Repercussion Management System", "porms");
+		c.add("Item Description", "idesc");
+	}
+	if (manager) {
+		c.add("Promote a new staff", "newstaff");
+		c.add("Demote a staff", "delstaff");
+		c.add("Merge 2 teams", "teammerge");
+	}
+	if (admin) {
+		c.add("Promote / demote a language channel manager, tell the user to switch to it first", "mlmgr");
+		c.add("Set player statistic value", "pset");
+		c.add("Move a player", "move");
+	}
+	if (assistant) {
+		c.add("Reset / cancel the currently active auction, only use this when necessary", "ca");
+		c.add("Move a player back to the main map, for instance, if they are stuck", "mv");
+	}
+	if (c.get_item_length() < 1) return;
+	c.create("Staff Control Panel", true);
+	while (c.running) {
+		wait(5);
+		c.monitor();
+		mainloop();
+		string r = c.click;
+		if (r == "itemmag") {
+			scp::menus::item();
+			break;
+		} if (r == "servermag") {
+			scp::menus::server();
+			break;
+		} if (r == "porms") {
+			scp::menus::porms();
+			break;
+		} else if (r == "newstaff") {
+			scp::actions::misc::promotestaff();
+			break;
+		} else if (r == "delstaff") {
+			scp::actions::misc::demotestaff();
+			break;
+		} else if (r == "mlmgr") {
+			scp::actions::misc::mlmgr();
+			break;
+		} else if (r == "mcmd") {
+			scp::actions::misc::multicommand();
+			break;
+		} else if (r == "pset") {
+			scp::actions::misc::pset();
+			break;
+		} else if (r == "ca") {
+			scp::actions::misc::ca();
+			break;
+		} else if (r == "idesc") {
+			send_reliable(peer_id, "buildobj desc_menu", 0);
+			break;
+		} else if (r == "check") {
+			scp::actions::misc::check();
+			break;
+		} else if (r == "teammerge") {
+			scp::actions::misc::teammerge();
+			break;
+		} else if (r == "mv") {
+			scp::actions::misc::mv();
+			break;
+		} else if (r == "move") {
+			scp::actions::misc::move();
+			break;
+		}
+	}//While
+	return;
+}//End

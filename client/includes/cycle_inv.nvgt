@@ -1,0 +1,17 @@
+void cycleinv(double dir) {
+	inv.cycle(dir);
+	double soundpos = convert_to_pan(inv.invpos, inv.size);
+	p.play_stationary("inventory" + random(1, 12) + ".ogg", false);
+	inv.speak_item(false);
+}
+double count_total_items() {
+	double amount = 0;
+	for (uint i = 0; i < inv.size; i++) {
+		double a = inv.get_item_amount(inv.items[i].name);
+		amount += a;
+	}
+	return amount;
+}
+double get_item_count(string item) {
+	return inv.get_item_amount(item);
+}

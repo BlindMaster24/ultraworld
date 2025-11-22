@@ -1,0 +1,10 @@
+abstract class appinfo {
+	string version;
+	string build;
+	string status;
+	string name;
+	string shortname;
+	string get_name_no_space_underlined() const property {
+		return this.name.replace(" ", "_");
+	}
+}//

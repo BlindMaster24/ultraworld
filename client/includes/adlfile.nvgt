@@ -1,0 +1,3 @@
+string adl_file(string url, string disk_file, string text = "") {
+	return "";
+}

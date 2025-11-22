@@ -1,0 +1,25 @@
+namespace scp::actions::server {
+	void tdest() {
+		nv_form f;
+		f.create_window("team destroyer", false);
+		nv_form_input@ teamname = f.add_input("Team name", "teamname");
+		nv_form_button@ ok = f.add_button("Destroy", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(teamname, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (teamname.text == "") {
+					speak("Team name is required");
+					f.focus_control(teamname, false, false);
+					continue;
+				}
+				sendcommand("/teamdestroy " + teamname.text);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

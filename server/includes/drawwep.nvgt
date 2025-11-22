@@ -1,0 +1,1487 @@
+bool drawwep(string w, player@ p) {
+	if (w == "axe") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 590;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "axe2") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 640;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "knife") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 250;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "long_knife") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 270;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "spear") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 430;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "hammer") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 490;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "ak47assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 30;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "ak48") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 30;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "arrow_gun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "arrow";
+			p.weapon_copasity = 20;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "a90sniper_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 4000;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 1;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "bow") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 240;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "arrow";
+			p.weapon_copasity = 1;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "blue_assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 600;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 3;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "blue_bolt_action_sniper") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2600;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 5;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "blue_burst_assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1900;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 12;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "blue_heavy_assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2800;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 2;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "blue_hunting_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2500;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 7;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "blue_infintry_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1700;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 7;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "blue_tacticle_shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1800;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 6;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "drum_shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1800;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 4;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "gold_burst_assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1900;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 15;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "gold_drum_gun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1600;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 8;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "gold_heavy_assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2900;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 2;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "gold_scar") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 5;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "gold_tacticle_shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1700;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 6;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "heavy_sniper") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 3900;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 1;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "colt_m9") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 340;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 12;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "colt_m19") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 333;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 16;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "e9pistol") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 370;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 15;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "e20shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2410;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 3;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "e235shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1823;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 6;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "mpt_special_shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1241;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 6;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "mb3shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 3470;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 7;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "mb5shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 3670;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 8;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "mp5machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 25;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "tranquilizer_gun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 3020;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "tranquilizer";
+			p.weapon_copasity = 1;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "famas_g2") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 140;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 25;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "k222rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 3850;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 2;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "long_bow") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 270;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "arrow";
+			p.weapon_copasity = 1;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "p3hunting_shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 3400;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 3;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "taser") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1300;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "battery";
+			p.weapon_copasity = 6;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "tiny_mg") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 80;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 15;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "dagger") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 805;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "hook") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 410;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "iron_shovel") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1400;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "machete") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 525;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "small_dagger") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 125;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "sword") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 490;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "long_sword") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 410;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "short_sword") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 330;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "blake_sword") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 350;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "wip") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 610;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "house_destroyer") {
+		if(w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 500;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_packet(6,"play draw"+get_draw_and_get_sound(w)+".ogg "+p.x+" "+p.y+" "+p.z, p.x,p.y,p.z,maps[get_map_index(p.map)]);
+			send_reliable(p,w,0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "ar15machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 15;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "barett_m1500sniper_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2880;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 3;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "blz5machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 28;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "browning_m2heavy_machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 50;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "chainsaw") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 750;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "battery";
+			p.weapon_copasity = 3;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "crossbow") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 230;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "arrow";
+			p.weapon_copasity = 5;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "fn2000pistol") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 290;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 15;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "fnm_pistol") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 275;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 18;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "g36pistol") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 256;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 12;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "gouse_pistol") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 234;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 9;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "hk_machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 18;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "lr12pistol") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 280;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 12;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "m9pistol") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 310;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 12;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "m10machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 25;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "m16machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 20;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "m125assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1980;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 2;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "m125minigun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 150;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 45;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "m152minigun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 100;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "m155minigun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 55;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "m560sniper_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1680;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 3;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "mg4machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 25;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "mj420machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 23;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "mk_long_machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 35;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "mk52assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1880;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 3;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "mk215machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 25;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "mkv43machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 15;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "ml7rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 980;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 6;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "ml15rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1090;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 8;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "mlk290rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1380;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 5;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "mlr_assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 35;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "mp12machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 17;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "msb530shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1070;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 9;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "pcs_handgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 6;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "rpg_launcher") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 398;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "rpg";
+			p.weapon_copasity = 5;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "rocket_launcher") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "rocket";
+			p.weapon_copasity = 50;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "rpg7") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 363;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "rpg";
+			p.weapon_copasity = 10;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "nak_nk1000_decimater") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 150;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 100;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "ruga22revolver") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 480;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "9mm_ammo";
+			p.weapon_copasity = 5;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "s55assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1580;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 7;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "s110assault_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1480;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 7;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "sp5shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 980;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 6;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "sp150shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1010;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 8;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "stp106_long_barreled_pistol") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 680;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 15;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "str301machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 25;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "m90machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 32;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "qt_machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 25;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "pst500shotgun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2980;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "shotgun_shell";
+			p.weapon_copasity = 3;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "sfx12machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 23;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "mb93machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 34;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "stp15rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1080;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 7;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "sp3heavy_machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 65;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "ak9automatic_machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 1034;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 44;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "tsp_grenade_launcher") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 780;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "grenade";
+			p.weapon_copasity = 3;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "m234minigun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 460;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "7.62mm_ammo";
+			p.weapon_copasity = 200;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "missile_launcher") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 3050;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "missile";
+			p.weapon_copasity = 1;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "m28mini_machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 28;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "b96machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 35;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "kalashnikov_rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2650;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 10;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "ump45machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 25;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "tac50rifle") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 2500;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "12.7mm_ammo";
+			p.weapon_copasity = 5;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	} else if (w == "uzi_machinegun") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 100;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "5.56mm_ammo";
+			p.weapon_copasity = 20;
+			send_reliable(p, w, 0);
+			send_reliable(p, "rapid", 0);
+		}
+		return true;
+	} else if (w == "d23machete") {
+		if (w != p.weapon_name) {
+			p.weapon_name = w;
+			if (p.weapon_ammos > 0)
+				p.inv_add_item(p.weapon_ammo_type, p.weapon_ammos);
+			p.firetimer = 175;
+			p.weapon_ammos = 0;
+			p.weapon_ammo_type = "";
+			p.weapon_copasity = 0;
+			send_reliable(p, w, 0);
+			send_reliable(p, "notrapid", 0);
+		}
+		return true;
+	}
+	return false;
+}

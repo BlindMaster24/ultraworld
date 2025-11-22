@@ -1,0 +1,9 @@
+void optionsmenu() {
+	custom_menu c;
+	setupmenu(c);
+	c.add("Manage your account", "macc");
+	string r = menu("Options", c);
+	c.reset(true);
+	if (r == "") return;
+	else if (r == "macc") player::menu::ch();
+}

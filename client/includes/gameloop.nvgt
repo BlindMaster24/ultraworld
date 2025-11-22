@@ -1,0 +1,1641 @@
+void gameloop() {
+	if (onbag) return;
+	if (@invform != null) {
+		int64 invcounter = inv.invpos;
+		invform.monitor(invcounter);
+		inv.invpos = invcounter;
+		return;
+	}
+	if (inputhelp == 0) {
+		bufferkeycheck();
+		if (key_pressed(KEY_ESCAPE) or mouse == 1 and mouse_pressed(2) or djoystick == 1 and j.button_pressed(2) and !j.button_down(3)) {
+			if (sleepmode == 0 or looking == true) speak("you can't exit from the game while you are sleeping or looking at someone");
+			else {
+				if (jumping == false)
+					exitmenu();
+			}
+		}
+		if ((key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_Z) and sleepmode != 0 or djoystick == 1 and j.button_down(3) and j.button_down(1)) and !joyfix)
+			send_reliable(peer_id, "ammocheck", 0);
+		if (sleepmode != 0 and looking == false) {
+			if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_RETURN) and sleepmode != 0 and can_move == true) {
+				send_reliable(peer_id, "eenter", 0);
+				travelcheck();
+			}
+			if (key_down(KEY_LMENU) and key_pressed(KEY_RETURN) and sleepmode != 0 and can_move == true)
+				send_reliable(peer_id, "opendoor", 0);
+			if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_RETURN) and can_move == true) {
+				send_reliable(peer_id, "enter", 0);
+				evcheck();
+				entercheck();
+				movecheck2();
+			}
+			if (rapidfire == 1) {
+				if (key_down(KEY_LCONTROL) and lcontrol == 1 and can_move == true or key_down(KEY_RCONTROL) and rcontrol == 1 and can_move == true or mouse == 1 and mouse_down(0) or djoystick == 1 and j.button_down(0) and !j.button_down(3)) {
+					if (sendfire.elapsed > 50) {
+						sendfire.restart();
+						send_reliable(peer_id, "fire", 9);
+					}
+				}
+			} else {
+				if (key_pressed(KEY_LCONTROL) and lcontrol == 1 and can_move == true or key_pressed(KEY_RCONTROL) and rcontrol == 1 and can_move == true or mouse == 1 and mouse_pressed(0) or djoystick == 1 and j.button_pressed(0) and !j.button_pressed(3)) {
+					if (sendfire.elapsed > 50) {
+						sendfire.restart();
+						send_reliable(peer_id, "fire", 9);
+					}
+				}
+			}
+			if ((key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_G) and key_pressed(KEY_R) or mouse == 1 and mouse_pressed(1) or djoystick == 1 and j.button_pressed(1)) and !j.button_down(3) and can_move == true)
+				send_reliable(peer_id, "reload", 9);
+			if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and shift_is_down() and key_up(KEY_G) and key_pressed(KEY_R) and can_move == true)
+				send_reliable(peer_id, "unload", 9);
+		}
+		if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and shift_is_down() and key_pressed(KEY_A))
+			send_reliable(peer_id, "air", 0);
+		if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_R) and key_up(KEY_G) and posetimer.elapsed >= 760 and can_move == true and get_tile_at(me.x, me.y, me.z) != "" and get_tile_at(me.x, me.y, me.z) != "air") {
+			if (sleepmode != 0 and looking == false) {
+				posetimer.restart();
+				rvp.play_stationary("sit.ogg", false);
+				send_reliable(peer_id, "draw sit.ogg", 7);
+				send_reliable(peer_id, "sitstand", 0);
+			}
+		}
+		if (sleepmode != 0 and looking == false) {
+			if (key_pressed(KEY_SEMICOLON)) {
+				if (gender == 0) msocialmenu();
+				else if (gender == 1) fsocialmenu();
+			}
+		}
+		if (key_pressed(KEY_APOSTROPHE)) {
+			if (shift_down) send_reliable(peer_id, "teamchat", 0);
+			else send_reliable(peer_id, "partnerchat", 0);
+			return;
+		}
+		if (sleepmode != 0 and looking == false) {
+			if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_B))
+				send_reliable(peer_id, "build", 0);
+		}
+	} if (key_down(KEY_LMENU)) {
+		if (key_pressed(KEY_GRAVE))
+			sendkey("`");
+		if (key_pressed(KEY_1) or key_pressed(KEY_NUMPAD_1))
+			sendkey(1);
+		if (key_pressed(KEY_2) or key_pressed(KEY_NUMPAD_2))
+			sendkey(2);
+		if (key_pressed(KEY_3) or key_pressed(KEY_NUMPAD_3))
+			sendkey(3);
+		if (key_pressed(KEY_4) or key_pressed(KEY_NUMPAD_4))
+			sendkey(4);
+		if (key_pressed(KEY_5) or key_pressed(KEY_NUMPAD_5))
+			sendkey(5);
+		if (key_pressed(KEY_6) or key_pressed(KEY_NUMPAD_6))
+			sendkey(6);
+		if (key_pressed(KEY_7) or key_pressed(KEY_NUMPAD_7))
+			sendkey(7);
+		if (key_pressed(KEY_8) or key_pressed(KEY_NUMPAD_8))
+			sendkey(8);
+		if (key_pressed(KEY_9) or key_pressed(KEY_NUMPAD_9))
+			sendkey(9);
+		if (key_pressed(KEY_0) or key_pressed(KEY_NUMPAD_0))
+			sendkey(0);
+		if (key_pressed(KEY_MINUS))
+			sendkey("-");
+		if (key_pressed(KEY_EQUALS))
+			sendkey("=");
+		if (key_pressed(KEY_BACK))
+			sendkey("\\");
+	}
+	if (key_pressed(KEY_GRAVE) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and shift_is_down() and sleepmode != 0 and looking == false)
+		checkarroundmenu();
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_K) and sleepmode != 0 and looking == false)
+		checkarroundtilesmenu();
+	if (have_cycle_inventory == 1) {
+		if (key_pressed(KEY_TAB) and key_up(KEY_LMENU) and key_up(KEY_RMENU)) {
+			if (shift_is_down())
+				cycleinv(-1);
+			else
+				cycleinv(1);
+		}
+		if (alt_down && key_pressed(KEY_V)) inv_searcher(@inv.items);
+		if (key_pressed(KEY_BACK) and usetimer.elapsed > 200 and can_move == true) {
+			usetimer.restart();
+			if (inv.size > 0 and inv.invpos < inv.get_size())
+				send_reliable(peer_id, "useitem " + inv.items[inv.invpos].name, 6);
+			else
+				speak("No items");
+		}
+	}
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_INSERT) and key_pressed(KEY_F1))
+		send_reliable(peer_id, "whoonline", 0);
+	if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_F1))
+		get_voice_menu();
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F7)) {
+		string s = input("Admintell", "type your message here. Please note: this message will be sent to the admins and will be logged", multiline = true);
+		if (s != "" and !is_eloquence_crash_word(s) and get_sequence(s, true) <= 3)
+			send_reliable(peer_id, "admintell " + s, 0);
+	}
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F9))
+		send_reliable(peer_id, "beacon", 0);
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and alt_is_down() and key_pressed(KEY_F8))
+		send_reliable(peer_id, "weaponpings", 0);
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F9)) {
+		if (autolower == 0) {
+			autolower = 1;
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+			speak("lower pitch when exiting enabled! ");
+		} else {
+			autolower = 0;
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+			speak("lower pitch when exiting disabled! ");
+		}
+		writeprefs();
+	}
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_A) and !frozen)
+		send_reliable(peer_id, "aicheck", 0);
+	if (key_pressed(KEY_L)) {
+		if (alt_is_down()) {
+			if (shift_down) send(peer_id, "newlmotd", 0);
+			else send_reliable(peer_id, "xprcheck", 0);
+			return;
+		} else if (shift_is_down() or key_down(KEY_RSHIFT)) {
+			send_reliable(peer_id, "xpcheck", 0);
+			return;
+		}
+		send_reliable(peer_id, "levelcheck", 0);
+		return;
+	}
+	if (sleepmode != 0 and looking == false) {
+		if (key_down(KEY_G) && dcamera == 0) {
+			if (key_pressed(KEY_R)) {
+				if (repeatingcamera == 0) {
+					repeatingcamera = 1;
+					speak("repeating camera enabled! ");
+				} else {
+					repeatingcamera = 0;
+					speak("repeating camera disabled! ");
+				}
+			}
+			if (key_pressed(KEY_D)) {
+				string what;
+				for (uint i = 0; i < players.length(); i++) {
+					if (dcameraplayer == 0 and players[i].x == camera.x and players[i].y == camera.y and players[i].z == camera.z) {
+						if (what == "")
+							what += "With " + players[i].name + "";
+						else
+							what += ", " + players[i].name + "";
+					}
+				}
+				for (uint i = 0; i < mapitems.length(); i++) {
+					if (dcameraitem == 0 and mapitems[i].map == mapname and mapitems[i].x == camera.x and mapitems[i].y == camera.y and mapitems[i].z == camera.z) {
+						if (what == "")
+							what += "With item";
+						else
+							what += ", item";
+					}
+				}
+				for (uint i = 0; i < doors.length(); i++) {
+					if (dcameradoor == 0 and camera.x >= doors[i].mindx and camera.x <= doors[i].maxdx and camera.y >= doors[i].mindy and camera.y <= doors[i].maxdy and camera.z >= doors[i].mindz and camera.z <= doors[i].maxdz) {
+						if (what == "")
+							what += "With door";
+						else
+							what += ", door";
+					}
+				}
+				for (uint i = 0; i < pdoors.length(); i++) {
+					if (dcamerapdoor == 0 and camera.x >= pdoors[i].mindx and camera.x <= pdoors[i].maxdx and camera.y >= pdoors[i].mindy and camera.y <= pdoors[i].maxdy and camera.z >= pdoors[i].mindz and camera.z <= pdoors[i].maxdz) {
+						if (what == "")
+							what += "With password protected door";
+						else
+							what += ", password protected door";
+					}
+				}
+				for (uint i = 0; i < icdoors.length(); i++) {
+					if (dcameraicdoor == 0 and camera.x >= icdoors[i].mindx and camera.x <= icdoors[i].maxdx and camera.y >= icdoors[i].mindy and camera.y <= icdoors[i].maxdy and camera.z >= icdoors[i].mindz and camera.z <= icdoors[i].maxdz) {
+						if (what == "")
+							what += "With item checker door";
+						else
+							what += ", item checker door";
+					}
+				}
+				for (uint i = 0; i < itdoors.length(); i++) {
+					if (dcameraitdoor == 0 and camera.x >= itdoors[i].mindx and camera.x <= itdoors[i].maxdx and camera.y >= itdoors[i].mindy and camera.y <= itdoors[i].maxdy and camera.z >= itdoors[i].mindz and camera.z <= itdoors[i].maxdz) {
+						if (what == "")
+							what += "With item taker door";
+						else
+							what += ", item taker door";
+					}
+				}
+				for (uint i = 0; i < igdoors.length(); i++) {
+					if (dcameraigdoor == 0 and camera.x >= igdoors[i].mindx and camera.x <= igdoors[i].maxdx and camera.y >= igdoors[i].mindy and camera.y <= igdoors[i].maxdy and camera.z >= igdoors[i].mindz and camera.z <= igdoors[i].maxdz) {
+						if (what == "")
+							what += "With item giver door";
+						else
+							what += ", item giver door";
+					}
+				}
+				for (uint i = 0; i < automovers.length(); i++) {
+					if (dcameraautomover == 0 and camera.x >= automovers[i].mindx and camera.x <= automovers[i].maxdx and camera.y >= automovers[i].mindy and camera.y <= automovers[i].maxdy and camera.z >= automovers[i].mindz and camera.z <= automovers[i].maxdz) {
+						if (what == "")
+							what += "With automover";
+						else
+							what += ", automover";
+					}
+				}
+				for (uint i = 0; i < pautomovers.length(); i++) {
+					if (dcamerapautomover == 0 and camera.x >= pautomovers[i].mindx and camera.x <= pautomovers[i].maxdx and camera.y >= pautomovers[i].mindy and camera.y <= pautomovers[i].maxdy and camera.z >= pautomovers[i].mindz and camera.z <= pautomovers[i].maxdz) {
+						if (what == "")
+							what += "With password protected automover";
+						else
+							what += ", password protected automover";
+					}
+				}
+				for (uint i = 0; i < icautomovers.length(); i++) {
+					if (dcameraicautomover == 0 and camera.x >= icautomovers[i].mindx and camera.x <= icautomovers[i].maxdx and camera.y >= icautomovers[i].mindy and camera.y <= icautomovers[i].maxdy and camera.z >= icautomovers[i].mindz and camera.z <= icautomovers[i].maxdz) {
+						if (what == "")
+							what += "With item checker automover";
+						else
+							what += ", item checker automover";
+					}
+				}
+				for (uint i = 0; i < itautomovers.length(); i++) {
+					if (dcameraitautomover == 0 and camera.x >= itautomovers[i].mindx and camera.x <= itautomovers[i].maxdx and camera.y >= itautomovers[i].mindy and camera.y <= itautomovers[i].maxdy and camera.z >= itautomovers[i].mindz and camera.z <= itautomovers[i].maxdz) {
+						if (what == "")
+							what += "With item taker automover";
+						else
+							what += ", item taker automover";
+					}
+				}
+				for (uint i = 0; i < igautomovers.length(); i++) {
+					if (dcameraigautomover == 0 and camera.x >= igautomovers[i].mindx and camera.x <= igautomovers[i].maxdx and camera.y >= igautomovers[i].mindy and camera.y <= igautomovers[i].maxdy and camera.z >= igautomovers[i].mindz and camera.z <= igautomovers[i].maxdz) {
+						if (what == "")
+							what += "With item giver automover";
+						else
+							what += ", item giver automover";
+					}
+				}
+				for (uint i = 0; i < automatic_travelpoints.length(); i++) {
+					if (dcameraautomatic_travelpoint == 0 and camera.x >= automatic_travelpoints[i].mindx and camera.x <= automatic_travelpoints[i].maxdx and camera.y >= automatic_travelpoints[i].mindy and camera.y <= automatic_travelpoints[i].maxdy and camera.z >= automatic_travelpoints[i].mindz and camera.z <= automatic_travelpoints[i].maxdz) {
+						if (what == "")
+							what += "With automatic_travelpoint";
+						else
+							what += ", automatic_travelpoint";
+					}
+				}
+				for (uint i = 0; i < pautomatic_travelpoints.length(); i++) {
+					if (dcamerapautomatic_travelpoint == 0 and camera.x >= pautomatic_travelpoints[i].mindx and camera.x <= pautomatic_travelpoints[i].maxdx and camera.y >= pautomatic_travelpoints[i].mindy and camera.y <= pautomatic_travelpoints[i].maxdy and camera.z >= pautomatic_travelpoints[i].mindz and camera.z <= pautomatic_travelpoints[i].maxdz) {
+						if (what == "")
+							what += "With password protected automatic_travelpoint";
+						else
+							what += ", password protected automatic_travelpoint";
+					}
+				}
+				for (uint i = 0; i < icautomatic_travelpoints.length(); i++) {
+					if (dcameraicautomatic_travelpoint == 0 and camera.x >= icautomatic_travelpoints[i].mindx and camera.x <= icautomatic_travelpoints[i].maxdx and camera.y >= icautomatic_travelpoints[i].mindy and camera.y <= icautomatic_travelpoints[i].maxdy and camera.z >= icautomatic_travelpoints[i].mindz and camera.z <= icautomatic_travelpoints[i].maxdz) {
+						if (what == "")
+							what += "With item checker automatic_travelpoint";
+						else
+							what += ", item checker automatic_travelpoint";
+					}
+				}
+				for (uint i = 0; i < itautomatic_travelpoints.length(); i++) {
+					if (dcameraitautomatic_travelpoint == 0 and camera.x >= itautomatic_travelpoints[i].mindx and camera.x <= itautomatic_travelpoints[i].maxdx and camera.y >= itautomatic_travelpoints[i].mindy and camera.y <= itautomatic_travelpoints[i].maxdy and camera.z >= itautomatic_travelpoints[i].mindz and camera.z <= itautomatic_travelpoints[i].maxdz) {
+						if (what == "")
+							what += "With item taker automatic_travelpoint";
+						else
+							what += ", item taker automatic_travelpoint";
+					}
+				}
+				for (uint i = 0; i < igautomatic_travelpoints.length(); i++) {
+					if (dcameraigautomatic_travelpoint == 0 and camera.x >= igautomatic_travelpoints[i].mindx and camera.x <= igautomatic_travelpoints[i].maxdx and camera.y >= igautomatic_travelpoints[i].mindy and camera.y <= igautomatic_travelpoints[i].maxdy and camera.z >= igautomatic_travelpoints[i].mindz and camera.z <= igautomatic_travelpoints[i].maxdz) {
+						if (what == "")
+							what += "With item giver automatic_travelpoint";
+						else
+							what += ", item giver automatic_travelpoint";
+					}
+				}
+				for (uint i = 0; i < travelpoints.length(); i++) {
+					if (dcameratravelpoint == 0 and camera.x >= travelpoints[i].mindx and camera.x <= travelpoints[i].maxdx and camera.y >= travelpoints[i].mindy and camera.y <= travelpoints[i].maxdy and camera.z >= travelpoints[i].mindz and camera.z <= travelpoints[i].maxdz) {
+						if (what == "")
+							what += "With travelpoint";
+						else
+							what += ", travelpoint";
+					}
+				}
+				for (uint i = 0; i < ptravelpoints.length(); i++) {
+					if (dcameraptravelpoint == 0 and camera.x >= ptravelpoints[i].mindx and camera.x <= ptravelpoints[i].maxdx and camera.y >= ptravelpoints[i].mindy and camera.y <= ptravelpoints[i].maxdy and camera.z >= ptravelpoints[i].mindz and camera.z <= ptravelpoints[i].maxdz) {
+						if (what == "")
+							what += "With password protected travelpoint";
+						else
+							what += ", password protected travelpoint";
+					}
+				}
+				for (uint i = 0; i < ictravelpoints.length(); i++) {
+					if (dcameraictravelpoint == 0 and camera.x >= ictravelpoints[i].mindx and camera.x <= ictravelpoints[i].maxdx and camera.y >= ictravelpoints[i].mindy and camera.y <= ictravelpoints[i].maxdy and camera.z >= ictravelpoints[i].mindz and camera.z <= ictravelpoints[i].maxdz) {
+						if (what == "")
+							what += "With item checker travelpoint";
+						else
+							what += ", item checker travelpoint";
+					}
+				}
+				for (uint i = 0; i < ittravelpoints.length(); i++) {
+					if (dcameraittravelpoint == 0 and camera.x >= ittravelpoints[i].mindx and camera.x <= ittravelpoints[i].maxdx and camera.y >= ittravelpoints[i].mindy and camera.y <= ittravelpoints[i].maxdy and camera.z >= ittravelpoints[i].mindz and camera.z <= ittravelpoints[i].maxdz) {
+						if (what == "")
+							what += "With item taker travelpoint";
+						else
+							what += ", item taker travelpoint";
+					}
+				}
+				for (uint i = 0; i < igtravelpoints.length(); i++) {
+					if (dcameraigtravelpoint == 0 and camera.x >= igtravelpoints[i].mindx and camera.x <= igtravelpoints[i].maxdx and camera.y >= igtravelpoints[i].mindy and camera.y <= igtravelpoints[i].maxdy and camera.z >= igtravelpoints[i].mindz and camera.z <= igtravelpoints[i].maxdz) {
+						if (what == "")
+							what += "With item giver travelpoint";
+						else
+							what += ", item giver travelpoint";
+					}
+				}
+				for (uint i = 0; i < vanishing_platforms.length(); i++) {
+					if (dcameravp == 0 and vanishing_platforms[i].vanished == true and camera.x >= vanishing_platforms[i].minx and camera.x <= vanishing_platforms[i].maxx and camera.y >= vanishing_platforms[i].miny and camera.y <= vanishing_platforms[i].maxy and camera.z >= vanishing_platforms[i].minz and camera.z <= vanishing_platforms[i].maxz) {
+						if (what == "")
+							what += "With vanishing platform";
+						else
+							what += ", vanishing platform";
+					}
+				}
+				for (uint i = 0; i < forcefields.length(); i++) {
+					if (dcameraff == 0 and forcefields[i].forcefielded == true and camera.x >= forcefields[i].minx and camera.x <= forcefields[i].maxx and camera.y >= forcefields[i].miny and camera.y <= forcefields[i].maxy and camera.z >= forcefields[i].minz and camera.z <= forcefields[i].maxz) {
+						if (what == "")
+							what += "With forcefield";
+						else
+							what += ", forcefield";
+					}
+				}
+				for (uint i = 0; i < teleporters.length(); i++) {
+					if (dcameratp == 0 and camera.x >= teleporters[i].minx and camera.x <= teleporters[i].maxx and camera.y >= teleporters[i].miny and camera.y <= teleporters[i].maxy and camera.z >= teleporters[i].minz and camera.z <= teleporters[i].maxz) {
+						if (what == "")
+							what += "With teleporter";
+						else
+							what += ", teleporter";
+					}
+				}
+				for (uint i = 0; i < signs.length(); i++) {
+					if (dcamerasign == 0 and camera.x >= signs[i].minx and camera.x <= signs[i].maxx and camera.y >= signs[i].miny and camera.y <= signs[i].maxy and camera.z >= signs[i].minz and camera.z <= signs[i].maxz) {
+						if (what == "")
+							what += "With sign";
+						else
+							what += ", sign";
+					}
+				}
+				for (uint i = 0; i < txts.length(); i++) {
+					if (dcameratxt == 0 and camera.x >= txts[i].minx and camera.x <= txts[i].maxx and camera.y >= txts[i].miny and camera.y <= txts[i].maxy and camera.z >= txts[i].minz and camera.z <= txts[i].maxz) {
+						if (what == "")
+							what += "With txt";
+						else
+							what += ", txt";
+					}
+				}
+				string tile = get_tile_at(camera.x, camera.y, camera.z);
+				if (tile == "" or tile == "air")
+					tile = "air";
+				else if (tile == "bathtub" or tile == "bathtub2" or tile == "bathtub3")
+					tile = "bathtub";
+				else if (tile == "bleacher" or tile == "bleacher2" or tile == "bleacher3" or tile == "bleacher4" or tile == "bleacher5" or tile == "bleacher6" or tile == "bleacher7" or tile == "bleacher8")
+					tile = "bleacher";
+				else if (tile == "branch" or tile == "branch2")
+					tile = "branch";
+				else if (tile == "bridge" or tile == "bridge2" or tile == "bridge3")
+					tile = "bridge";
+				else if (tile == "brokenglass")
+					tile = "broken glass";
+				else if (tile == "brush" or tile == "brush2" or tile == "brush3" or tile == "brush4" or tile == "brush5")
+					tile = "brush";
+				else if (tile == "carpet" or tile == "carpet2" or tile == "carpet3" or tile == "carpet4" or tile == "carpet5" or tile == "carpet6" or tile == "carpet7" or tile == "carpet8" or tile == "carpet9" or tile == "carpet10" or tile == "carpet11" or tile == "carpet12")
+					tile = "carpet";
+				else if (tile == "cavegrounds" or tile == "cavegrounds2")
+					tile = "cavegrounds";
+				else if (tile == "cement" or tile == "cement2" or tile == "cement3" or tile == "cement4")
+					tile = "cement";
+				else if (tile == "ceramic" or tile == "ceramic2" or tile == "ceramic3" or tile == "ceramic4")
+					tile = "ceramic";
+				else if (tile == "clay" or tile == "clay2" or tile == "clay3")
+					tile = "clay";
+				else if (tile == "concrete" or tile == "concrete2" or tile == "concrete3" or tile == "concrete4" or tile == "concrete5" or tile == "concrete6" or tile == "concrete7" or tile == "concrete8" or tile == "concrete9" or tile == "concrete10" or tile == "concrete11" or tile == "concrete12" or tile == "concrete13" or tile == "concrete14" or tile == "concrete15" or tile == "concrete16" or tile == "concrete17" or tile == "concrete18" or tile == "concrete19" or tile == "concrete20" or tile == "concrete21" or tile == "concrete22" or tile == "concrete23" or tile == "concrete24" or tile == "concrete25" or tile == "concrete26" or tile == "concrete27" or tile == "concrete28" or tile == "concrete29" or tile == "concrete30" or tile == "concrete31" or tile == "concrete32" or tile == "concrete33" or tile == "concrete34" or tile == "concrete35" or tile == "concrete36")
+					tile = "concrete";
+				else if (tile == "corpse" or tile == "corpse2")
+					tile = "corpse";
+				else if (tile == "deepsand" or tile == "deepsand2")
+					tile = "deepsand";
+				else if (tile == "dirt" or tile == "dirt2" or tile == "dirt3" or tile == "dirt4" or tile == "dirt5" or tile == "dirt6" or tile == "dirt7" or tile == "dirt8" or tile == "dirt9" or tile == "dirt10" or tile == "dirt11" or tile == "dirt12" or tile == "dirt13" or tile == "dirt14" or tile == "dirt15" or tile == "dirt16" or tile == "dirt17" or tile == "dirt18" or tile == "dirt19" or tile == "dirt20")
+					tile = "dirt";
+				else if (tile == "fence" or tile == "fence2")
+					tile = "fence";
+				else if (tile == "glass" or tile == "glass2" or tile == "glass3" or tile == "glass4" or tile == "glass5" or tile == "glass6" or tile == "glass7")
+					tile = "glass";
+				else if (tile == "grass" or tile == "grass2" or tile == "grass3" or tile == "grass4" or tile == "grass5" or tile == "grass6" or tile == "grass7" or tile == "grass8" or tile == "grass9" or tile == "grass10")
+					tile = "grass";
+				else if (tile == "gravel" or tile == "gravel2" or tile == "gravel3" or tile == "gravel4" or tile == "gravel5" or tile == "gravel6" or tile == "gravel7" or tile == "gravel8" or tile == "gravel9" or tile == "gravel10" or tile == "gravel11")
+					tile = "gravel";
+				else if (tile == "hardwood" or tile == "hardwood2" or tile == "hardwood3" or tile == "hardwood4" or tile == "hardwood5" or tile == "hardwood6" or tile == "hardwood7")
+					tile = "hardwood";
+				else if (tile == "ice" or tile == "ice2" or tile == "ice3" or tile == "ice4")
+					tile = "ice";
+				else if (tile == "ladder" or tile == "ladder2" or tile == "ladder3")
+					tile = "ladder";
+				else if (tile == "leaves" or tile == "leaves2" or tile == "leaves3" or tile == "leaves4" or tile == "leaves5")
+					tile = "leaves";
+				else if (tile == "ledge" or tile == "ledge2")
+					tile = "ledge";
+				else if (tile == "marble" or tile == "marble2" or tile == "marble3" or tile == "marble4" or tile == "marble5" or tile == "marble6" or tile == "marble7")
+					tile = "marble";
+				else if (tile == "marsh" or tile == "marsh2")
+					tile = "marsh";
+				else if (tile == "metal" or tile == "metal2" or tile == "metal3" or tile == "metal4" or tile == "metal5" or tile == "metal6" or tile == "metal7" or tile == "metal8" or tile == "metal9" or tile == "metal10" or tile == "metal11" or tile == "metal12" or tile == "metal13" or tile == "metal14" or tile == "metal15" or tile == "metal16" or tile == "metal17" or tile == "metal18" or tile == "metal19" or tile == "metal20" or tile == "metal21" or tile == "metal22")
+					tile = "metal";
+				else if (tile == "mud" or tile == "mud2" or tile == "mud3" or tile == "mud4" or tile == "mud5" or tile == "mud6" or tile == "mud7")
+					tile = "mud";
+				else if (tile == "pipe" or tile == "pipe2" or tile == "pipe3")
+					tile = "pipe";
+				else if (tile == "plywood" or tile == "plywood2" or tile == "plywood3" or tile == "plywood4")
+					tile = "plywood";
+				else if (tile == "rocks" or tile == "rocks2" or tile == "rocks3" or tile == "rocks4" or tile == "rocks5")
+					tile = "rocks";
+				else if (tile == "roof" or tile == "roof2" or tile == "roof3" or tile == "roof4")
+					tile = "roof";
+				else if (tile == "sand" or tile == "sand2" or tile == "sand3" or tile == "sand4" or tile == "sand5" or tile == "sand6" or tile == "sand7")
+					tile = "sand";
+				else if (tile == "sewer" or tile == "sewer2")
+					tile = "sewer";
+				else if (tile == "snow" or tile == "snow2" or tile == "snow3" or tile == "snow4" or tile == "snow5" or tile == "snow6" or tile == "snow7" or tile == "snow8" or tile == "snow9" or tile == "snow10" or tile == "snow11" or tile == "snow12" or tile == "snow13" or tile == "snow_wet" or tile == "deepsnow")
+					tile = "snow";
+				else if (tile == "spring" or tile == "spring2")
+					tile = "spring";
+				else if (tile == "stairs" or tile == "stairs2" or tile == "stairs3" or tile == "stairs4")
+					tile = "stairs";
+				else if (tile == "steel" or tile == "steel2" or tile == "steel3" or tile == "steel4" or tile == "steel5")
+					tile = "steel";
+				else if (tile == "stone" or tile == "stone2" or tile == "stone3" or tile == "stone4" or tile == "stone5")
+					tile = "stone";
+				else if (tile == "swamp" or tile == "swamp2")
+					tile = "swamp";
+				else if (tile == "swimming" or tile == "swimming2")
+					tile = "swimming";
+				else if (tile == "tile" or tile == "tile2" or tile == "tile3" or tile == "tile4" or tile == "tile5" or tile == "tile6" or tile == "tile7" or tile == "tile8")
+					tile = "tile";
+				else if (tile == "water" or tile == "water2" or tile == "water3" or tile == "water4" or tile == "water5" or tile == "water6" or tile == "water7" or tile == "water8" or tile == "water9" or tile == "water10" or tile == "wallboat")
+					tile = "water";
+				else if (tile == "weed" or tile == "weed2" or tile == "weed3")
+					tile = "weed";
+				else if (tile == "wetconcrete" or tile == "wetconcrete2")
+					tile = "wetconcrete";
+				else if (tile == "wood" or tile == "wood2" or tile == "wood3" or tile == "wood4" or tile == "wood5" or tile == "wood6" or tile == "wood7" or tile == "wood8" or tile == "wood9" or tile == "wood10" or tile == "wood11" or tile == "wood12" or tile == "wood13" or tile == "wood14" or tile == "wood15" or tile == "wood16" or tile == "wood17" or tile == "wood18")
+					tile = "wood";
+				else if (string_contains(get_tile_at(camera.x, camera.y, camera.z), "wall", 1) > -1)
+					tile = "wall";
+				else
+					tile = tile;
+				if (d2dsupport == 0) {
+					if (dcoordinates == 0) speak(tile + " " + what + ", " + round(camera.x, 0) + ", " + round(camera.y, 0) + ", " + round(camera.z, 0));
+					else if (dcoordinates == 1) speak(tile + " " + what);
+				} else {
+					if (dcoordinates == 0) speak(tile + " " + what + ", " + round(camera.x, 0) + ", " + round(camera.z, 0));
+					else if (dcoordinates == 1) speak(tile + " " + what);
+				}
+			}
+			if (key_pressed(KEY_T))
+				playcamera();
+			if (d2dsupport == 0) {
+				if (repeatingcamera == 0) {
+					if (key_pressed(KEY_NEXT))
+						cameramove(Down);
+					if (key_pressed(KEY_PRIOR))
+						cameramove(Up);
+					if (key_pressed(KEY_LEFT) && camera.x > min.x or mouse == 1 and mousex<0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Left);
+					}
+					if (key_pressed(KEY_RIGHT) && camera.x<max.x or mouse == 1 and mousex>0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Right);
+					}
+					if (key_pressed(KEY_DOWN) && camera.y > min.y or mouse == 1 and mousey > 0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Backward);
+					}
+					if (key_pressed(KEY_UP) && camera.y < max.y or mouse == 1 and mousey<0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Forward);
+					}
+				} else if (repeatingcamera == 1) {
+					if (key_pressed(KEY_PRIOR) == false and kcpgdn.pressing() and camera.z >= min.z)
+						cameramove(Down);
+					if (key_pressed(KEY_NEXT) == false and kcpgup.pressing() and camera.z <= max.z)
+						cameramove(Up);
+					if (key_pressed(KEY_LEFT) == false and kcleft.pressing() && camera.x > min.x or mouse == 1 and mousex<0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Left);
+					}
+					if (key_pressed(KEY_RIGHT) == false and kcright.pressing() && camera.x<max.x or mouse == 1 and mousex>0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Right);
+					}
+					if (key_pressed(KEY_DOWN) == false and kcdown.pressing() && camera.y > min.y or mouse == 1 and mousey > 0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Backward);
+					}
+					if (key_pressed(KEY_UP) == false and kcup.pressing() && camera.y < max.y or mouse == 1 and mousey<0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Forward);
+					}
+				}
+			} else {
+				if (repeatingcamera == 0) {
+					if (key_pressed(KEY_LEFT) && camera.x > min.x or mouse == 1 and mousex<0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Left);
+					}
+					if (key_pressed(KEY_RIGHT) && camera.x<max.x or mouse == 1 and mousex>0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Right);
+					}
+					if (key_pressed(KEY_DOWN) && camera.z > min.z or mouse == 1 and mousey > 0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Down);
+					}
+					if (key_pressed(KEY_UP) && camera.z < max.z or mouse == 1 and mousey<0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Up);
+					}
+				} else if (repeatingcamera == 1) {
+					if (key_pressed(KEY_LEFT) == false and kcleft.pressing() && camera.x > min.x or mouse == 1 and mousex<0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Left);
+					}
+					if (key_pressed(KEY_RIGHT) == false and kcright.pressing() && camera.x<max.x or mouse == 1 and mousex>0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Right);
+					}
+					if (key_pressed(KEY_DOWN) == false and kcdown.pressing() && camera.z > min.z or mouse == 1 and mousey > 0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Down);
+					}
+					if (key_pressed(KEY_UP) == false and kcup.pressing() && camera.z < max.z or mouse == 1 and mousey<0 and mousemenutimer.elapsed >= 100) {
+						if (mouse == 1) mousemenutimer.restart();
+						cameramove(Up);
+					}
+				}
+			}
+			if (key_pressed(KEY_M)) {
+				if (dmfwc == 0) {
+					if (mfwc == 0) {
+						mfwc = 1;
+						speak("mfwc enabled! ");
+					} else {
+						mfwc = 0;
+						speak("mfwc disabled! ");
+					}
+				} else
+					speak("Can't use this feature in this map");
+			}
+		}
+		if (key_up(KEY_G) && dcamera == 0) {
+			camera.x = me.x;
+			camera.y = me.y;
+			camera.z = me.z;
+			if (mfwc == 1)mfwc = 0;
+		}
+	}
+	if (sleepmode != 0 and looking == false) {
+		if ((key_down(KEY_LMENU) or key_down(KEY_RMENU)) and key_pressed(KEY_I) and inbox == false and !frozen) {
+			if (inv.items.length() < 1)
+				speak("you cant drop your empty inventory");
+			else if (get_tile_at(me.x, me.y, me.z) == "" or get_tile_at(me.x, me.y, me.z) == "air")
+				speak("you can't delete your inventory in the air");
+			else {
+				speak("Are you sure you want to drop your inventory? Press Y for yes or N for no");
+				timer t;
+				t.restart();
+				bool answered = false;
+				bool confirmed = false;
+				while (t.elapsed < 5000 and !answered) { // 5 second timeout
+					if (key_pressed(KEY_Y)) {
+						answered = true;
+						confirmed = true;
+					} else if (key_pressed(KEY_N)) {
+						answered = true;
+						confirmed = false;
+					}
+				}
+				if (confirmed) {
+					rvp.play_stationary("invdelete.ogg", false);
+					send_reliable(peer_id, "draw invdelete.ogg", 7);
+					send_reliable(peer_id, "invdrop", 0);
+					speak("Inventory dropped");
+				} else
+					speak("Cancelled");
+			}
+		}
+		if (get_tile_at(me.x, me.y, me.z) != "underwater") {
+			if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_I) and inbox == false and !frozen) {
+				if (inv.items.length() < 1)
+					speak("your inventory is empty");
+				else if (get_tile_at(me.x, me.y, me.z) == "" or get_tile_at(me.x, me.y, me.z) == "air")
+					speak("you can't open your inventory in the air");
+				else {
+					play_invopen();
+					inventorymenu(invcats[invc]);
+				}
+			}
+		}
+		if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_N)) {
+			string data;
+			for (int i = 0; i < tracks.length(); i++) {
+				data += tracks[i].name + " " + calculate_x_y_string(calculate_x_y_angle(round(me.x, 0), round(me.y, 0), tracks[i].x, tracks[i].y, facing)) + ", " + round(get_3d_distance(round(me.x, 0), round(me.y, 0), round(me.z, 0), tracks[i].x, tracks[i].y, tracks[i].z), 0) + " tiles away";
+				if (i < tracks.length() - 1)
+					data += ", ";
+			}
+			if (data == "")
+				speak("Nothing is being tracked");
+			else
+				speak(data);
+		}
+		for (int i = 0; i < tracks.length(); i++) {
+			if (round(me.x, 0) == tracks[i].x and round(me.y, 0) == tracks[i].y and round(me.z, 0) == tracks[i].z) {
+				p.play_stationary("loctracked.ogg", false);
+				p.destroy_sound(tracks[i].slot);
+				tracks.remove_at(i);
+			}
+		}
+	}
+	if (key_pressed(KEY_P)) {
+		if (alt_down) {
+			pmmenu();
+			return;
+		}
+		send_reliable(peer_id, "whonear", 0);
+		return;
+	}
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and shift_is_down() and key_pressed(KEY_M) and key_up(KEY_G))
+		send_reliable(peer_id, "whatnear", 0);
+	if (sleepmode != 0 and looking == false) {
+		if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_M) and key_up(KEY_G))
+			send_reliable(peer_id, "objs", 0);
+	}
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F7))
+		send_reliable(peer_id, "pmreceive", 0);
+	if (key_pressed(KEY_F4)) {
+		if (!alt_down) {
+			if (shift_down) send(peer_id, "chbmessage", 0);
+			else send(peer_id, "chmessage", 0);
+			return;
+		}
+		if (shift_down) send(peer_id, "bmessage", 0);
+		else send(peer_id, "message", 0);
+		return;
+	}
+	if (key_released(KEY_RIGHT) and key_up(KEY_LEFT) and key_up(KEY_UP) and key_up(KEY_DOWN) or key_released(KEY_DOWN) and key_up(KEY_RIGHT) and key_up(KEY_LEFT) and key_up(KEY_UP) or key_released(KEY_LEFT) and key_up(KEY_DOWN) and key_up(KEY_RIGHT) and key_up(KEY_UP) or key_released(KEY_UP) and key_up(KEY_LEFT) and key_up(KEY_DOWN) and key_up(KEY_RIGHT)) {
+		if (sleepmode != 0 and looking == false and scuffs == 1 and jumping == false and falling == false and can_move == true and sitting == 0 and key_up(KEY_G) and !shift_is_down() and scufftimer.elapsed >= 1000) {
+			scufftimer.restart();
+			rvp.play_stationary(get_tile_at(me.x, me.y, me.z) + "scuff.ogg", false);
+			send_reliable(peer_id, "draw " + get_tile_at(me.x, me.y, me.z) + "scuff.ogg", 7);
+		}
+	}
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F5) and dtracking == 0)
+		send_reliable(peer_id, "playermapmenu", 0);
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F5))
+		send_reliable(peer_id, "playermenu", 0);
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_F))
+		speak("facing " + dir_to_string(getdir(facing)) + " at " + facing + "degrees");
+	if (looking == false and sleepmode != 0) {
+		if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU)) {
+			if (key_pressed(KEY_1) or key_pressed(KEY_NUMPAD_1)) {
+				send_reliable(peer_id, "fists", 0);
+				speak("left fist");
+			}
+			if (key_pressed(KEY_2) || key_pressed(KEY_NUMPAD_2)) {
+				send_reliable(peer_id, "fists", 0);
+				speak("right fist");
+			}
+			if (key_pressed(KEY_3) || key_pressed(KEY_NUMPAD_3) or key_pressed(KEY_NUMPAD_3)) {
+				send_reliable(peer_id, "feet", 0);
+				speak("left foot");
+			}
+			if (key_pressed(KEY_4) || key_pressed(KEY_NUMPAD_4)) {
+				send_reliable(peer_id, "feet", 0);
+				speak("right foot");
+			}
+		}
+	}
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F8)) {
+		if (autologin == 0) {
+			autologin = 1;
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+			speak("auto login enabled! ");
+		} else {
+			autologin = 0;
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+			speak("auto login disabled! ");
+		}
+		writeprefs();
+	}
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F8))
+		send_reliable(peer_id, "serverstats", 0);
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and alt_is_down() and key_pressed(KEY_F10)) {
+		if (kh == 0) {
+			kh = 1;
+			install_keyhook();
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+			speak("enabled jaws support");
+		} else {
+			kh = 0;
+			uninstall_keyhook();
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+			speak("disabled jaws support");
+		}
+		writeprefs();
+	}
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F10)) {
+		if (readchats == 0) {
+			readchats = 1;
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+			speak("reading chats enabled! ");
+		} else if (readchats == 1) {
+			readchats = 0;
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+			speak("reading chats disabled! ");
+		}
+		writeprefs();
+	}
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F10)) {
+		if (readdeathmsg == 0) {
+			readdeathmsg = 1;
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+			speak("reading death messages enabled! ");
+		} else if (readdeathmsg == 1) {
+			readdeathmsg = 0;
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+			speak("reading death messages disabled! ");
+		}
+		writeprefs();
+	}
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_F11)) {
+		if (readolmsg == 0) {
+			readolmsg = 1;
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+			send_reliable(peer_id, "o1", 0);
+			speak("reading online and offline messages enabled! ");
+		} else if (readolmsg == 1) {
+			readolmsg = 0;
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+			send_reliable(peer_id, "o0", 0);
+			speak("reading online and offline messages disabled! ");
+		}
+		writeprefs();
+	}
+	if (alt_is_down() and key_pressed(KEY_F11))
+		mainmenu(true);
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F6)) {
+		string received = convert_size(n.bytes_received);
+		string sent = convert_size(n.bytes_sent);
+		string totalnstats = convert_size(n.bytes_sent + n.bytes_received);
+		speak("You have received " + received + " of data. You have sent " + sent + " of data, adding up to a total of " + totalnstats + "");
+	}
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F6))
+		send_reliable(peer_id, "lchannel", 0);
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and shift_is_down() and key_pressed(KEY_Z)) {
+		if (zonestatus == 0) {
+			speak("zones spoken");
+			zonestatus = 1;
+		} else {
+			speak("zones will not be spoken");
+			zonestatus = 0;
+		}
+		writeprefs();
+	}
+	if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_Z)) {
+		speak("Current location: " + currentloc);
+	}
+	if (key_pressed (KEY_O)) {
+		if (alt_down) {
+			optionsmenu();
+			return;
+		}
+		if (trackx == -1 or tracky == -1 or trackz == -1 or tracking == "")
+			speak("Nothing to track");
+		else tell_where(trackx, tracky, trackz, "loctrack", false);
+	}
+	if (shift_is_down() and key_pressed(KEY_N)) {
+		if (ttrackx == -1 or ttracky == -1 or ttrackz == -1 or ttracking == "")
+			speak("Nothing to track");
+		else tell_where(ttrackx, ttracky, ttrackz, "locttrack", false);
+	}
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_X)) {
+		if (xx == 0) {
+			xx = 1;
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+			speak("auto walking enabled! ");
+		} else {
+			xx = 0;
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+			speak("auto walking disabled! ");
+		}
+		writeprefs();
+	}
+	if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_X))
+		send_reliable(peer_id, "lookstop", 0);
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_X)) {
+		string s = v.input("type your status message here");
+		if (s != "" and !is_eloquence_crash_word(s) and get_sequence(s, true) <= 3)
+			send_reliable(peer_id, "setstatus " + s, 0);
+	}
+	if (key_pressed(KEY_F7) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and alt_is_down()) {
+		if (scuffs == 0) {
+			scuffs = 1;
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+			speak("Scuff sounds enabled");
+		} else {
+			scuffs = 0;
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+			speak("Scuff sounds disabled");
+		}
+		writeprefs();
+	}
+	if (key_pressed(KEY_F6) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and alt_is_down()) {
+		if (itemsound == 0) {
+			itemsound = 1;
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+			speak("item sounds enabled");
+		} else {
+			itemsound = 0;
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+			speak("item sounds disabled");
+		}
+		writeprefs();
+	}
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_EQUALS)) {
+		string colocar = input("Command", "Enter the command. Note: / will be put before it automaticly", multiline = true);
+		if (colocar != "" and !is_eloquence_crash_word(colocar) and get_sequence(colocar, true) <= 3) {
+			string sendmsg = colocar;
+			for (uint a = 0; a < aliases.length(); a += 1) {
+				string[] a2 = string_split(aliases[a], ":", false);
+				if (a2.length() == 2)
+					sendmsg = string_replace(sendmsg, a2[0], a2[1], true);
+			}
+			send_reliable(peer_id, "/" + sendmsg, 1);
+		}
+	}
+	if (looking == false and sleepmode != 0) {
+		if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_T) and key_up(KEY_G) and sleepmode != 0) {
+			if (lefthand == "" and righthand == "") {
+				if (clapped.elapsed >= clap) {
+					clapped.restart();
+					if (get_tile_at(me.x, me.y, me.z) == "underwater") {
+						rvp.play_stationary("underwaterclap.ogg", false);
+						send_reliable(peer_id, "draw underwaterclap.ogg", 7);
+						return;
+					} else {
+						rvp.play_stationary("clap.ogg", false);
+						send_reliable(peer_id, "draw clap.ogg", 7);
+						return;
+					}
+				}
+			} else if (usetimer.elapsed > 500) {
+				usetimer.restart();
+				send_reliable(peer_id, "combine (" + lefthand + ") (" + righthand + ")", 5);
+				return;
+			}
+			return;
+		}
+		if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_T) and key_up(KEY_G)) {
+			if (lefthand == "" and righthand == "") {
+				if (snapped.elapsed >= snap) {
+					snapped.restart();
+					if (get_tile_at(me.x, me.y, me.z) == "underwater") {
+						rvp.play_stationary("underwaterclap.ogg", false);
+						send_reliable(peer_id, "draw underwaterclap.ogg", 7);
+					} else {
+						rvp.play_stationary("snap.ogg", false);
+						send_reliable(peer_id, "draw snap.ogg", 7);
+					}
+				}
+			}
+		}
+	}
+	if (key_pressed(KEY_J) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU))
+		send_reliable(peer_id, "energycheck", 0);
+	if (looking == false and sleepmode != 0 and use == 1 and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU)) {
+		if (key_pressed(KEY_1) or key_pressed(KEY_NUMPAD_1)) {
+			if (llastuse == lefthand and lefthand != "" and hands == 1) {
+				llastuse = "";
+				lefthand = "";
+				draw = "";
+				send_reliable(peer_id, "putback", 0);
+			} else {
+				draw = lefthand;
+				llastuse = lefthand;
+				hands = 1;
+				send_reliable(peer_id, "handdraw " + hands + " " + lefthand, 0);
+			}
+			if (draw == righthand and inv_item_number(draw) == 1 and righthand == lefthand) righthand = "";
+		}
+		if (key_pressed(KEY_2) or key_pressed(KEY_NUMPAD_2)) {
+			if (rlastuse == righthand and righthand != "" and hands == 2) {
+				righthand = "";
+				rlastuse = "";
+				draw = "";
+				send_reliable(peer_id, "putback", 0);
+			} else {
+				draw = righthand;
+				rlastuse = righthand;
+				hands = 2;
+				send_reliable(peer_id, "handdraw " + hands + " " + righthand, 0);
+			}
+			if (draw == lefthand and inv_item_number(draw) == 1 and lefthand == righthand) lefthand = "";
+		}
+		if (key_pressed(KEY_3) or key_pressed(KEY_NUMPAD_3)) {
+			if (lefthand == "" and righthand == "" and draw == "")
+				speak("you have nothing in your left hand, nothing in your right hand, and you have drawn nothing");
+			else if (lefthand == "" and righthand == "" and draw != "")
+				speak("you have nothing in your left hand, nothing in your right hand, and you have drawn " + draw + "");
+			else if (lefthand != "" and righthand == "" and draw == "")
+				speak("you have " + lefthand + " in your left hand, nothing in your right hand, and you have drawn nothing");
+			else if (lefthand != "" and righthand == "" and draw != "")
+				speak("you have " + lefthand + " in your left hand, nothing in your right hand, and you have drawn " + draw + "");
+			else if (lefthand == "" and righthand != "" and draw == "")
+				speak("you have nothing in your left hand, " + righthand + " in your right hand, and you have drawn nothing");
+			else if (lefthand == "" and righthand != "" and draw != "")
+				speak("you have nothing in your left hand, " + righthand + " in your right hand, and you have drawn " + draw + "");
+			else if (lefthand != "" and righthand != "" and draw == "")
+				speak("you have " + lefthand + " in your left hand, " + righthand + " in your right hand, and you have drawn nothing");
+			else if (lefthand != "" and righthand != "" and draw != "")
+				speak("you have " + lefthand + " in your left hand, " + righthand + " in your right hand, and you have drawn " + draw + "");
+		}
+	}
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_W)) {
+		if (tracking == "")
+			speak("Not tracking anyone");
+		else
+			send_reliable(peer_id, "track " + tracking, 0);
+	}
+	//if(key_up(KEY_LMENU) and key_up(KEY_RMENU) and shift_is_down() and key_pressed(KEY_W))
+	//{
+	//send_reliable(peer_id,"temperaturecheck",0);
+	//}
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and shift_is_down() and key_pressed(KEY_T))
+		send_reliable(peer_id, "maptimecheck", 0);
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and alt_is_down() and key_pressed(KEY_B))
+		send_reliable(peer_id, "bonescheck", 0);
+	if ((key_down(KEY_LSHIFT) || key_down(KEY_RSHIFT)) && !alt_is_down() && key_pressed(KEY_B))
+		buffermenu();
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_H))
+		send_reliable(peer_id, "healthcheck", 0);
+	if (shift_is_down() and key_pressed(KEY_H))
+		helpmenu();
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_D)) {
+		if (!SCRIPT_COMPILED or lcm == true or admin == true or manager == true)chat_lcm();
+	}
+	if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_D)) {
+		if (!SCRIPT_COMPILED or admin == true or manager == true)chat_administrativo();
+	}
+	if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_M) and key_up(KEY_G)) {
+		if (!SCRIPT_COMPILED or manager == true)chat_manager();
+	}
+	if (alt_is_down() and shift_is_down() and key_pressed(KEY_D)) {
+		if (!SCRIPT_COMPILED or dev == true)chat_dev();
+	}
+	if (key_pressed(KEY_S)) {
+		if (shift_down) {
+			send_reliable(peer_id, "sickcheck", 0);
+			return;
+		} else if (alt_down) {
+			scpmenu();
+			return;
+		}
+		send_reliable(peer_id, "thirstcheck", 0);
+	}
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_D) and key_up(KEY_G))
+		send_reliable(peer_id, "factorcheck", 0);
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_U))
+		send_reliable(peer_id, "hungercheck", 0);
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and alt_is_down() and key_pressed(KEY_U))
+		send_reliable(peer_id, "drunkcheck", 0);
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_U))
+		send_reliable(peer_id, "fullcheck", 0);
+	if (looking == false and sleepmode != 0) {
+		if (key_up(KEY_LSHIFT) && key_up(KEY_RSHIFT) && alt_is_down() && key_pressed(KEY_A) && assistant) {
+			string run = nvinput("Assistant", "Type your message to the assistant chat", multiline = true);
+			if (run != "" and !is_eloquence_crash_word(run) and get_sequence(run, true) <= 3) {
+				send_reliable(peer_id, "astchat " + run, 0);
+			}
+		}
+	}
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and !shift_down and key_pressed(KEY_C) && dcoordinates == 0) {
+		if (d2dsupport == 0)
+			speak(round(me.x, 0) + ", " + round(me.y, 0) + ", " + round(me.z, 0));
+		else
+			speak(round(me.x, 0) + ", " + round(me.z, 0));
+	}
+	if (key_pressed(KEY_C) and alt_is_down() && !shift_down)
+		send_reliable(peer_id, "clothing", 0);
+	if (key_pressed(KEY_SLASH)) {
+		if ((key_down(KEY_LMENU) or key_down(KEY_RMENU)) and dttschat == 0) {
+			string stuff = v.input("Enter your tts message");
+			if (stuff != "") {
+				if (stuff.length() > 256)
+					speak("limit is 256 characters");
+				else {
+					string msg = ttsv.speak_to_memory(stuff);
+					send_reliable(peer_id, "tts " + stuff.length() + " " + try_memset(msg), 3);
+					//if (savettschats == 1)
+						//file_copy(DIRECTORY_TEMP + "\\ttsmsg.ogg", "voices/tts message " + DATE_WEEKDAY_NAME + ", " + DATE_MONTH_NAME + "-" + DATE_DAY + "-" + DATE_YEAR + ", " + TIME_HOUR + " " + TIME_MINUTE + " " + TIME_SECOND + ".ogg", true);
+					//file_delete(DIRECTORY_TEMP + "/ttsmsg.ogg");
+				}
+			}
+		} else {
+			string chat = input("Public chat", "type your public message here", multiline = true);
+			if (chat != "" and !is_eloquence_crash_word(chat) and get_sequence(chat, true) <= 3) {
+				string[] chats = string_split(chat, "::", true);
+				if (chat != "") {
+					string sendmsg = chat;
+					for (uint a = 0; a < aliases.length(); a += 1) {
+						string[] a2 = string_split(aliases[a], ":", false);
+						if (a2.length() == 2)
+							sendmsg = string_replace(sendmsg, a2[0], a2[1], true);
+					}
+					send_reliable(peer_id, sendmsg, 1);
+				}
+			}
+		}
+	}
+	if (key_pressed(KEY_BACKSLASH) and dlocalchat == 0) {
+		string s = input("Local chat", "type your local message here", multiline = true);
+		if (s != "" and !is_eloquence_crash_word(s) and get_sequence(s, true) <= 3) {
+			string sendmsg = s;
+			for (uint a = 0; a < aliases.length(); a += 1) {
+				string[] a2 = string_split(aliases[a], ":", false);
+				if (a2.length() == 2)
+					sendmsg = string_replace(sendmsg, a2[0], a2[1], true);
+			}
+			send_reliable(peer_id, "localchat " + sendmsg, 0);
+		}
+	}
+	if (looking == false and sleepmode != 0) {
+		if (key_pressed(KEY_Y)) {
+			if (use == 1) {
+				speak("using yourself");
+				rvp.play_stationary("use_you.ogg", false);
+				send_reliable(peer_id, "draw use_you.ogg", 7);
+				use = 0;
+			} else if (use == 0) {
+				speak("using items");
+				rvp.play_stationary("use_items.ogg", false);
+				send_reliable(peer_id, "draw use_item.ogg", 7);
+				use = 1;
+			}
+			writeprefs();
+		}
+		if (use == 0 and can_move == true) {
+			if (key_pressed(KEY_1) or key_pressed(KEY_NUMPAD_1))
+				send_reliable(peer_id, "light_punch", 9);
+			if (key_pressed(KEY_2) or key_pressed(KEY_NUMPAD_2))
+				send_reliable(peer_id, "punch", 9);
+			if (key_pressed(KEY_3) or key_pressed(KEY_NUMPAD_3))
+				send_reliable(peer_id, "heavy_punch", 9);
+			if (key_pressed(KEY_4) or key_pressed(KEY_NUMPAD_4))
+				send_reliable(peer_id, "light_kick", 9);
+			if (key_pressed(KEY_5) or key_pressed(KEY_NUMPAD_5))
+				send_reliable(peer_id, "kick", 9);
+			if (key_pressed(KEY_6) or key_pressed(KEY_NUMPAD_6))
+				send_reliable(peer_id, "heavy_kick", 9);
+			if (key_pressed(KEY_7) or key_pressed(KEY_NUMPAD_7))
+				send_reliable(peer_id, "grab", 9);
+			if (key_pressed(KEY_8) or key_pressed(KEY_NUMPAD_8))
+				send_reliable(peer_id, "throw", 9);
+			if (key_pressed(KEY_9) or key_pressed(KEY_NUMPAD_9))
+				send_reliable(peer_id, "slam", 9);
+		}
+		bool jump_key = (
+			( (use == 0 && key_down(KEY_SPACE) && key_up(KEY_LSHIFT) && key_up(KEY_RSHIFT)) ||
+			(use == 1 && shift_down && key_pressed(KEY_SPACE)))
+		);
+		if (jump_key && jumping == false && canjump == true && falling == false && can_move == true && canijumptimer.elapsed > 100 && max.z != 0 && me.z <= max.z && d2dsupport == 0 && sitting == 0 && djump == 0) {
+			if (jumpsound == "random") {
+				string snd = "jump" + random(1, 22) + ".ogg";
+				rvp.play_stationary(snd, false);
+				send_reliable(peer_id, "draw " + snd, 7);
+			} else {
+				rvp.play_stationary(jumpsound + ".ogg", false);
+				send_reliable(peer_id, "draw " + jumpsound + ".ogg", 7);
+			}
+			jumping = true;
+			jumptimer.restart();
+			jumpup = 1;
+			jumplandz = me.z;
+		}
+		if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_SPACE) and jumping == false and falling == false and can_move == true) {
+			if (use == 1) {
+				if (draw == "") {
+					if (get_tile_at(me.x, me.y, me.z) == "sand" or get_tile_at(me.x, me.y, me.z) == "sand2" or get_tile_at(me.x, me.y, me.z) == "sand3" or get_tile_at(me.x, me.y, me.z) == "sand4" or get_tile_at(me.x, me.y, me.z) == "sand5" or get_tile_at(me.x, me.y, me.z) == "sand6" or get_tile_at(me.x, me.y, me.z) == "sand7")
+						send_reliable(peer_id, "getsand", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "mud" or get_tile_at(me.x, me.y, me.z) == "mud2" or get_tile_at(me.x, me.y, me.z) == "mud3" or get_tile_at(me.x, me.y, me.z) == "mud4" or get_tile_at(me.x, me.y, me.z) == "mud5" or get_tile_at(me.x, me.y, me.z) == "mud6")
+						send_reliable(peer_id, "getmud", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "water" or get_tile_at(me.x, me.y, me.z) == "water2" or get_tile_at(me.x, me.y, me.z) == "water3" or get_tile_at(me.x, me.y, me.z) == "water4" or get_tile_at(me.x, me.y, me.z) == "water5" or get_tile_at(me.x, me.y, me.z) == "water6" or get_tile_at(me.x, me.y, me.z) == "water7" or get_tile_at(me.x, me.y, me.z) == "water8" or get_tile_at(me.x, me.y, me.z) == "water9" or get_tile_at(me.x, me.y, me.z) == "water10" or get_tile_at(me.x, me.y, me.z) == "puddle" or get_tile_at(me.x, me.y, me.z) == "deepwater" or get_tile_at(me.x, me.y, me.z) == "swim" or get_tile_at(me.x, me.y, me.z) == "swimming" or get_tile_at(me.x, me.y, me.z) == "wallboat" or get_tile_at(me.x, me.y, me.z) == "spring" or get_tile_at(me.x, me.y, me.z) == "spring2")
+						send_reliable(peer_id, "drinkwater", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "clay" or get_tile_at(me.x, me.y, me.z) == "clay2" or get_tile_at(me.x, me.y, me.z) == "clay3")
+						send_reliable(peer_id, "getclay", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "snow" or get_tile_at(me.x, me.y, me.z) == "snow2" or get_tile_at(me.x, me.y, me.z) == "snow3" or get_tile_at(me.x, me.y, me.z) == "snow4" or get_tile_at(me.x, me.y, me.z) == "snow5" or get_tile_at(me.x, me.y, me.z) == "snow6" or get_tile_at(me.x, me.y, me.z) == "snow7" or get_tile_at(me.x, me.y, me.z) == "snow8" or get_tile_at(me.x, me.y, me.z) == "snow9" or get_tile_at(me.x, me.y, me.z) == "snow10" or get_tile_at(me.x, me.y, me.z) == "snow11" or get_tile_at(me.x, me.y, me.z) == "snow12" or get_tile_at(me.x, me.y, me.z) == "snow13" or get_tile_at(me.x, me.y, me.z) == "snow_wet" or get_tile_at(me.x, me.y, me.z) == "deepsnow")
+						send_reliable(peer_id, "getsnow", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "stone" or get_tile_at(me.x, me.y, me.z) == "stone2" or get_tile_at(me.x, me.y, me.z) == "stone3" or get_tile_at(me.x, me.y, me.z) == "stone4" or get_tile_at(me.x, me.y, me.z) == "stone5")
+						send_reliable(peer_id, "getstone", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "glass" or get_tile_at(me.x, me.y, me.z) == "glass2" or get_tile_at(me.x, me.y, me.z) == "glass3" or get_tile_at(me.x, me.y, me.z) == "glass4" or get_tile_at(me.x, me.y, me.z) == "glass5" or get_tile_at(me.x, me.y, me.z) == "glass6" or get_tile_at(me.x, me.y, me.z) == "glass7" or get_tile_at(me.x, me.y, me.z) == "broken_glass" or get_tile_at(me.x, me.y, me.z) == "brokenglass")
+						send_reliable(peer_id, "getglass", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "dirt" or get_tile_at(me.x, me.y, me.z) == "dirt2" or get_tile_at(me.x, me.y, me.z) == "dirt3" or get_tile_at(me.x, me.y, me.z) == "dirt4" or get_tile_at(me.x, me.y, me.z) == "dirt5" or get_tile_at(me.x, me.y, me.z) == "dirt6" or get_tile_at(me.x, me.y, me.z) == "dirt7" or get_tile_at(me.x, me.y, me.z) == "dirt8" or get_tile_at(me.x, me.y, me.z) == "dirt9" or get_tile_at(me.x, me.y, me.z) == "dirt10" or get_tile_at(me.x, me.y, me.z) == "dirt11" or get_tile_at(me.x, me.y, me.z) == "dirt12" or get_tile_at(me.x, me.y, me.z) == "dirt13" or get_tile_at(me.x, me.y, me.z) == "dirt14" or get_tile_at(me.x, me.y, me.z) == "dirt15" or get_tile_at(me.x, me.y, me.z) == "dirt16" or get_tile_at(me.x, me.y, me.z) == "dirt17" or get_tile_at(me.x, me.y, me.z) == "dirt18" or get_tile_at(me.x, me.y, me.z) == "dirt19" or get_tile_at(me.x, me.y, me.z) == "dirt20")
+						send_reliable(peer_id, "getdirt", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "branch" or get_tile_at(me.x, me.y, me.z) == "branch2")
+						send_reliable(peer_id, "getbranch", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "tree" or get_tile_at(me.x, me.y, me.z) == "wood11")
+						send_reliable(peer_id, "getwood", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "rocks" or get_tile_at(me.x, me.y, me.z) == "rocks2" or get_tile_at(me.x, me.y, me.z) == "rocks3" or get_tile_at(me.x, me.y, me.z) == "rocks4" or get_tile_at(me.x, me.y, me.z) == "rocks5")
+						send_reliable(peer_id, "getrocks", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "leaves" or get_tile_at(me.x, me.y, me.z) == "leaves2" or get_tile_at(me.x, me.y, me.z) == "leaves3" or get_tile_at(me.x, me.y, me.z) == "leaves4" or get_tile_at(me.x, me.y, me.z) == "leaves5" or get_tile_at(me.x, me.y, me.z) == "packed_leaves")
+						send_reliable(peer_id, "getleaves", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "gravel" or get_tile_at(me.x, me.y, me.z) == "gravel2" or get_tile_at(me.x, me.y, me.z) == "gravel3" or get_tile_at(me.x, me.y, me.z) == "gravel4" or get_tile_at(me.x, me.y, me.z) == "gravel5" or get_tile_at(me.x, me.y, me.z) == "gravel6" or get_tile_at(me.x, me.y, me.z) == "gravel7" or get_tile_at(me.x, me.y, me.z) == "gravel8" or get_tile_at(me.x, me.y, me.z) == "gravel9" or get_tile_at(me.x, me.y, me.z) == "gravel10" or get_tile_at(me.x, me.y, me.z) == "gravel11")
+						send_reliable(peer_id, "getgravel", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "grass" or get_tile_at(me.x, me.y, me.z) == "grass2" or get_tile_at(me.x, me.y, me.z) == "grass3" or get_tile_at(me.x, me.y, me.z) == "grass4" or get_tile_at(me.x, me.y, me.z) == "grass5" or get_tile_at(me.x, me.y, me.z) == "grass6" or get_tile_at(me.x, me.y, me.z) == "grass7" or get_tile_at(me.x, me.y, me.z) == "grass8" or get_tile_at(me.x, me.y, me.z) == "grass9" or get_tile_at(me.x, me.y, me.z) == "grass10" or get_tile_at(me.x, me.y, me.z) == "shortgrass" or get_tile_at(me.x, me.y, me.z) == "grasspacked" or get_tile_at(me.x, me.y, me.z) == "lawn")
+						send_reliable(peer_id, "getgrass", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "fence" or get_tile_at(me.x, me.y, me.z) == "fence2")
+						send_reliable(peer_id, "getmetal", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "weed" or get_tile_at(me.x, me.y, me.z) == "weed2" or get_tile_at(me.x, me.y, me.z) == "weed3")
+						send_reliable(peer_id, "getweed", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "fire")
+						send_reliable(peer_id, "burnhand", 0);
+					else if (get_tile_at(me.x, me.y, me.z) == "ice" or get_tile_at(me.x, me.y, me.z) == "ice2" or get_tile_at(me.x, me.y, me.z) == "ice3" or get_tile_at(me.x, me.y, me.z) == "ice4")
+						send_reliable(peer_id, "getice", 0);
+				} else {
+					if (usetimer.elapsed >= 300) {
+						usetimer.restart();
+						send_reliable(peer_id, "use " + draw + " " + hands, 4);
+					}
+				}
+			}
+		}
+		if (alt_is_down() && !shift_down && key_pressed(KEY_SPACE) && use == 1) {
+			if (draw != "") {
+				if (usetimer.elapsed >= 400) {
+					usetimer.restart();
+					send_reliable(peer_id, "ause " + draw + " " + hands, 4);
+				}
+			} else if (usetimer.elapsed >= 400) {
+				usetimer.restart();
+				send_reliable(peer_id, "ause", 4);
+			}
+		}
+	}
+	if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_F2)) {
+		if (tracks.length() > 0) {
+			destroy_all_tracks();
+			speak("tracking stopped");
+		} else speak("nothing is being tracked");
+	}
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and shift_is_down() and key_pressed(KEY_F2))
+		send_reliable(peer_id, "levelsound", 0);
+	if (key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_pressed(KEY_F2))
+		send_reliable(peer_id, "uptime", 0);
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F3) and pinging == false) {
+		pinging = true;
+		p.play_stationary("pingstart1.ogg", false);
+		send_reliable(peer_id, "ping", 0);
+		pingpongtimer.restart();
+	}
+	if (key_down(KEY_LMENU) or key_down(KEY_RMENU) and jumping == false)
+		walktime = runtime;
+	else if (jumping == true)
+		walktime = airtime;
+	else if (key_up(KEY_LMENU) or key_up(KEY_RMENU) and jumping == false)
+		walktime = walkspeed;
+	if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU) and key_pressed(KEY_F3)) {
+		if (winsound == 0) {
+			winsound = 1;
+			p.play_stationary("toggleoff.ogg", false);
+			send_reliable(peer_id, "draw toggleoff.ogg", 7);
+		} else if (winsound == 1) {
+			winsound = 0;
+			p.play_stationary("toggleon.ogg", false);
+			send_reliable(peer_id, "draw toggleon.ogg", 7);
+		}
+		writeprefs();
+		speak((winsound == 0 ? "enabled" : "disabled") + " muting audio when the game is not in focus");
+	}
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT)) {
+		if (key_pressed(KEY_HOME) == false and khome.pressing() and get_sound_master_volume() < 0) {
+			set_sound_master_volume(get_sound_master_volume() + 1);
+			p.play_stationary("volume_up.ogg", false);
+			mvol++;
+		}
+		if (key_pressed(KEY_END) == false and kend.pressing() and get_sound_master_volume() > -60) {
+			set_sound_master_volume(get_sound_master_volume() - 1);
+			p.play_stationary("volume_down.ogg", false);
+			mvol--;
+		}
+	} else if (shift_is_down()) {
+		if (key_pressed(KEY_HOME) == false and khome.pressing() and mmusic_volume <= 0)
+			change_music_volume(mmusic_volume + 1);
+		if (key_pressed(KEY_END) == false and kend.pressing() and mmusic_volume >= -60)
+			change_music_volume(mmusic_volume - 1);
+	}
+	if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT)) {
+		if (key_pressed(KEY_NEXT) == false and kpgup.pressing() and volumestream < 0) {
+			volumestream += 1;
+			volumestream = clamp(volumestream, -100, 0);
+			stream.set_volume(volumestream);
+		}
+		if (key_pressed(KEY_PRIOR) == false and kpgdn.pressing() and volumestream > -100) {
+			volumestream -= 1;
+			volumestream = clamp(volumestream, -100, 0);
+			stream.set_volume(volumestream);
+		}
+	}
+	if (sleepmode != 0 and looking == false) {
+		if ((shift_is_down() or djoystick == 1 and j.button_down(3))) {
+			if (dspy == 0) {
+				if (d2dsupport == 0) {
+					if (key_pressed(KEY_LEFT) or djoystick == 1 and j.x == -1000 and joymenutimer.elapsed >= 200) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Left, seerange);
+					}
+					if (key_pressed(KEY_RIGHT) or djoystick == 1 and j.x == 1000 and joymenutimer.elapsed >= 200) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Right, seerange);
+					}
+					if (key_pressed(KEY_UP) or djoystick == 1 and j.y == 1000 and joymenutimer.elapsed >= 200) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Forward, seerange);
+					}
+					if (key_pressed(KEY_DOWN) or djoystick == 1 and j.y == -1000 and joymenutimer.elapsed >= 200) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Backward, seerange);
+					}
+					if (key_pressed(KEY_NEXT) and key_up(KEY_LMENU) and key_up(KEY_RMENU)) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Down, seerange);
+					}
+					if (key_pressed(KEY_PRIOR) and key_up(KEY_LMENU) and key_up(KEY_RMENU)) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Up, seerange);
+					}
+				} else {
+					if (key_pressed(KEY_LEFT) or djoystick == 1 and j.x == -1000 and joymenutimer.elapsed >= 200) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Left, seerange);
+					}
+					if (key_pressed(KEY_RIGHT) or djoystick == 1 and j.x == 1000 and joymenutimer.elapsed >= 200) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Right, seerange);
+					}
+					if (key_pressed(KEY_UP) or djoystick == 1 and j.y == 1000 and joymenutimer.elapsed >= 200) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Up, seerange);
+					}
+					if (key_pressed(KEY_DOWN) or djoystick == 1 and j.y == -1000 and joymenutimer.elapsed >= 200) {
+						if (djoystick == 1) joymenutimer.restart();
+						spy(Down, seerange);
+					}
+				}
+			}
+		}
+	}
+	if (changerotationtimer.elapsed >= changerotationtime and sleepmode != 0 and looking == false) {
+		if (d2dsupport == 0) {
+			if (alt_is_down() and key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT)) {
+				if (key_down(KEY_Q)) {
+					changerotationtimer.restart();
+					facing = snapleft(facing, getdir(facing), 180);
+					rvp.play_stationary("turn.ogg", false);
+					send_reliable(peer_id, "draw turn.ogg", 7);
+					send_reliable(peer_id, "turn " + facing, 0);
+					speak(dir_to_string(getdir(facing)));
+				} else if (key_down(KEY_E)) {
+					changerotationtimer.restart();
+					facing = snapright(facing, getdir(facing), 180);
+					rvp.play_stationary("turn.ogg", false);
+					send_reliable(peer_id, "draw turn.ogg", 7);
+					send_reliable(peer_id, "turn " + facing, 0);
+					speak(dir_to_string(getdir(facing)));
+				}
+			}
+			if (shift_is_down() and key_up(KEY_LMENU) and key_up(KEY_RMENU)) {
+				if (key_down(KEY_Q)) {
+					changerotationtimer.restart();
+					facing = snapleft(facing, getdir(facing), 90);
+					rvp.play_stationary("turn.ogg", false);
+					send_reliable(peer_id, "draw turn.ogg", 7);
+					send_reliable(peer_id, "turn " + facing, 0);
+					if (facing == 90 or facing == 180 or facing == 270 or facing == 0) speak(dir_to_string(getdir(facing)));
+				} else if (key_down(KEY_E)) {
+					changerotationtimer.restart();
+					facing = snapright(facing, getdir(facing), 90);
+					rvp.play_stationary("turn.ogg", false);
+					send_reliable(peer_id, "draw turn.ogg", 7);
+					send_reliable(peer_id, "turn " + facing, 0);
+					if (facing == 90 or facing == 180 or facing == 270 or facing == 0) speak(dir_to_string(getdir(facing)));
+				}
+			}
+			if (shift_is_down() and alt_is_down()) {
+				if (key_down(KEY_Q)) {
+					changerotationtimer.restart();
+					facing = turnleft(facing, 1);
+					rvp.play_stationary("turn.ogg", false);
+					send_reliable(peer_id, "draw turn.ogg", 7);
+					send_reliable(peer_id, "turn " + facing, 0);
+					speak("" + dir_to_string(getdir(facing)) + " at " + facing + "degrees");
+				} else if (key_down(KEY_E)) {
+					changerotationtimer.restart();
+					facing = turnright(facing, 1);
+					rvp.play_stationary("turn.ogg", false);
+					send_reliable(peer_id, "draw turn.ogg", 7);
+					send_reliable(peer_id, "turn " + facing, 0);
+					speak("" + dir_to_string(getdir(facing)) + " at " + facing + "degrees");
+				}
+			} else if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT) and key_up(KEY_LMENU) and key_up(KEY_RMENU)) {
+				if (key_down(KEY_Q)) {
+					changerotationtimer.restart();
+					facing = snapleft(facing, getdir(facing), 45);
+					rvp.play_stationary("turn.ogg", false);
+					send_reliable(peer_id, "draw turn.ogg", 7);
+					send_reliable(peer_id, "turn " + facing, 0);
+					if (facing == 135 or facing == 270 or facing == 180 or facing == 0 or facing == 315 or facing == 45 or facing == 90 or facing == 225) speak(dir_to_string(getdir(facing)));
+				} else if (key_down(KEY_E)) {
+					changerotationtimer.restart();
+					facing = snapright(facing, getdir(facing), 45);
+					rvp.play_stationary("turn.ogg", false);
+					send_reliable(peer_id, "draw turn.ogg", 7);
+					send_reliable(peer_id, "turn " + facing, 0);
+					if (facing == 135 or facing == 270 or facing == 180 or facing == 0 or facing == 315 or facing == 45 or facing == 90 or facing == 225) speak(dir_to_string(getdir(facing)));
+				}
+			}
+		} else {
+			if (key_pressed(KEY_Q)) {
+				changerotationtimer.restart();
+				facing = snapleft(facing, getdir(facing), 90);
+				rvp.play_stationary("turn.ogg", false);
+				send_reliable(peer_id, "draw turn.ogg", 7);
+				send_reliable(peer_id, "turn " + facing, 0);
+				if (facing == 135 or facing == 270 or facing == 180 or facing == 0 or facing == 315 or facing == 45 or facing == 90 or facing == 225) speak(dir_to_string(getdir(facing)));
+			} else if (key_pressed(KEY_E)) {
+				changerotationtimer.restart();
+				facing = snapright(facing, getdir(facing), 90);
+				rvp.play_stationary("turn.ogg", false);
+				send_reliable(peer_id, "draw turn.ogg", 7);
+				send_reliable(peer_id, "turn " + facing, 0);
+				if (facing == 135 or facing == 270 or facing == 180 or facing == 0 or facing == 315 or facing == 45 or facing == 90 or facing == 225) speak(dir_to_string(getdir(facing)));
+			}
+		}
+	}
+	if (can_move == true and !shift_is_down() and key_up(KEY_G) and sleepmode != 0) {
+		if (d2dsupport == 0) {
+			if (xx == 0) {
+				if (key_pressed(KEY_PRIOR)) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Up);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_NEXT)) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Down);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_UP)) {
+					if (sitting == 1) {
+						p.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Forward);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_DOWN)) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Backward);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_LEFT)) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Left);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_RIGHT)) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Right);
+						movecheck();
+					}
+				}
+			} else if (xx == 1) {
+				if (key_pressed(KEY_PRIOR) == false and kmpgdn.pressing()) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Down);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_NEXT) == false and kmpgup.pressing()) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Up);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_UP) == false and kmup.pressing() or mouse == 1 and mousey<0 and mousemenutimer.elapsed >= 100) {
+					if (mouse == 1) mousemenutimer.restart();
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Forward);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_DOWN) == false and kmdown.pressing() or mouse == 1 and mousey > 0 and mousemenutimer.elapsed >= 100) {
+					if (mouse == 1) mousemenutimer.restart();
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Backward);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_LEFT) == false and kmleft.pressing() or mouse == 1 and mousey<0 and mousemenutimer.elapsed >= 100) {
+					if (mouse == 1) mousemenutimer.restart();
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Left);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_RIGHT) == false and kmright.pressing() or mouse == 1 and mousey > 0 and mousemenutimer.elapsed >= 100) {
+					if (mouse == 1) mousemenutimer.restart();
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Right);
+						movecheck();
+					}
+				}
+			}
+		} else {
+			if (xx == 0) {
+				if (key_pressed(KEY_UP)) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						if (get_tile_at(me.x, me.y, me.z + 1) != "") {
+							move(Up);
+							movecheck();
+						} else {
+							if (jumping == false and canjump == true and falling == false and can_move == true && canijumptimer.elapsed > 50 and max.z != 0 and me.z <= max.z and sitting == 0 and djump == 0 and key_up(KEY_LMENU) and key_up(KEY_RMENU)) {
+								if (jumpsound == "random") {
+									rvp.play_stationary("jump" + random(1, 22) + ".ogg", false);
+									send_reliable(peer_id, "draw jump" + random(1, 22) + ".ogg", 7);
+								} else {
+									rvp.play_stationary(jumpsound + ".ogg", false);
+									send_reliable(peer_id, "draw " + jumpsound + ".ogg", 7);
+								}
+								jumping = true;
+								jumptimer.restart();
+								jumpup = 1;
+								jumplandz = me.z;
+							}
+						}
+					}
+				}
+				if (key_pressed(KEY_DOWN)) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Down);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_LEFT)) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Left);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_RIGHT)) {
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Right);
+						movecheck();
+					}
+				}
+			} else if (xx == 1) {
+				if (key_pressed(KEY_UP) == false and kmup.pressing() or mouse == 1 and mousey<0 and mousemenutimer.elapsed >= 100) {
+					if (mouse == 1) mousemenutimer.restart();
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						if (get_tile_at(me.x, me.y, me.z + 1) != "") {
+							move(Up);
+							movecheck();
+						} else {
+							if (jumping == false and canjump == true and falling == false and can_move == true && canijumptimer.elapsed > 50 and max.z != 0 and me.z <= max.z and sitting == 0 and djump == 0 and key_up(KEY_LMENU) and key_up(KEY_RMENU)) {
+								if (jumpsound == "random") {
+									rvp.play_stationary("jump" + random(1, 22) + ".ogg", false);
+									send_reliable(peer_id, "draw jump" + random(1, 22) + ".ogg", 7);
+								} else {
+									rvp.play_stationary(jumpsound + ".ogg", false);
+									send_reliable(peer_id, "draw " + jumpsound + ".ogg", 7);
+								}
+								jumping = true;
+								jumptimer.restart();
+								jumpup = 1;
+								jumplandz = me.z;
+							}
+						}
+					}
+				}
+				if (key_pressed(KEY_DOWN) == false and kmdown.pressing() or mouse == 1 and mousey > 0 and mousemenutimer.elapsed >= 100) {
+					if (mouse == 1) mousemenutimer.restart();
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Down);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_LEFT) == false and kmleft.pressing() or mouse == 1 and mousey<0 and mousemenutimer.elapsed >= 100) {
+					if (mouse == 1) mousemenutimer.restart();
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Left);
+						movecheck();
+					}
+				}
+				if (key_pressed(KEY_RIGHT) == false and kmright.pressing() or mouse == 1 and mousey > 0 and mousemenutimer.elapsed >= 100) {
+					if (mouse == 1) mousemenutimer.restart();
+					if (sitting == 1) {
+						rvp.play_stationary("bodymove" + random(1, 5) + ".ogg", false);
+						send_reliable(peer_id, "draw bodymove" + random(1, 5) + ".ogg", 7);
+					} else {
+						move(Right);
+						movecheck();
+					}
+				}
+			}
+		}
+	}
+}

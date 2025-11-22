@@ -1,0 +1,30 @@
+mfloor@[] floors(0);
+class mfloor {
+	vector min, max;
+	uint number;
+	string text = "";
+	mfloor(vector a, vector b, string t = "") {
+		this.min = a; this.max = b;
+		this.text = t;
+	}
+}//
+mfloor@ get_floor_at(double x, double y, double z) {
+	if (floors.length() < 1) return null;
+	for (uint i = 0; i < floors.length(); i++) {
+		if (inrange(vector(x, y, z), floors[i].min, floors[i].max)) return floors[i];
+	}//i
+	return null;
+}
+void spawn_floor(vector a, vector b, string text = "") {
+	uint num = floors.length() + 1;
+	mfloor f(a, b, text);
+	f.number = num;
+	floors.insert_last(f);
+}
+mfloor@ get_floor_by_number(uint num) {
+	if (floors.length() < 1) return null;
+	for (uint i = 0; i < floors.length(); i++) {
+		if (floors[i].number == num) return floors[i];
+	}//i
+	return null;
+}

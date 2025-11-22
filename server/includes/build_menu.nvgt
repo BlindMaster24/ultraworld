@@ -1,0 +1,91 @@
+#include "buildobj.nvgt"
+void build_menu(player@ p) {
+	mapdata@ m = get_map_obj(p.map);
+	if (@m == null) return;
+	bool own = m.owners.find(p.name) > -1 || m.owners.find(p.partner) > -1;
+	if (!own&& !p.admin) return;
+	string[] tasks = string_split(file_get_contents("chmaps.svr").replace("\r\n", "\n"), "\n");
+	int task = tasks.find(p.map);
+	if (task > -1 && !p.admin) {
+		send_reliable(p, "you can't do this in a task map", 2);
+		return;
+	}
+	server_menu a;
+	a.initial_packet = "buildobj";
+	a.intro = "Build Menu";
+	a.add("tile", "tile");
+	a.add("zone", "zone");
+	a.add("Death message", "dmg");
+	a.add("sound source", "src");
+	a.add("Reverb", "reverb");
+	a.add("Elevator", "ev");
+	a.add("Floor", "floor");
+	a.add("music", "music");
+	a.add("timed sound", "timedsound");
+	a.add("timed music", "timedmusic");
+	a.add("automover", "automover");
+	a.add("door", "door");
+	if (p.admin) a.add("travelpoint", "travelpoint");
+	a.add("safe zone", "safezone");
+	if (p.admin) a.add("fishing coordinate", "fishingcoordinate");
+	a.add("starting_point", "starting_point");
+	a.add("deathpoint", "deathpoint");
+	a.add("sign", "sign");
+	a.add("txt", "txt");
+	a.add("timed text", "timedtext");
+	a.add("dialog", "dialog");
+	a.add("automatic dialog", "automatic_dialog");
+	a.add("checkpoint", "checkpoint");
+	a.add("forcefield", "forcefield");
+	a.add("specified air temperature", "specified_air_temperature");
+	a.add("teleporter", "teleporter");
+	a.add("vanishing platform", "vanishing_platform");
+	if (p.admin) {
+		a.add("vending machine", "vending_machine");
+		a.add("AI", "AI");
+		a.add("foods and drinks", "fad");
+		a.add("draw sounds", "drawsounds");
+		a.add("item usage limit", "itemusagelimit");
+		a.add("item", "item");
+	}
+	//if (p.assistant) a.add("item description", "desc_menu");
+	a.add("item usage restriction", "item_usage_restriction");
+	a.add("fire", "firemap");
+	if (p.admin) a.add("task status", "task_status");
+	a.add("level", "level");
+	a.add("opening hours", "opening_hours");
+	a.add("pvp", "pvp");
+	a.add("reinforcement", "reinforcement");
+	a.add("toilet", "toilet");
+	a.add("washbasin", "washbasin");
+	a.add("shower", "shower");
+	a.add("trashcan", "trashcan");
+	a.add("bed", "bed");
+	a.add("clock", "clock");
+	a.add("calendar", "calendar");
+	a.add("oven", "oven");
+	a.add("url", "url");
+	a.add("togglable features", "tf");
+	a.add("toggle losing items after death", "litem");
+	a.add("description", "description");
+	a.add("add owner", "owner");
+	a.add("remove owner", "removeowner");
+	a.add("add line", "addline");
+	a.add("edit line", "editline");
+	a.add("remove line", "removeline");
+	if (p.admin) a.add("make map public", "public");
+	a.add("make map private", "private");
+	if (p.admin) {
+		a.add("add this map to the tasks list", "task");
+		a.add("remove this map from tasks list", "nottask");
+	}
+	a.add("back up this map", "backupmap");
+	a.add("restore backup", "restorebackup");
+	a.add("view map stats", "mapstats");
+	a.add("Kick a player from this map", "kick");
+	a.add("get map data", "gmd");
+	a.add("put map data", "pmd");
+	if (p.admin) a.add("new map", "newmap");
+	if (in_house(p) < 0 && in_apartment(p) < 0) a.add("delete this map", "deletemap");
+	a.send(p.peer_id);
+}

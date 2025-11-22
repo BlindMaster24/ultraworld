@@ -1,0 +1,1023 @@
+/*
+MIT License
+
+Copyright (c) 2024 [Harry Min Khant](https://harrymkt.github.io)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+#include"speech.nvgt"
+#include"touch.nvgt"
+timer navtime;
+/*
+Custom menu
+
+By Harry Min Khant
+
+This class requires the timer object called navtime, which was already declared in this script. If you have multiple navtime timer though, don't forget to change others to the new!
+*/
+//Error codes
+enum custommenuerrorcodes {
+	cme_none = 0,
+	cme_no_special,
+	cme_faildelexist,
+	cme_run_title_empty,
+	cme_alreadyactive,
+	cme_canceled,
+	cme_outrange,
+	cme_invalid_length,
+	cme_invalid_type
+}
+enum cmenu_type {
+	cme_type_text = 0,
+	cme_type_checkbox,
+	cme_type_audio,
+	cme_type_list
+}
+enum cmenu_copyer {
+	cme_cp_none = -1,
+	cme_cp_display,
+	cme_cp_ref,
+	cme_cp_custom
+}
+class menu_item {
+	string name;
+	string ref;
+	string information = "";
+	cmenu_copyer copyer = cme_cp_display;
+	cmenu_type type;
+	custom_menu@menu_parent;
+	bool checked;
+	double sd_min, sd_max, sd_index;
+	listitem@[] lists(0);
+	int listper = -1;
+	bool list_multi;
+	string listtype;
+	bool clickable = true;
+	string copy_done = "Copied to clipboard";
+	string copy_no = "";
+	string copy_fail = "Failed to copy, maybe problem of your clipboard";
+	menu_item(string name, string ref, cmenu_type type, custom_menu@ parent) {
+		this.name = name;
+		this.ref = ref;
+		this.type = type;
+		@this.menu_parent = parent;
+	}
+	string get_display() property {
+		return "";
+	}
+	string get_copy_str() property {
+		return "";
+	}
+	void copyitem() {
+		if (this.copyer < 0) {
+			if (this.copy_no != "") speak(this.copy_no);
+			return;
+		}
+		string final = this.display;
+		if (this.copyer == cme_cp_ref) final = this.ref;
+		else if (this.copyer == cme_cp_custom) final = this.copy_str;
+		if (clipboard_set_raw_text(final)) {
+			if (this.copy_done != "") speak(this.copy_done);
+			return;
+		}
+		if (this.copy_fail != "") speak(this.copy_fail);
+	}
+	void on_focus() {
+		if (this.display != "") speak(this.display);
+		this.menu_parent.play_movesound();
+	}
+	void on_click() {
+		if (!this.clickable) return;
+		this.menu_parent.clicked = this.ref;
+		this.menu_parent.play_clicksound();
+	}
+	void on_information() {
+		if (this.information != "") speak(this.information);
+	}//
+}
+class audio_menu_item: menu_item {
+	audio_menu_item(string name, string ref, custom_menu@parent) {
+		super(name, ref, cme_type_audio, parent);
+	}
+	void on_focus() {
+		if (@this.menu_parent.soundaudio == null) {
+			sound t;
+			@this.menu_parent.soundaudio = t;
+		}
+		if (this.menu_parent.soundaudio.playing)
+			this.menu_parent.soundaudio.close();
+		bool successsoundplay = this.menu_parent.soundaudio.stream(this.name);
+		if (!successsoundplay) {
+			this.menu_parent.reset(true);
+			return;
+		}
+		this.menu_parent.soundaudio.play();
+		return;
+	}
+	void on_information() {
+		if (this.information == "") return;
+		if (@this.menu_parent.soundaudio == null) {
+			sound t;
+			@this.menu_parent.soundaudio = t;
+		}
+		if (this.menu_parent.soundaudio.playing)
+			this.menu_parent.soundaudio.close();
+		bool successsoundplay = this.menu_parent.soundaudio.stream(this.information);
+		if (!successsoundplay) {
+			this.menu_parent.reset(true);
+			return;
+		}
+		this.menu_parent.soundaudio.play();
+		return;
+	}
+}
+class checkbox_menu_item: menu_item {
+	checkbox_menu_item(string name, string ref, bool checked, custom_menu@parent) {
+		super(name, ref, cme_type_checkbox, parent);
+		this.checked = checked;
+	}
+	string get_display() property {
+		return this.name + "  check box " + (this.checked ? "checked" : "not checked");
+	}
+}
+class list_menu_item: menu_item {
+	list_menu_item(string name, string ref, bool mulsel, string ltype, custom_menu@parent) {
+		super(name, ref, cme_type_list, parent);
+		this.list_multi = mulsel;
+		this.lists.resize(0);
+		this.listtype = ltype;
+	}
+	string get_display() property {
+		if (this.list_multi) {
+			int f = 0;
+			foreach (listitem@ l: this.lists) {
+				if (l.selected) f++;
+			}
+			return this.name + "  " + this.listtype + " with " + f + " selected";
+		}
+		string d;
+		if (!cm_is_over_value(this.lists.length(), this.listper)) d = "" + this.lists[this.listper].item;
+		return this.name + "  " + this.listtype + "  " + d;
+	}
+	void on_click() {
+		if (!this.clickable) return;
+		this.menu_parent.play_clicksound();
+		this.menu_parent.list_monitor(this.ref);
+	}
+}
+class text_menu_item: menu_item {
+	text_menu_item(string name, string ref, custom_menu@parent) {
+		super(name, ref, cme_type_text, parent);
+	}
+	string get_display() property {
+		return this.name;
+	}
+}
+class listitem {
+	string item, ref;
+	bool selected;
+	listitem() {
+		this.item = "";
+		this.selected = false;
+		this.ref = this.item;
+	}
+}
+/*
+Declare the class, which will store variables, functions, and methods.
+
+Everything is handled by custom error rather than the default error of which the NVGT provides.
+*/
+class custom_menu {
+	bool wrap = false;
+	bool escapeable = true;
+	string clicksound, edgesound, wrapsound, opensound, movesound;
+	int ttkey = KEY_TAB; //The key for repeating title, default is tab key, set to -1 on no key.
+	bool multinav = true;
+	bool enable_search = true, enable_go_line = true;
+	float musicvol = 0, musicpitch = 100;
+	cmenu_copyer copyer;
+	string copy_done;
+	string copy_no;
+	string copy_fail;
+	dictionary text;
+	custom_menu() {
+		this.clicked = "";
+		this.err();
+		this.m_running = false;
+		this.reset(true);
+	}
+	string get_error() property {
+		return this.cm_error_str;
+	}
+	int get_error_code() property {
+		return this.cm_error;
+	}
+	void reset(bool completely = false) {
+		this.err();
+		this.clicked = "";
+		this.items.resize(0);
+		if (completely) {
+			m_running = false;
+			this.wrap = false;
+			this.line = -1;
+			this.title = "";
+			this.sndclick.close();
+			this.sndmove.close();
+			this.sndedge.close();
+			this.sndwrap.close();
+			this.sndopen.close();
+			this.musical.close();
+			this.musicvol = 0;
+			this.musicpitch = 100;
+			this.say_dialog = true;
+			this.title_tts = true;
+			@this.soundaudio = null;
+			@this.cmform = null;
+			this.enable_search = true;
+			this.enable_go_line = true;
+			this.copyer = cme_cp_display;
+			this.copy_done = "Copied to clipboard";
+			this.copy_no = "";
+			this.copy_fail = "Failed to copy, maybe problem of your clipboard";
+			this.text.clear();
+			return;
+		}
+	}
+	bool get_running() property {
+		return this.m_running;
+	}
+	bool get_active() property { return this.running; }
+	bool create(string ctitle, bool saydialog = false, bool allowoverrun = false, bool is_tts = true) {
+		this.err();
+		if (this.m_running && !allowoverrun) {
+			this.err(cme_alreadyactive, "The menu is already active and is set not to be overwritten");
+			return false;
+		}
+		this.say_dialog = saydialog;
+		this.title = ctitle;
+		this.title_tts = is_tts;
+		this.m_running = true;
+		this.speak_title();
+		this.clicked = "";
+		this.play_opensound();
+		get_characters();
+		this.touch = touch_gesture_manager();
+		dictionary touches;
+		touches.set("swipe_left1f", KEY_UP);
+		touches.set("swipe_right1f", KEY_DOWN);
+		touches.set("swipe_up1f", KEY_HOME);
+		touches.set("swipe_down1f", KEY_END);
+		touches.set("double_tap1f", KEY_RETURN);
+		touches.set("double_tap2f", KEY_SPACE);
+		touches.set("double_tap3f", KEY_F1);
+		if (this.ttkey > -1) touches.set("tripple_tap2f", this.ttkey);
+		int[] copykey = {KEY_C, KEY_LCTRL};
+		touches.set("tripple_tap3f", copykey);
+		touch_keyboard_interface tki(this.touch, touches);
+		this.touch.add_touch_interface(tki);
+		return true;
+	}
+	private void speak_title() {
+		if (this.title_tts) {
+			speak(this.title + "" + (this.say_dialog ? "  dialog" : ""));
+			return;
+		}
+		if (@this.soundaudio == null) {
+			sound t;
+			@this.soundaudio = t;
+		}
+		if (this.soundaudio.playing)
+			this.soundaudio.close();
+		bool successsoundplay = this.soundaudio.stream(this.title);
+		if (!successsoundplay) {
+			this.reset(true);
+			return;
+		}
+		this.soundaudio.play();
+		return;
+	}
+	void set_music(string path) property {
+		this.stop_music();
+		if (path != "")
+			this.musical.load(path);
+		this.musical.volume = this.musicvol;
+		this.musical.pitch = this.musicpitch;
+		if (path != "") this.play_music();
+	}
+	void play_music() {
+		if (!this.musical.active) return;
+		if (!this.musical.playing) this.musical.play_looped();
+	}
+	void stop_music() {
+		this.musical.stop();
+		this.musical.close();
+	}
+	void list_monitor(string ref) {
+		get_characters();
+		int f = this.get_menu_item(ref);
+		if (f < 0) {
+			this.err(cme_outrange, "Position's out of range");
+			return;
+		}
+		if (this.items[f].type != cme_type_list) {
+			this.err(cme_invalid_type, "Type is invalid");
+			return;
+		}
+		speak(this.items[f].name + "  " + this.items[f].listtype);
+		int cc = this.items[f].listper;
+		while (true) {
+			wait(5);
+			if (navtime.elapsed > 1000 and multichar != "")
+				multichar = "";
+			string c = get_characters().lower();
+			if (c != "" and multichar != c) {
+				navtime.restart();
+				multichar += c;
+			}
+			if (multichar != "" and c != "") {
+				multichar = multichar.lower();
+				bool found = false;
+				for (uint i = cc; i < items[f].lists.length(); i++) {
+					if (cm_is_over_value(items[f].lists.length(), i)) continue;
+					if (i == cc) continue;
+					test = this.items[f].lists[i].item;
+					test = test.lower();
+					if (test.substr(0, multichar.length()) == multichar) {
+						if (this.items[f].lists[cc].item.lower().substr(0, multichar.length()) == multichar and multichar.length() > 1) {
+							found = true;
+							break;
+						}
+						if (cc < i)
+							cc = i;
+						else if (cc > i)
+							cc = i;
+						if (!cm_is_over_value(items[f].lists.length(), cc)) {
+							string s;
+							if (this.items[f].list_multi) s = " check box " + (this.items[f].lists[cc].selected ? "checked" : "not checked");
+							speak("" + this.items[f].lists[cc].item + s);
+						}
+						found = true;
+						break;
+					}
+				}
+				if (found == false) {
+					multichar = multichar.lower();
+					for (uint i = 0; i < items[f].lists.length(); i++) {
+						test = this.items[f].lists[i].item;
+						test = test.lower();
+						if (test.substr(0, multichar.length()) == multichar) {
+							if (!cm_is_over_value(this.items[f].lists.length(), cc) && this.items[f].lists[cc].item.lower().substr(0, multichar.length()) == multichar and multichar.length() > 1) {
+								found = true;
+								break;
+							}
+							if (cc < i)
+								cc = i;
+							else if (cc > i)
+								cc = i;
+							if (!cm_is_over_value(items[f].lists.length(), cc)) {
+								string s;
+								if (this.items[f].list_multi) s = " check box " + (this.items[f].lists[cc].selected ? "checked" : "not checked");
+								speak("" + this.items[f].lists[cc].item + s);
+							}
+							found = true;
+							break;
+						}
+					}
+				}
+			}
+			if (key_pressed(KEY_UP)) {
+				if (cc > 0) cc--;
+				else if (cc < 0) cc = this.items[f].lists.length() - 1;
+				string s;
+				if (this.items[f].list_multi) s = " check box " + (this.items[f].lists[cc].selected ? "checked" : "not checked");
+				speak("" + this.items[f].lists[cc].item + s);
+			}
+			if (key_pressed(KEY_DOWN)) {
+				if (cc < this.items[f].lists.length() - 1) cc++;
+				else if (cc >= this.items[f].lists.length()) cc = 0;
+				string s;
+				if (this.items[f].list_multi) s = " check box " + (this.items[f].lists[cc].selected ? "checked" : "not checked");
+				speak("" + this.items[f].lists[cc].item + s);
+			}
+			if (key_pressed(KEY_SPACE) && !cm_is_over_value(this.items[f].lists.length(), cc) && this.items[f].list_multi) {
+				bool ccc = (this.items[f].lists[cc].selected ? false : true);
+				this.items[f].lists[cc].selected = ccc;
+				speak((ccc ? "checked" : "not checked"));
+			}
+			if (key_pressed(KEY_RETURN)) {
+				this.items[f].listper = cc;
+				break;
+			}
+			if (key_pressed(KEY_ESCAPE) || key_pressed(KEY_AC_BACK))
+				break;
+		}//while
+	}//end.listmonitor
+	protected void set_necessaries(string id) {
+		this.set_copy(id, this.copyer, this.copy_done, this.copy_fail, this.copy_no);
+	}
+	bool add_checkbox(string name, string ref, bool checked = false) {
+		this.err();
+		if (this.get_menu_item(ref) > -1) return false;
+		checkbox_menu_item ch(name, ref, checked, this);
+		this.items.insert_last(ch);
+		this.set_necessaries(ref);
+		return true;
+	}
+	bool add_audio(string name, string ref) {
+		this.err();
+		if (this.get_menu_item(ref) > -1) return false;
+		audio_menu_item ch(name, ref, this);
+		this.items.insert_last(ch);
+		this.set_necessaries(ref);
+		return true;
+	}
+	bool add(string i, string ref) {
+		this.err();
+		if (this.get_menu_item(ref) > -1) return false;
+		this.items.insert_last(text_menu_item(i, ref, this));
+		this.set_necessaries(ref);
+		return true;
+	}
+	bool add_list(string i, string ref, bool multi = false, string listtype = "list") {
+		this.err();
+		if (this.get_menu_item(ref) > -1) return false;
+		this.items.insert_last(list_menu_item(i, ref, multi, listtype, this));
+		this.set_necessaries(ref);
+		return true;
+	}
+	bool add_list_item_to(string ref, string item, string list_ref = "", int per = -1, bool select = false) {
+		this.err();
+		int f = this.get_menu_item(ref);
+		if (f < 0) return false;
+		if (this.items[f].type != cme_type_list) {
+			this.err(cme_invalid_type, "Not a list");
+			return false;
+		}
+		if (list_ref == "") list_ref = item;
+		listitem l;
+		l.item = item;
+		l.ref = list_ref;
+		if (this.items[f].list_multi) l.selected = select;
+		if (per > -1) this.items[f].lists.insert_at(per, l);
+		else this.items[f].lists.insert_last(l);
+		return true;
+	}
+	bool remove_list_item_from(string ref, int per) {
+		this.err();
+		int f = this.get_menu_item(ref);
+		if (f < 0) return false;
+		if (this.items[f].type != cme_type_list) {
+			this.err(cme_invalid_type, "Not a list");
+			return false;
+		}
+		if (cm_is_over_value(this.items[f].lists.length(), per)) return false;
+		@this.items[f].lists[per] = null;
+		this.items[f].lists.remove_at(per);
+		return true;
+	}
+	bool remove(string ref) {
+		this.err();
+		foreach (menu_item@ l, uint i: this.items) {
+			if (l.ref == ref) {
+				@this.items[i] = null;
+				this.items.remove_at(i);
+				return true;
+			}
+		}
+		this.err(cme_faildelexist, "Item does not exist");
+		return false;
+	}//end.remove
+	bool is_clicked(string ref) {
+		if (ref == "") return false;
+		int f = this.get_menu_item(ref);
+		if (f < 0) return false;
+		return this.clicked == ref;
+	}
+	bool is_checked(string ref) {
+		if (ref == "") return false;
+		int f = this.get_menu_item(ref);
+		if (f < 0) return false;
+		if (this.items[f].type != cme_type_checkbox) {
+			this.err(cme_invalid_type, "Not a checkbox");
+			return false;
+		}
+		return this.items[f].checked;
+	}
+	bool set_information(string ref, string val) {
+		if (ref == "") return false;
+		int f = this.get_menu_item(ref);
+		if (f < 0) return false;
+		this.items[f].information = val;
+		return this.items[f].information == val;
+	}
+	bool set_copy(string ref, cmenu_copyer copyer = cme_cp_display, string copy_done = "Copied to clipboard", string copy_fail = "Failed to copy", string copy_no = "") {
+		if (ref == "") return false;
+		int f = this.get_menu_item(ref);
+		if (f < 0) return false;
+		this.items[f].copyer = copyer;
+		this.items[f].copy_done = copy_done;
+		this.items[f].copy_fail = copy_fail;
+		this.items[f].copy_no = copy_no;
+		return (
+			this.items[f].copyer == copyer &&
+			this.items[f].copy_done == copy_done &&
+			this.items[f].copy_fail == copy_fail &&
+			this.items[f].copy_no == copy_no
+			);
+	}
+	void play_clicksound() {
+		if (this.clicksound != "" && !this.sndclick.active) this.sndclick.load(this.clicksound);
+		if (!this.sndclick.active) return;
+		this.sndclick.stop();
+		this.sndclick.set_pan(0);
+		this.sndclick.play();
+	}
+	void play_movesound() {
+		if (this.movesound != "" && !this.sndmove.active) this.sndmove.load(this.movesound);
+		if (!this.sndmove.active) return;
+		this.sndmove.stop();
+		this.sndmove.set_pan(0);
+		this.sndmove.play();
+	}
+	void play_edgesound() {
+		if (this.edgesound != "" && !this.sndedge.active) this.sndedge.load(this.edgesound);
+		if (!this.sndedge.active) return;
+		this.sndedge.stop();
+		this.sndedge.set_pan(0);
+		this.sndedge.play();
+	}
+	void play_wrapsound() {
+		if (this.wrapsound != "" && !this.sndwrap.active) this.sndwrap.load(this.wrapsound);
+		if (!this.sndwrap.active) return;
+		this.sndwrap.stop();
+		this.sndwrap.set_pan(0);
+		this.sndwrap.play();
+	}
+	void play_opensound() {
+		if (this.opensound != "" && !this.sndopen.active) this.sndopen.load(this.opensound);
+		this.sndopen.stop();
+		this.sndopen.play();
+	}
+	void monitor() {
+		if (@this.cmform != null) {
+			this.cmform.monitor();
+			return;
+		}
+		if (!this.m_running) {
+			this.stop_music();
+			return;
+		}
+		this.clicked = "";
+		if (this.musical.active) {
+			if (this.musical.volume != this.musicvol) this.musical.volume = this.musicvol;
+			if (this.musical.pitch != this.musicpitch) this.musical.pitch = this.musicpitch;
+		}
+		if (this.title == "" || this.title == " ") {
+			this.err(cme_run_title_empty, "Empty title");
+			this.m_running = false;
+			this.stop_music();
+			return;
+		}
+		this.touch.monitor();
+		if (this.tell) {
+			if (this.items.length() > 0 && !cm_is_over_value(items.length(), this.line)) this.items[this.line].on_focus();
+			this.tell = false;
+		}
+		if (this.multinav) {
+			if (navtime.elapsed > 1000 and multichar != "")
+				multichar = "";
+			string c = get_characters().lower();
+			if (c != "" and multichar != c) {
+				navtime.restart();
+				multichar += c;
+			}
+			if (multichar != "" and c != "") {
+				multichar = multichar.lower();
+				bool found = false;
+				for (uint i = this.line; i < items.length(); i++) {
+					if (cm_is_over_value(items.length(), i)) continue;
+					if (i == this.line) continue;
+					test = this.items[i].name;
+					test = test.lower();
+					if (test.substr(0, multichar.length()) == multichar) {
+						if (this.items[this.line].name.lower().substr(0, multichar.length()) == multichar and multichar.length() > 1) {
+							found = true;
+							break;
+						}
+						if (this.line < i)
+							this.line = i;
+						else if (this.line > i)
+							this.line = i;
+						if (!cm_is_over_value(items.length(), this.line)) this.items[this.line].on_focus();
+						found = true;
+						break;
+					}
+				}
+				if (found == false) {
+					multichar = multichar.lower();
+					for (uint i = 0; i < items.length(); i++) {
+						test = this.items[i].name;
+						test = test.lower();
+						if (test.substr(0, multichar.length()) == multichar) {
+							if (!cm_is_over_value(this.items.length(), this.line) && this.items[this.line].name.lower().substr(0, multichar.length()) == multichar and multichar.length() > 1) {
+								found = true;
+								break;
+							}
+							if (this.line < i)
+								this.line = i;
+							else if (this.line > i)
+								this.line = i;
+							if (!cm_is_over_value(items.length(), this.line)) this.items[this.line].on_focus();
+							found = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (this.ttkey != -1 && key_pressed(this.ttkey)) this.speak_title();
+		if (key_repeating(KEY_PAGEUP)) {
+			if (keyboard_modifiers & KEYMOD_ALT > 0) {
+				if (this.musicvol < 0) this.musicvol++;
+				speak(cm_dgets(this.text, "general.mv", "music volume %x%").replace("%x%", this.musicvol));
+				return;
+			}
+			this.line -= 10;
+			if (this.line < 0) this.line = 0;
+			if (!cm_is_over_value(this.item_length, this.line)) this.items[this.line].on_focus();
+		}
+		if (key_repeating(KEY_PAGEDOWN)) {
+			if (keyboard_modifiers & KEYMOD_ALT > 0) {
+				if (this.musicvol > -100) this.musicvol--;
+				speak(cm_dgets(this.text, "general.mv", "music volume %x%").replace("%x%", this.musicvol));
+				return;
+			}
+			this.line += 10;
+			if (this.line > items.length() - 1) this.line = items.length() - 1;
+			if (!cm_is_over_value(this.item_length, this.line)) this.items[this.line].on_focus();
+		}
+		if (key_repeating(KEY_UP)) {
+			if (this.line < 0) this.line = this.items.length() - 1;
+			else if (this.line <= 0) {
+				if (this.wrap) {
+					this.play_wrapsound();
+					this.line = this.items.length() - 1;
+				} else
+					this.play_edgesound();
+			} else if (this.line > 0) this.line--;
+			if (!cm_is_over_value(items.length(), this.line)) this.items[this.line].on_focus();
+		}
+		if (key_repeating(KEY_DOWN)) {
+			if (this.line >= items.length() - 1) {
+				if (this.wrap) {
+					this.play_wrapsound();
+					this.line = 0;
+				} else
+					this.play_edgesound();
+			} else if (this.line < items.length() - 1) this.line++;
+			if (!cm_is_over_value(items.length(), this.line)) this.items[this.line].on_focus();
+		}
+		if (!cm_is_over_value(this.items.length(), this.line) && this.items[this.line].type == cme_type_checkbox) {
+			if (key_pressed(KEY_SPACE)) {
+				if (!cm_is_over_value(this.item_length, this.line)) this.items[this.line].checked = (this.items[this.line].checked ? false : true);
+				speak((this.items[this.line].checked ? "checked" : "not checked"));
+			}
+		}
+		if (!cm_is_over_value(this.items.length(), this.line)) {
+			if (key_pressed(KEY_F1)) this.items[this.line].on_information();
+			if (this.items[this.line].copyer > -1 && key_pressed(KEY_C) && (keyboard_modifiers & KEYMOD_CTRL != 0)) {
+				this.items[this.line].copyitem();
+			}
+		}//
+		if (this.enable_go_line && keyboard_modifiers & KEYMOD_CTRL != 0 && key_pressed(KEY_G)) {
+			custom_menu_go_line(this, this.line + 1);
+			return;
+		}
+		if (this.enable_search) {
+			if (keyboard_modifiers & KEYMOD_CTRL != 0 and key_pressed(KEY_F)) custom_menu_search(this);
+			else if (key_repeating(KEY_F3)) {
+				string lastsearch = "";
+				bool sref = false;
+				bool scase = false;
+				if (this.cmfdata.exists("searchref")) this.cmfdata.get("searchref", sref);
+				if (this.cmfdata.exists("searchcase")) this.cmfdata.get("searchcase", scase);
+				if (this.cmfdata.get("lastsearch", lastsearch))
+					this.search(lastsearch, keyboard_modifiers & KEYMOD_SHIFT == 0 ? 1 : -1, false, sref, scase);
+				else
+					custom_menu_search(this);
+			}
+		}
+		if (key_pressed(KEY_RETURN) && !cm_is_over_value(this.items.length(), this.line))
+			this.items[this.line].on_click();
+		if (key_pressed(KEY_HOME)) {
+			this.line = 0;
+			this.items[this.line].on_focus();
+		}
+		if (key_pressed(KEY_END)) {
+			this.line = items.length() - 1;
+			this.items[this.line].on_focus();
+		} else if (@this.cmform == null && this.escapeable && (key_pressed(KEY_ESCAPE) || key_pressed(KEY_AC_BACK))) {
+			this.m_running = false;
+			this.err(cme_canceled, "User choose to cancel");
+			this.stop_music();
+			return;
+		}
+	}//end
+	string get_current_ref() property {
+		if (!this.m_running) return"";
+		if (!cm_is_over_value(items.length(), this.line)) {
+			string result = this.items[this.line].ref;
+			return result;
+		}
+		return"";
+	}
+	string get_click() property {
+		return this.clicked;
+	}
+	bool set_text_by_ref(string ref, string caption) {
+		int f = this.get_menu_item(ref);
+		if (f < 0) return false;
+		this.items[f].name = caption;
+		return true;
+	}
+	bool set_state(string ref, bool clickable) {
+		int f = this.get_menu_item(ref);
+		if (f < 0) return false;
+		this.items[f].clickable = clickable;
+		return true;
+	}
+	uint get_item_length() property {
+		return this.items.length();
+	}
+	bool is_running() {
+		return this.m_running;
+	}
+	uint[] get_list_selections(string ref) {
+		uint[] e;
+		int f = this.get_menu_item(ref);
+		if (f < 0) return e;
+		if (this.items[f].type != cme_type_list) return e;
+		if (!this.items[f].list_multi) return e;
+		for (uint i = 0; i < this.items[f].lists.length(); i++) {
+			if (this.items[f].lists[i].selected) e.insert_last(i);
+		}
+		return e;
+	}
+	int get_list_position(string ref) {
+		int f = this.get_menu_item(ref);
+		if (f < 0) return -1;
+		if (this.items[f].type != cme_type_list) return -1;
+		return this.items[f].listper;
+	}
+	string get_list_item(string ref, int per) {
+		int f = this.get_menu_item(ref);
+		if (f < 0) return "";
+		if (this.items[f].type != cme_type_list) return "";
+		if (cm_is_over_value(this.items[f].lists.length(), per)) return"";
+		return this.items[f].lists[per].item;
+	}
+	int get_menu_item(string ref) {
+		for (uint i = 0; i < this.items.length(); i++) {
+			if (this.items[i].ref == ref) return i;
+		}
+		return -1;
+	}
+	int get_position() property {
+		return this.line;
+	}
+	bool focus(int per, bool direct = false) {
+		this.err();
+		if (per < 0 || per >= this.items.length()) {
+			this.err(cme_outrange, "Position's out of range");
+			return false;
+		}
+		this.line = per;
+		if (direct) this.items[line].on_focus();
+		return true;
+	}
+	bool focus(string ref, bool direct = false) {
+		this.err();
+		int f = this.get_menu_item(ref);
+		if (f < 0) {
+			this.err(cme_faildelexist, "Item does not exist");
+			return false;
+		}
+		this.line = f;
+		if (direct) this.items[line].on_focus();
+		return true;
+	}
+	menu_item@ get_menu_obj(any@ w) {
+		//accept int(position) and string(reference).
+		string reference;
+		int pos;
+		menu_item@ final = null;
+		if (w.retrieve(reference)) {
+			int x = get_menu_item(reference);
+			if (x > -1) @final = this.items[x];
+		} else if (w.retrieve(pos) && pos > -1 && pos < this.items.length())
+			@final = this.items[pos];
+		return final;
+	}
+	bool search(string& in text, int dir = 1, bool silent = false, bool sref = false, bool caseless = true) {
+		if (caseless) text = text.lower();
+		if (this.items.length() < 1) return false;
+		string[] nav_items(this.items.length());
+		for (uint i = 0; i < this.items.length(); i++) {
+			nav_items[i] = (sref ? this.items[i].ref : this.items[i].name);
+			if (caseless) nav_items[i] = nav_items[i].lower();
+		}
+		int l = this.line;
+		if (l < 0) l = 0;
+		else if (l >= this.item_length) l = this.item_length - 1;
+		bool already_on_result = nav_items[l].find(text) > -1;
+		string wrapped = "";
+		for (int i = l + dir; i != l; i += dir) {
+			if (i < 0) {
+				i = this.items.length() - 1;
+				wrapped = "Wrapped to bottom";
+			} else if (i >= this.items.length()) {
+				i = 0;
+				wrapped = "Wrapped to top";
+			}
+			if (i == l) break;
+			if (nav_items[i].find(text) < 0) continue;
+			this.focus(i);
+			l = i;
+			if (!silent) {
+				if (wrapped != "") speak(wrapped);
+				this.items[l].on_focus();
+			}
+			return true;
+		}
+		if (!silent)
+			speak(already_on_result ? "Nothing else found" : "Nothing found");
+		return false;
+	}
+	// Private: Below are private and therefore they should not be modified.
+	menu_item@[]items(0);
+	private int line = -1;
+	private bool m_running = false;
+	private int cm_error = cme_none;
+	private string cm_error_str = "";
+	private string title;
+	private bool tell = true;
+	string clicked = "";
+	private string char, multichar, test;
+	private sound sndclick, sndedge, sndwrap, sndopen, sndmove;
+	private sound musical;
+	sound@ soundaudio;
+	private bool say_dialog = true, title_tts = true;
+	cm_audio_form@ cmform = null; //Warning you are advised not to modify this!
+	dictionary cmfdata; //No modify.
+	touch_gesture_manager touch;
+	void err(int errcode = cme_none, string errtext = "", bool display = false, string errtitle = "", bool abort = false) {
+		this.cm_error = errcode;
+		this.cm_error_str = errtext;
+		if (abort) {
+			this.reset(true);
+			return;
+		}
+	}
+}//end.class
+interface cm_audio_form {
+	void monitor();
+}
+class custom_menu_go_line: cm_audio_form {
+	custom_menu@ p;
+	audio_form f;
+	int a, b, c;
+	int gmax;
+	custom_menu_go_line(custom_menu@ pr, double ln = 1) {
+		@this.p = @pr;
+		double lf = ln - 1;
+		this.f.create_window(cm_dgets(this.p.text, "goline.title", "Go to line"), false);
+		@this.p.cmform = @this;
+		wait(250);
+		this.a = this.f.create_input_box(cm_dgets(this.p.text, "goline.fln", "&Line number. Maximum lines is %x%").replace("%x%", this.p.item_length), ln, "", 0, false, false, false);
+		this.f.set_enable_go_to_index(this.a, false);
+		this.f.select_text(a, 0);
+		this.f.set_disallowed_chars(this.a, "1234567890", true, "Numbers only");
+		this.gmax = this.f.create_button(cm_dgets(this.p.text, "goline.fsm", "&Set to maximum line"), false);
+		this.b = this.f.create_button(cm_dgets(this.p.text, "goline.fgo", "&Go"), true, false);
+		this.c = this.f.create_button(cm_dgets(this.p.text, "goline.fcancel", "Cancel"), false, true);
+		this.f.focus(a);
+	}
+	void monitor() {
+		this.f.monitor();
+		string lt = this.f.get_text(this.a);
+		if (this.f.is_pressed(this.gmax)) {
+			this.f.set_text(this.a, this.p.item_length);
+			this.f.select_text(a, 0);
+			this.f.focus(this.a);
+		}
+		if (this.f.is_pressed(this.b)) {
+			double l = parse_int(lt);
+			if (!lt.is_digits()) {
+				speak(cm_dgets(this.p.text, "goline.onum", "Enter number only"));
+				this.f.focus(this.a);
+			} else if (l < 1) {
+				speak(cm_dgets(this.p.text, "goline.nomin", "Minimum number out of range."));
+				this.f.focus(this.a);
+			} else if (this.p.item_length < l) {
+				speak(cm_dgets(this.p.text, "goline.outrange", "Out of range."));
+				this.f.focus(this.a);
+			} else if (this.p.focus(l - 1, true)) {
+				this.f.reset();
+				@this.p.cmform = null;
+				return;
+			}
+			this.f.focus(this.a);
+		}//if.b.
+		else if (this.f.is_pressed(this.c)) {
+			this.f.reset();
+			@this.p.cmform = null;
+			this.p.focus(this.p.position, true);
+			return;
+		}
+	}//end.goline.monitor
+}//End
+class custom_menu_search : cm_audio_form {
+	custom_menu@ parent;
+	audio_form f;
+	int f_text, f_ref, f_case, f_next, f_prev, f_cancel;
+	custom_menu_search(custom_menu@ pr) {
+		@this.parent = @pr;
+		string current = "";
+		bool s_ref = false;
+		bool s_case = true;
+		this.parent.cmfdata.get("lastsearch", current);
+		if (this.parent.cmfdata.exists("searchref")) this.parent.cmfdata.get("searchref", s_ref);
+		if (this.parent.cmfdata.exists("searchcase")) this.parent.cmfdata.get("searchcase", s_case);
+		this.f.create_window(cm_dgets(this.parent.text, "find.title", "Find"), false);
+		@this.parent.cmform = @this;
+		wait(250);
+		this.f_text = this.f.create_input_box(cm_dgets(this.parent.text, "find.fsearch", "Search term"), current, "", 256);
+		this.f.set_enable_go_to_index(this.f_text, false);
+		if (current != "")
+			this.f.select_text(this.f_text, 0, current.length() - 1);
+		this.f_ref = this.f.create_checkbox(cm_dgets(this.parent.text, "find.fref", "Search on &internal name instead of the name that appears on the menu"), s_ref);
+		this.f_case = this.f.create_checkbox(cm_dgets(this.parent.text, "find.fcase", "Match all &cases"), s_case);
+		this.f_next = this.f.create_button(cm_dgets(this.parent.text, "find.fnext", "Find &next"), true);
+		this.f_prev = this.f.create_button(cm_dgets(this.parent.text, "find.fprev", "Find &previous"));
+		this.f_cancel = this.f.create_button(cm_dgets(this.parent.text, "find.fcancel", "Cancel"), false, true);
+		this.f.focus(this.f_text);
+	}
+	void monitor() {
+		this.f.monitor();
+		bool searchword = this.f.is_pressed(this.f_next);
+		bool sref = this.f.is_checked(this.f_ref);
+		bool scase = this.f.is_checked(this.f_case);
+		if (this.f.is_pressed(this.f_cancel)) {
+			@this.parent.cmform = null;
+			this.parent.focus(this.parent.position, true);
+			return;
+		} else if (searchword or this.f.is_pressed(this.f_prev)) {
+			string text = this.f.get_text(this.f_text);
+			if (text == "") {
+				speak(cm_dgets(this.parent.text, "find.notext", "Enter some text to search for"));
+				this.f.focus(this.f_text);
+				return;
+			}
+			this.parent.cmfdata.set("lastsearch", text);
+			this.parent.cmfdata.set("searchref", sref);
+			this.parent.cmfdata.set("searchcase", scase);
+			if (this.parent.search(text, searchword ? 1 : -1, false, sref, scase)) {
+				@this.parent.cmform = null;
+				return;
+			}
+			f.focus(f_text);
+			return;
+		}
+	}//monitor
+}//End.class.search
+// Helper functions
+bool cm_is_over_value(string[] pars, double currentc = 0) {
+	if (currentc<0 or currentc>pars.length() - 1) return true;
+	else return false;
+}
+bool cm_is_over_value(double len, double currentc = 0) {
+	if (currentc<0 or currentc>len - 1) return true;
+	else return false;
+}
+string cm_dgets(dictionary@ d, string key, string def = "") {
+	string final;
+	if (@d != null && !d.get(key, final)) final = def;
+	if (final == "") final = def;
+	return final;
+}

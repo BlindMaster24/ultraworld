@@ -1,0 +1,39 @@
+namespace scp::actions::server {
+	void backup() {
+		nv_form f;
+		f.create_window("Backup Data", false);
+		f.add_checkbox("Inventories", "inv");
+		f.add_checkbox("Maps", "map");
+		f.add_checkbox("Teams", "team");
+		nv_form_checkbox@ trm = f.add_checkbox("The backup team directory should be cleared to clear older teams", "team/rm");
+		nv_form_checkbox@ trc = f.add_checkbox("Teams that are failed to load should be cleared", "team/rc");
+		nv_form_button@ ok = f.add_button("Backup now", "ok", primary = true);
+		@ok.shortcut = nv_shortcut(KEY_B, alt = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			trm.hidden = !f.is_checked("team");
+			trc.hidden = !f.is_checked("team");
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				string[] list;
+				if (f.is_checked("inv")) list.insert_last("/backupinv");
+				if (f.is_checked("map")) list.insert_last("/backupmap");
+				if (f.is_checked("team")) {
+					string[] cmds = {"/backupteam"};
+					if (trm.state) cmds.insert_last("rm");
+					if (trc.state) cmds.insert_last("rec");
+					list.insert_last(join(cmds, " "));
+				}
+				if (list.length() < 1) {
+					speak("Error! One or more backup options is required");
+					continue;
+				}
+				multicmd(list);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

@@ -1,0 +1,11 @@
+#include "includes/appinfo.nvgt"
+class application: appinfo {
+	string website = "https://uw.posix.live";
+	application() {
+		super();
+		this.name = "Ultra World";
+		this.shortname = "UW";
+		this.status = "";
+		this.version = "2.49";
+	}
+}//

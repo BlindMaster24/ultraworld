@@ -1,0 +1,39 @@
+namespace scp::actions::porms {
+	void jail() {
+		nv_form f;
+		f.create_window("Jail", false);
+		nv_form_input@ user = f.add_input("Username", "user");
+		nv_form_input@ reason = f.add_input("Reason", "reason");
+		nv_form_input@ tfh = f.add_input("Help for time format", "tfh");
+		nv_form_input@ tf = f.add_input("Time format (optional)", "time");
+		tfh.multiline = true;
+		tfh.default_text = "Use the w, d, h, m, and s keywords to construct the time.\nIf you want to jail more than 1 timeframe, use space.\nFor example, if you want to jail for 1 day and 1 hour, type\n1d 1h";
+		tfh.read_only = true;
+		nv_form_button@ ok = f.add_button("Jail", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(user, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (user.text == "") {
+					speak("Username is required");
+					f.focus_control(user, false, false);
+					continue;
+				} else if (reason.text == "") {
+					speak("Reason is required");
+					f.focus_control(reason, false, false);
+					continue;
+				} else if (tf.text != "" && duration_to_sec(tf.text) == 0) {
+					speak("Invalid format");
+					f.focus_control(tf, false, false);
+					continue;
+				}
+				sendcommand("/jail " + user.text + " " + duration_to_sec(tf.text) + " " + reason.text);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

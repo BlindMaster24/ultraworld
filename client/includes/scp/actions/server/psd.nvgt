@@ -1,0 +1,41 @@
+namespace scp::actions::server {
+	void psd() {
+		nv_form f;
+		f.create_window("Property Shutdown", false);
+		nv_form_input@ user = f.add_input("Username of the property owner to destroy", "user");
+		@user.shortcut = nv_shortcut(KEY_U, alt = true);
+		nv_form_list_box@ features = f.add_list("Types of properties to destroy (multiple options)", "features", multiselect = true);
+		features.add("House", "h");
+		features.add("Tent", "t");
+		features.add("Apartment", "a");
+		@features.shortcut = nv_shortcut(KEY_L, alt = true);
+		nv_form_button@ ok = f.add_button("Destroy", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(user, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (user.text == "") {
+					speak("Username is required");
+					f.focus_control(user, false, false);
+					continue;
+				}
+				string[] list;
+				foreach (nv_form_list_item@ l: features.items) {
+					if (@l == null || !l.selected) continue;
+					list.insert_last("/" + l.id + "sd " + user.text);
+				}
+				if (list.length() < 1) {
+					speak("One or more features has to be selected");
+					f.focus_control(features, false, false);
+					continue;
+				}
+				multicmd(list);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

@@ -1,0 +1,20 @@
+{
+  "developer": {
+    "info": "Can do anything",
+    "pos": 0
+  },
+  "manager": {
+    "info": "Can perform tasks nearly on the level of the developer",
+    "pos": 10
+  },
+  "admin": {
+    "info": "Can perform most administrative tasks, and some security and server management functions",
+    "pos": 20,
+    "title": "administrator"
+  },
+  "ast": {
+    "info": "Can assist players, moderate, kick, jail, warn, etc",
+    "title": "assistant",
+    "pos": 30
+  }
+}

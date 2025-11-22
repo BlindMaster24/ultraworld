@@ -1,0 +1,89 @@
+// Other miscellaneous functions and classes.
+shared int nv_string_contains(const string& in str, const string& in search, int occurance = 1) {
+	uint c = 0;
+	int pos = -1;
+	while (c < occurance) {
+		pos = str.find_first(search, pos + 1);
+		if (pos > -1)
+			c++;
+		else
+			break;
+	}
+	return c == occurance ? pos : -1;
+}
+string nv_get_readable_key(const string &in symbol) {
+	string[][] map = {
+		{";", "Semicolon"},
+		{":", "Colon"},
+		{",", "Comma"},
+		{".", "Period"},
+		{"!", "Exclamation"},
+		{"?", "Question"},
+		{"'", "Apostrophe"},
+		{"\"", "Quote"},
+		{"(", "Left Parenthesis"},
+		{")", "Right Parenthesis"},
+		{"[", "Left Bracket"},
+		{"]", "Right Bracket"},
+		{"{", "Left Brace"},
+		{"}", "Right Brace"},
+		{"<", "Less Than"},
+		{">", "Greater Than"},
+		{"/", "Slash"},
+		{"\\", "Backslash"},
+		{"|", "Bar"},
+		{"-", "Dash"},
+		{"_", "Underscore"},
+		{"+", "Plus"},
+		{"=", "Equals"},
+		{"*", "Asterisk"},
+		{"&", "Ampersand"},
+		{"^", "Caret"},
+		{"%", "Percent"},
+		{"$", "Dollar"},
+		{"#", "Number"},
+		{"@", "At"},
+		{"`", "Graav"},
+		{"~", "Tilda"}
+	};
+	for (uint i = 0; i < map.length(); i++) {
+		if (map[i][0] == symbol)
+			return map[i][1];
+	}
+	return symbol;
+}
+string nv_read_shortcut(string shortcut) {
+	string f = shortcut;
+	int r = shortcut.rfind("+");
+	if (r > -1) {
+		f = shortcut.substr(0, r);
+		string g = shortcut.substr(r + 1);
+		g = nv_get_readable_key(g);
+		f += "+" + g;
+	} else f = nv_get_readable_key(f);
+	return f;
+}
+class nv_shortcut {
+	int key;
+	bool ctrl, shift, alt;
+	nv_shortcut(int k, bool ctrl = false, bool shift = false, bool alt = false) {
+		this.key = k;
+		this.ctrl = ctrl;
+		this.shift = shift;
+		this.alt = alt;
+	}
+	string get_name() property {
+		string[] f;
+		if (this.ctrl) f.insert_last("Ctrl");
+		if (this.shift) f.insert_last("Shift");
+		if (this.alt) f.insert_last("Alt");
+		f.insert_last(get_key_name(this.key));
+		return nv_read_shortcut(join(f, "+"));
+	}
+	bool get_pressed() property {
+		if (this.ctrl && !key_down(KEY_LCTRL) && !key_down(KEY_RCTRL)) return false;
+		if (this.shift && !key_down(KEY_LSHIFT) && !key_down(KEY_RSHIFT)) return false;
+		if (this.alt && !key_down(KEY_LALT) && !key_down(KEY_RALT)) return false;
+		return key_pressed(this.key);
+	}
+}

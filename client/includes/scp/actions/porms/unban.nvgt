@@ -1,0 +1,25 @@
+namespace scp::actions::porms {
+	void unban() {
+		nv_form f;
+		f.create_window("Unban", false);
+		nv_form_input@ user = f.add_input("Username", "user");
+		nv_form_button@ ok = f.add_button("Unban", "unban", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(user, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (user.text == "") {
+					speak("Username is required");
+					f.focus_control(user, false, false);
+					continue;
+				}
+				sendcommand("/unban " + user.text);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

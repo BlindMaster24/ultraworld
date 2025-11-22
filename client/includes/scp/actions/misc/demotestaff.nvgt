@@ -1,0 +1,32 @@
+namespace scp::actions::misc {
+	void demotestaff() {
+		form.reset();
+		form.create_window("demote a new staff", false, true);
+		int a = form.create_input_box("Type the name of the staff type, such as admin");
+		string nametext = "Type the name of the player you want to demote as";
+		int b = form.create_input_box(nametext, "", "", 0, false, false);
+		int ok = form.create_button("&demote", false);
+		int cancel = form.create_button("Cancel", false, true);
+		while (true) {
+			wait(5);
+			form.monitor();
+			mainloop();
+			if (form.is_pressed(ok)) {
+				string t = form.get_text(a);
+				string na = form.get_text(b);
+				if (na == "" || t == "")
+					speak("Please enter all fields");
+				else {
+					sendcommand("/delstaff " + na + " " + t);
+					form.reset();
+					return;
+				}
+			}//ok
+			else if (form.is_pressed(cancel)) {
+				form.reset();
+				break;
+			}
+		}//While
+		return;
+	}//End
+}

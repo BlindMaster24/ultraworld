@@ -1,0 +1,6 @@
+void main() {
+	string u = url_get("https://raw.githubusercontent.com/annexare/Countries/main/dist/languages.all.min.json");
+	json_object j = parse_json(u);
+	file("languages.json", "w").write(j.stringify(2));
+	alert("Total languages",j.size());
+}

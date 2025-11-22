@@ -1,0 +1,30 @@
+namespace scp::actions::misc {
+	void check() {
+		nv_form f;
+		f.create_window("Checklist", false);
+		nv_form_list_box@ w = f.add_list("Select what you would like to check for", "list");
+		if (manager) {
+			w.add("Banned players", "banned");
+		}
+		if (assistant) {
+			w.add("Jailed players", "jaillist");
+		}
+		nv_form_button@ ok = f.add_button("Ok", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		w.focus(false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (@w.focused_item == null) {
+					speak("Select an option to check");
+					f.focus_control(w, false, false);
+					continue;
+				}
+				sendcommand("/" + w.focused_item.id);
+			}
+		}
+		f.reset();
+	}
+}

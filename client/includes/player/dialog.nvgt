@@ -1,0 +1,52 @@
+namespace player::dialog {
+	void ch_password() {
+		nv_form f;
+		f.create_window("Change password", false);
+		nv_form_input@ a = f.add_input("Current password", "current", "", "*");
+		nv_form_input@ b = f.add_input("New password", "new", "", "*");
+		nv_form_input@ c = f.add_input("Confirm new password", "confirm", "", "*");
+		string[] v_list = {"-", "+"};
+		int v_first = random(1, 50), v_second = random(0, 25);
+		string v_str = v_list.random();
+		int v_result = tinyexpr(v_first + v_str + v_second);
+		nv_form_input@ vr = f.add_input("What is the result of " + v_first + v_str + v_second + "?", "answer");
+		vr.set_disallowed_chars("0123456789-", true);
+		nv_form_button@ ok = f.add_button("Ok", "ok");
+		nv_form_button@ cancel = f.add_button("Cancel", "cancel", cancel = true);
+		a.focus(false, false);
+		while(f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(cancel)) break;
+			else if (f.is_pressed(ok)) {
+				string oldp = a.text;
+				string newp = b.text;
+				string newcp = c.text;
+				int vr_final = stn(vr.text);
+				if (vr_final != v_result) {
+					speak("Invalid calculation");
+					vr.focus(false, false);
+					continue;
+				} else if (oldp == "") {
+					speak("Old password is required");
+					a.focus(false, false);
+					continue;
+				} else if (newp == "") {
+					speak("New password is required");
+					b.focus(false, false);
+				} else if (newcp == "" || newcp != newp) {
+					speak((newcp == "" ? "Password confirmation is required" : "Passwords do not match"));
+					c.focus(false, false);
+					continue;
+				}
+				messager ms;
+				ms.add("message", "changepass");
+				ms.add("old", oldp);
+				ms.add("new", newp);
+				ms.add("conf", newcp);
+				send(peer_id, ms, 0);
+				break;
+			}
+		}
+	}
+}

@@ -1,0 +1,76 @@
+tile@[] tiles(0);
+class tile {
+	double minx, maxx, miny, maxy, minz, maxz;
+	string type;
+	string id;
+	string map;
+	bool trackable = false;
+	tile(double a, double b, double c, double d, double e, double f, string m, string t, bool tracka = false, string zID = randomstring(15)) {
+		this.minx = a; this.maxx = b;
+		this.miny = c; this.maxy = d;
+		this.minz = e; this.maxz = f;
+		this.map = m;
+		this.type = t;
+		this.trackable = tracka;
+		this.id = zID;
+	}
+	vector get_min() property {
+		return vector(this.minx, this.miny, this.minz);
+	}
+	vector get_max() property {
+		return vector(this.maxx, this.maxy, this.maxz);
+	}
+}
+bool remove_tile(string of, string type = "id") {
+	type = type.lower();
+	if (type == "") type = "id";
+	if (tiles.length() < 1) return false;
+	for (uint i = 0; i < tiles.length(); i++) {
+		if (type == "id" && tiles[i].id == of) {
+			@tiles[i] = null;
+			tiles.remove_at(i);
+			return true;
+		} else if (type == "type" && tiles[i].type == of) {
+			@tiles[i] = null;
+			tiles.remove_at(i);
+			return true;
+		}
+	}//i
+	return false;
+}
+int get_tile_index(string of, string type = "id") {
+	type = type.lower();
+	if (type == "") type = "id";
+	if (tiles.length() < 1) return -1;
+	for (uint i = 0; i < tiles.length(); i++) {
+		if (type == "id" && tiles[i].id == of) return i;
+		else if (type == "type" && tiles[i].type == of) return i;
+	}//i
+	return -1;
+}
+string get_tile_at(double x, double y, double z, string m = mapname) {
+	string final = "";
+	for (uint i = 0; i < tiles.length(); i++) {
+		if (inrange(vector(x, y, z), tiles[i].min, tiles[i].max)) {
+			if (m != "" && tiles[i].map == m) final = tiles[i].type;
+			else final = tiles[i].type;
+		}
+	}//i
+	if (is_on_fire(x, y, z)) final = "fire";
+	else if (chuvaativa == 1 and string_contains(somchuva, "rain", 1) > -1 and string_contains(final, "wall", 1)<0 and string_contains(final, "concrete", 1)> -1) final = "wetconcrete";
+	else if (chuvaativa == 1 and string_contains(somchuva, "rain", 1) > -1 and string_contains(final, "wall", 1)<0 and string_contains(final, "dirt", 1)> -1) final = "mud" + random(2, 4) + "";
+	else if (chuvaativa == 1 and string_contains(somchuva, "rain", 1) > -1 and string_contains(final, "wall", 1)<0 and string_contains(final, "grass", 1)> -1) final = "mud" + random(2, 4) + "";
+	else if (chuvaativa == 1 and string_contains(somchuva, "rain", 1) > -1 and string_contains(final, "wall", 1)<0 and string_contains(final, "gravel", 1)> -1) final = "gravel3";
+	else if (chuvaativa == 1 and string_contains(somchuva, "rain", 1) > -1 and string_contains(final, "wall", 1)<0 and string_contains(final, "lawn", 1)> -1) final = "mud" + random(2, 4) + "";
+	else if (chuvaativa == 1 and string_contains(somchuva, "rain", 1) > -1 and string_contains(final, "wall", 1)<0 and string_contains(final, "mud", 1)> -1) final = "mud" + random(6, 7) + "";
+	return final;
+}
+string spawn_tile(double a, double b, double c, double d, double e, double f, string m, string t, bool tracka = false, string id = generate_token(15)) {
+	while (get_tile_index(id) > -1) {
+		id = generate_token(15);
+		if (get_tile_index(id) < 0) break;
+	}
+	tile z1(a, b, c, d, e, f, m, t, tracka, id);
+	tiles.insert_last(z1);
+	return id;
+}

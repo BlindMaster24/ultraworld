@@ -1,0 +1,6 @@
+#include "bgt_compat.nvgt"#include "bgt_compat.nvgt"const int Left=-1;
+const int Right = 1;
+const int Backward = 0;
+const int Forward = 2;
+const int Down = -2;
+const int Up = 3;

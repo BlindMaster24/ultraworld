@@ -1,0 +1,53 @@
+abstract class nv_form_control {
+	nv_form_control_type type;
+	string custom_type = "";
+	string caption;
+	string id;
+	nv_shortcut@ shortcut = null;
+	nv_form@parent;
+	bool speak_shortcut = true;
+	bool hidden = false, enabled = true;
+	bool enable_go_line = true, enable_search = true;
+	nv_form_control_callback@callback = null;
+	nv_form_control(string caption, string id, nv_form_control_type type, nv_form@parent) {
+		this.caption = caption;
+		this.type = type;
+		this.id = id;
+		@this.parent = parent;
+	}
+	bool hide() {
+		if (this.hidden) return false;
+		this.hidden = true;
+		return true;
+	}
+	bool unhide() {
+		if (!this.hidden) return false;
+		this.hidden = false;
+		return true;
+	}
+	bool handle_input() { return false; }
+	bool monitor() { return false;}
+	void fire() {
+		if (!this.enabled) return;
+		bool ok = true;
+		if (@this.callback != null) ok = this.callback(this);
+		if (!ok) return;
+		string i = this.get_control_info();
+		if (!i.empty()) speak(i);
+		this.on_fire();
+	}
+	void on_fire() { }
+	void on_focus_gained() { }
+	string get_control_info() {
+		return "";
+	}
+	string get_fixed_type_first() property { return ""; }
+	string get_fixed_type_last() property { return ""; }
+	bool check_shortcut() {
+		if (@this.shortcut == null) return false;
+		return this.shortcut.pressed;
+	}
+	bool focus(bool quiet = false, bool interrupt_previous_speech = true) {
+		return this.parent.focus_control(this, quiet, interrupt_previous_speech);
+	}
+}

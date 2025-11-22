@@ -1,0 +1,30 @@
+namespace scp::actions::item {
+	void giveall() {
+		nv_form f;
+		f.create_window("Give item, online", false);
+		nv_form_input@ item = f.add_input("Item name", "item");
+		nv_form_input@ amount = f.add_input("Amount, ", "amount");
+		nv_form_button@ ok = f.add_button("Give", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(item, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (item.text == "") {
+					speak("Item name is required");
+					f.focus_control(item, false, false);
+					continue;
+				} else if (amount.text == "") {
+					speak("Amount is required");
+					f.focus_control(amount, false, false);
+					continue;
+				}
+				sendcommand("/giveall " + item.text + " " + amount.text);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

@@ -1,0 +1,126 @@
+#include "chartime.nvgt"
+#include "json.nvgt"
+staffwork staff;
+class staffwork {
+	string[] types;
+	string folder = "chars", ext = ".staff", jsonfile = "staff.json";
+	json data;
+	staffwork() {
+		this.refresh();
+	}
+	void refresh() {
+		this.types.resize(0);
+		this.data.reset();
+		this.data.loads(file_get_contents(this.jsonfile));
+		string[] d = this.data.keys;
+		chartime@[] chs(0);
+		for (uint a = 0; a < d.length(); a++) {
+			string l = d[a];
+			int pos = this.data(l + ".pos", 1000000);
+			chs.insert_last(chartime(l, pos));
+		}
+		chs = sort_chartime(chs, true);
+		foreach (chartime@ c: chs) {
+			this.types.insert_last(c.name);
+		}
+	}
+	string get_about(string t) {
+		string f = this.data(t + ".info", "");
+		return f;
+	}
+	string title(string t, bool plural = false) {
+		string f;
+		string ft = this.data(t + ".title", t);
+		if (!plural) f = this.data(t + ".title.singular", ft);
+		else f = this.data(t + ".title.plural", "");
+		if (f == "") {
+			if (!plural) f = ft;
+			else f = ft + "s";
+		}
+		return f;
+	}
+	double get_length(string t = "") {
+		double ll = 0;
+		string[] chars = find_directories(this.folder + "/*");
+		if (chars.length() < 1) return 0;
+		for (uint i = 0; i < chars.length(); i++) {
+			if (is_staff(chars[i], t)) ll++;
+		}
+		return ll;
+	}
+	double get_online_length(string t = "") {
+		double ll = 0;
+		string[] chars = find_directories(this.folder + "/*");
+		if (chars.length() < 1) return 0;
+		for (uint i = 0; i < chars.length(); i++) {
+			if (is_staff(chars[i], t) && is_on_server(chars[i])) ll++;
+		}
+		return ll;
+	}
+	bool check(string name, string type = "") {
+		string cf = this.folder + "/" + name;
+		if (this.folder == "") cf = name;
+		if (type != "") {
+			if (type != "" && this.types.find(type) < 0) return false;
+			return file_exists(cf + "/" + type + this.ext);
+		}
+		for (uint i = 0; i < this.types.length(); i++) {
+			if (file_exists(cf + "/" + this.types[i] + this.ext)) return true;
+		}
+		return false;
+	}
+	bool check(string name, string[] list) {
+		if (list.length() < 1) return this.check(name);
+		for (uint a = 0; a < list.length(); a++)
+			if (this.check(name, list[a])) return true;
+		return false;
+	}
+	int pos(string t, int def = 1000000) {
+		return this.data(t + ".pos", def);
+	}
+	chartime@[] get_types_from(string name, bool smallest_first = true) {
+		// Smallest means highest.
+		chartime@[] chs(0);
+		for (uint a = 0; a < this.types.length(); a++) {
+			string l = this.types[a];
+			if (!this.check(name, l)) continue;
+			int pos = this.pos(l);;
+			chs.insert_last(chartime(l, pos));
+		}
+		if (chs.length() < 1) return chs;
+		chs = sort_chartime(chs, smallest_first);
+		return chs;
+	}
+	string[] str_get_types_from(string name, bool smallest_first = true) {
+		string[] f;
+		chartime@[] chs = this.get_types_from(name, smallest_first);
+		foreach (chartime@ l: chs) {
+			f.insert_last(l.name);
+		}
+		return f;
+	}
+	chartime@ get_highest_of(string name) {
+		chartime@ f = null;
+		chartime@[] chs = this.get_types_from(name);
+		if (chs.length() > 0) @f = chs[0];
+		return f;
+	}
+	string str_get_highest_of(string name) {
+		string f = "";
+		chartime@ c = this.get_highest_of(name);
+		if (@c != null) f = c.name;
+		return f;
+	}
+	int get_highest_pos_of(string name, int def = 1000000) {
+		int f = def;
+		chartime@ c = this.get_highest_of(name);
+		if (@c != null) f = c.sec;
+		return f;
+	}
+}//end.staffwork
+bool is_staff(string name, string type = "") {
+	return staff.check(name, type);
+}
+bool is_staff(string name, string[] list) {
+	return staff.check(name, list);
+}

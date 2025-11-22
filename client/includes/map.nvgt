@@ -1,0 +1,763 @@
+#include "build/*.nvgt"
+#include "map/elevator.nvgt"
+#include "map/floor.nvgt"
+#include "gettile.nvgt"
+#include "dvar.nvgt"
+string buildadd = "addline";
+string somchuva;
+string somwind;
+string somnight;
+bool comurl = false;
+long streamurl;
+map@[]maps(0);
+class map {
+	string name;
+	map(string nname) {
+		name = nname;
+	}
+}
+bool in_map = false;
+void load_map(string mdata) {
+	mdata.replace_this("\r\n", "\n");
+	client::map_destruct();
+	mapstring = mdata;
+	string[] ldata = mdata.split("\n");
+	string[] maperrs(0);
+	for (uint i = 0; i < ldata.length(); i++) {
+		string ld = ldata[i].trim_whitespace();
+		if (ld.length() <1) continue;
+		if (ld.is_empty()) continue;
+		if (string_contains(ld, ":", 1) < 0) continue;
+		if (string_contains(ld, "::", 1) > -1) continue;
+		try {
+			string[] parsed = string_split(ld, ":", false);
+			if (parsed.length() < 2) continue;
+			if (parsed[0] == "mapname") {
+				mapname = string_replace(ld, "mapname:", "", false);
+				msound_map_update();
+			}
+			else if (parsed[0] == "url" && parsed.length() > 1) {
+				comurl = true;
+				stream.load(string_trim_left(ld, 4));
+				stream.volume = volumestream;
+				stream.play();
+			} else if ((parsed[0] == "tile" || parsed[0] == "wall") && parsed.length() > 7) {
+				double a = stn(parsed[1]);
+				double b = stn(parsed[2]);
+				double c = stn(parsed[3]);
+				double d = stn(parsed[4]);
+				double e = stn(parsed[5]);
+				double f = stn(parsed[6]);
+				string tt = parsed[0] + ":" + parsed[1] + ":" + parsed[2] + ":" + parsed[3] + ":" + parsed[4] + ":" + parsed[5] + ":" + parsed[6] + ":";
+				string tc = string_trimleft(ld, tt.length());
+				bool tracka = false;
+				string t = "";
+				string tracks = ":trackme";
+				if (tc.ends_with(tracks)) {
+					t = string_trimright(tc, tracks.length());
+					tracka = true;
+				} else t = tc;
+				spawn_tile(a, b, c, d, e, f, mapname, t, tracka);
+			} else if (parsed[0] == "zone" and parsed.length() > 7) {
+				double a = stn(parsed[1]);
+				double b = stn(parsed[2]);
+				double c = stn(parsed[3]);
+				double d = stn(parsed[4]);
+				double e = stn(parsed[5]);
+				double f = stn(parsed[6]);
+				string tt = string_trimleft(ld, (parsed[0] + ":" + parsed[1] + ":" + parsed[2] + ":" + parsed[3] + ":" + parsed[4] + ":" + parsed[5] + ":" + parsed[6] + ":").length());
+				string t = tt;
+				bool tracka = false;
+				string tracks = ":trackme";
+				if (stringright(t, tracks.length()) == tracks) {
+					t = string_trimright(t, tracks.length());
+					tracka = true;
+				}
+				spawn_zone(a, b, c, d, e, f, mapname, t, tracka);
+			} else if (parsed[0] == "src" and parsed.length() > 9) {
+				int amb = 0;
+				if (parsed.length() > 10) amb = string_to_number(parsed[10]);
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_source(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), parsed[9], false, amb);
+			} else if (parsed[0] == "reverb" && parsed.length() > 12) {
+				double a = stn(parsed[1]);
+				double b = stn(parsed[2]);
+				double c = stn(parsed[3]);
+				double d = stn(parsed[4]);
+				double e = stn(parsed[5]);
+				double f = stn(parsed[6]);
+				string id = parsed[7];
+				float dry = stn(parsed[8]);
+				if (dry < 0.00 || dry > 1.00) {
+					throw("Reverb's dry value is not within the expected range, between 0.00 and 1.00, but instead got " + dry);
+					continue;
+				}
+				float wet = stn(parsed[9]);
+				if (wet < 0.00 || wet > 1.00) {
+					throw("Reverb's wet value is not within the expected range, between 0.00 and 1.00, but instead got " + wet);
+					continue;
+				}
+				float size = stn(parsed[10]);
+				if (size < 0.00 || size > 1.00) {
+					throw("Reverb's size value is not within the expected range, between 0.00 and 1.00, but instead got " + size);
+					continue;
+				}
+				float damp = stn(parsed[11]);
+				if (damp < 0.00 || damp > 1.00) {
+					throw("Reverb's damp value is not within the expected range, between 0.00 and 1.00, but instead got " + damp);
+					continue;
+				}
+				float width = stn(parsed[12]);
+				if (width < 0.00 || width > 1.00) {
+					throw("Reverb's width value is not within the expected range, between 0.00 and 1.00, but instead got " + width);
+					continue;
+				}
+				spawn_reverb_effect(vector(a, c, e), vector(b, d, f), id, dry, wet, size, damp, width);
+			} else if (parsed[0] == "elevator" and parsed.length() > 6) {
+				double a = stn(parsed[1]);
+				double b = stn(parsed[2]);
+				double c = stn(parsed[3]);
+				double d = stn(parsed[4]);
+				double e = stn(parsed[5]);
+				double f = stn(parsed[6]);
+				string t = string_trimleft(ld, (parsed[0] + ":" + parsed[1] + ":" + parsed[2] + ":" + parsed[3] + ":" + parsed[4] + ":" + parsed[5] + ":" + parsed[6] + ":").length());
+				int speed = stn(get_line(t, "speed", def = "-1"));
+				string snd_open = get_line(t, "snd_open");
+				string snd_close = get_line(t, "snd_close");
+				string text_open = get_line(t, "text_open");
+				string text_close = get_line(t, "text_close");
+				spawn_elevator(vector(a, c, e), vector(b, d, f), speed, snd_open, snd_close, text_open, text_close);
+			} else if (parsed[0] == "floor" and parsed.length() > 6) {
+				double a = stn(parsed[1]);
+				double b = stn(parsed[2]);
+				double c = stn(parsed[3]);
+				double d = stn(parsed[4]);
+				double e = stn(parsed[5]);
+				double f = stn(parsed[6]);
+				string t = string_trimleft(ld, (parsed[0] + ":" + parsed[1] + ":" + parsed[2] + ":" + parsed[3] + ":" + parsed[4] + ":" + parsed[5] + ":" + parsed[6] + ":").length());
+				spawn_floor(vector(a, c, e), vector(b, d, f), t);
+			} else if (parsed[0] == "music" and parsed.length() > 9) {
+				int amb = 0;
+				if (parsed.length() > 10) amb = string_to_number(parsed[10]);
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_music(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), parsed[9], false, amb);
+			/*} else if (parsed[0] == "url" and parsed.length() > 7) {
+				double a = stn(parsed[1]);
+				double b = stn(parsed[2]);
+				double c = stn(parsed[3]);
+				double d = stn(parsed[4]);
+				double e = stn(parsed[5]);
+				double f = stn(parsed[6]);
+				string t = string_trimleft(ld, (parsed[0] + ":" + parsed[1] + ":" + parsed[2] + ":" + parsed[3] + ":" + parsed[4] + ":" + parsed[5] + ":" + parsed[6] + ":").length());
+				string snd = get_line(t, "sound");
+				double vol = stn(get_line(t, "volume", def = "0"));
+				double pit = stn(get_line(t, "pitch", def = "100"));
+				int amb = stn(get_line(t, "amb", def = "0"));
+				spawn_url(a, b, c, d, e, f, vol, pit, snd, false, amb);*/
+			} else if (parsed[0] == "timedsound" and parsed.length() >= 9) {
+				int amb = 0;
+				if (parsed.length() > 11) amb = string_to_number(parsed[11]);
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_timedsound(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], false, amb);
+			} else if (parsed[0] == "timedmusic" and parsed.length() >= 9) {
+				int amb = 0;
+				if (parsed.length() > 11) amb = string_to_number(parsed[11]);
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_timedmusic(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], false, amb);
+			} else if (parsed[0] == "enable") {
+				if (parsed[1] == "coordinates")dcoordinates = 0;
+				if (parsed[1] == "camera")dcamera = 0;
+				if (parsed[1] == "camerawall")dcamerawall = 0;
+				if (parsed[1] == "mfwc")dmfwc = 0;
+				if (parsed[1] == "cameraplayer")dcameraplayer = 0;
+				if (parsed[1] == "cameraitem")dcameraitem = 0;
+				if (parsed[1] == "cameradoor")dcameradoor = 0;
+				if (parsed[1] == "camerapdoor")dcamerapdoor = 0;
+				if (parsed[1] == "cameraicdoor")dcameraicdoor = 0;
+				if (parsed[1] == "cameraitdoor")dcameraitdoor = 0;
+				if (parsed[1] == "cameraigdoor")dcameraigdoor = 0;
+				if (parsed[1] == "cameraautomover")dcameraautomover = 0;
+				if (parsed[1] == "camerapautomover")dcamerapautomover = 0;
+				if (parsed[1] == "cameraicautomover")dcameraicautomover = 0;
+				if (parsed[1] == "cameraitautomover")dcameraitautomover = 0;
+				if (parsed[1] == "cameraigautomover")dcameraigautomover = 0;
+				if (parsed[1] == "cameraautomatic_travelpoint")dcameraautomatic_travelpoint = 0;
+				if (parsed[1] == "camerapautomatic_travelpoint")dcamerapautomatic_travelpoint = 0;
+				if (parsed[1] == "cameraicautomatic_travelpoint")dcameraicautomatic_travelpoint = 0;
+				if (parsed[1] == "cameraitautomatic_travelpoint")dcameraitautomatic_travelpoint = 0;
+				if (parsed[1] == "cameraigautomatic_travelpoint")dcameraigautomatic_travelpoint = 0;
+				if (parsed[1] == "cameratravelpoint")dcameratravelpoint = 0;
+				if (parsed[1] == "cameraptravelpoint")dcameraptravelpoint = 0;
+				if (parsed[1] == "cameraictravelpoint")dcameraictravelpoint = 0;
+				if (parsed[1] == "cameraittravelpoint")dcameraittravelpoint = 0;
+				if (parsed[1] == "cameraigtravelpoint")dcameraigtravelpoint = 0;
+				if (parsed[1] == "cameravp")dcameravp = 0;
+				if (parsed[1] == "cameraff")dcameraff = 0;
+				if (parsed[1] == "camerah")dcamerah = 0;
+				if (parsed[1] == "cameratp")dcameratp = 0;
+				if (parsed[1] == "camerasign")dcamerasign = 0;
+				if (parsed[1] == "cameratxt")dcameratxt = 0;
+				if (parsed[1] == "jump")djump = 0;
+				if (parsed[1] == "spy")dspy = 0;
+				if (parsed[1] == "spyplayer")dspyplayer = 0;
+				if (parsed[1] == "spyitem")dspyitem = 0;
+				if (parsed[1] == "spydoor")dspydoor = 0;
+				if (parsed[1] == "spypdoor")dspypdoor = 0;
+				if (parsed[1] == "spyicdoor")dspyicdoor = 0;
+				if (parsed[1] == "spyitdoor")dspyitdoor = 0;
+				if (parsed[1] == "spyigdoor")dspyigdoor = 0;
+				if (parsed[1] == "spyautomover")dspyautomover = 0;
+				if (parsed[1] == "spypautomover")dspypautomover = 0;
+				if (parsed[1] == "spyicautomover")dspyicautomover = 0;
+				if (parsed[1] == "spyitautomover")dspyitautomover = 0;
+				if (parsed[1] == "spyigautomover")dspyigautomover = 0;
+				if (parsed[1] == "spyautomatic_travelpoint")dspyautomatic_travelpoint = 0;
+				if (parsed[1] == "spypautomatic_travelpoint")dspypautomatic_travelpoint = 0;
+				if (parsed[1] == "spyicautomatic_travelpoint")dspyicautomatic_travelpoint = 0;
+				if (parsed[1] == "spyitautomatic_travelpoint")dspyitautomatic_travelpoint = 0;
+				if (parsed[1] == "spyigautomatic_travelpoint")dspyigautomatic_travelpoint = 0;
+				if (parsed[1] == "spytravelpoint")dspytravelpoint = 0;
+				if (parsed[1] == "spyptravelpoint")dspyptravelpoint = 0;
+				if (parsed[1] == "spyictravelpoint")dspyictravelpoint = 0;
+				if (parsed[1] == "spyittravelpoint")dspyittravelpoint = 0;
+				if (parsed[1] == "spyigtravelpoint")dspyigtravelpoint = 0;
+				if (parsed[1] == "spyvp")dspyvp = 0;
+				if (parsed[1] == "spyff")dspyff = 0;
+				if (parsed[1] == "spyh")dspyh = 0;
+				if (parsed[1] == "spytp")dspytp = 0;
+				if (parsed[1] == "spysign")dspysign = 0;
+				if (parsed[1] == "spytxt")dspytxt = 0;
+				if (parsed[1] == "localchat")dlocalchat = 0;
+				if (parsed[1] == "voicechat")dvoicechat = 0;
+				if (parsed[1] == "ttschat")dttschat = 0;
+				if (parsed[1] == "tracking")dtracking = 0;
+				if (parsed[1] == "2dsupport")d2dsupport = 1;
+			} else if (parsed[0] == "disable") {
+				if (parsed[1] == "coordinates")dcoordinates = 1;
+				if (parsed[1] == "camera")dcamera = 1;
+				if (parsed[1] == "camerawall")dcamerawall = 1;
+				if (parsed[1] == "mfwc")dmfwc = 1;
+				if (parsed[1] == "cameraplayer")dcameraplayer = 1;
+				if (parsed[1] == "cameraitem")dcameraitem = 1;
+				if (parsed[1] == "cameradoor")dcameradoor = 1;
+				if (parsed[1] == "camerapdoor")dcamerapdoor = 1;
+				if (parsed[1] == "cameraicdoor")dcameraicdoor = 1;
+				if (parsed[1] == "cameraitdoor")dcameraitdoor = 1;
+				if (parsed[1] == "cameraigdoor")dcameraigdoor = 1;
+				if (parsed[1] == "cameraautomover")dcameraautomover = 1;
+				if (parsed[1] == "camerapautomover")dcamerapautomover = 1;
+				if (parsed[1] == "cameraicautomover")dcameraicautomover = 1;
+				if (parsed[1] == "cameraitautomover")dcameraitautomover = 1;
+				if (parsed[1] == "cameraigautomover")dcameraigautomover = 1;
+				if (parsed[1] == "cameraautomatic_travelpoint")dcameraautomatic_travelpoint = 1;
+				if (parsed[1] == "camerapautomatic_travelpoint")dcamerapautomatic_travelpoint = 1;
+				if (parsed[1] == "cameraicautomatic_travelpoint")dcameraicautomatic_travelpoint = 1;
+				if (parsed[1] == "cameraitautomatic_travelpoint")dcameraitautomatic_travelpoint = 1;
+				if (parsed[1] == "cameraigautomatic_travelpoint")dcameraigautomatic_travelpoint = 1;
+				if (parsed[1] == "cameratravelpoint")dcameratravelpoint = 1;
+				if (parsed[1] == "cameraptravelpoint")dcameraptravelpoint = 1;
+				if (parsed[1] == "cameraictravelpoint")dcameraictravelpoint = 1;
+				if (parsed[1] == "cameraittravelpoint")dcameraittravelpoint = 1;
+				if (parsed[1] == "cameraigtravelpoint")dcameraigtravelpoint = 1;
+				if (parsed[1] == "cameravp")dcameravp = 1;
+				if (parsed[1] == "cameraff")dcameraff = 1;
+				if (parsed[1] == "camerah")dcamerah = 1;
+				if (parsed[1] == "cameratp")dcameratp = 1;
+				if (parsed[1] == "camerasign")dcamerasign = 1;
+				if (parsed[1] == "cameratxt")dcameratxt = 1;
+				if (parsed[1] == "jump")djump = 1;
+				if (parsed[1] == "spy")dspy = 1;
+				if (parsed[1] == "spyplayer")dspyplayer = 1;
+				if (parsed[1] == "spyitem")dspyitem = 1;
+				if (parsed[1] == "spydoor")dspydoor = 1;
+				if (parsed[1] == "spypdoor")dspypdoor = 1;
+				if (parsed[1] == "spyicdoor")dspyicdoor = 1;
+				if (parsed[1] == "spyitdoor")dspyitdoor = 1;
+				if (parsed[1] == "spyigdoor")dspyigdoor = 1;
+				if (parsed[1] == "spyautomover")dspyautomover = 1;
+				if (parsed[1] == "spypautomover")dspypautomover = 1;
+				if (parsed[1] == "spyicautomover")dspyicautomover = 1;
+				if (parsed[1] == "spyitautomover")dspyitautomover = 1;
+				if (parsed[1] == "spyigautomover")dspyigautomover = 1;
+				if (parsed[1] == "spyautomatic_travelpoint")dspyautomatic_travelpoint = 1;
+				if (parsed[1] == "spypautomatic_travelpoint")dspypautomatic_travelpoint = 1;
+				if (parsed[1] == "spyicautomatic_travelpoint")dspyicautomatic_travelpoint = 1;
+				if (parsed[1] == "spyitautomatic_travelpoint")dspyitautomatic_travelpoint = 1;
+				if (parsed[1] == "spyigautomatic_travelpoint")dspyigautomatic_travelpoint = 1;
+				if (parsed[1] == "spytravelpoint")dspytravelpoint = 1;
+				if (parsed[1] == "spyptravelpoint")dspyptravelpoint = 1;
+				if (parsed[1] == "spyictravelpoint")dspyictravelpoint = 1;
+				if (parsed[1] == "spyittravelpoint")dspyittravelpoint = 1;
+				if (parsed[1] == "spyigtravelpoint")dspyigtravelpoint = 1;
+				if (parsed[1] == "spyvp")dspyvp = 1;
+				if (parsed[1] == "spyff")dspyff = 1;
+				if (parsed[1] == "spyh")dspyh = 1;
+				if (parsed[1] == "spytp")dspytp = 1;
+				if (parsed[1] == "spysign")dspysign = 1;
+				if (parsed[1] == "spytxt")dspytxt = 1;
+				if (parsed[1] == "localchat")dlocalchat = 1;
+				if (parsed[1] == "voicechat")dvoicechat = 1;
+				if (parsed[1] == "ttschat")dttschat = 1;
+				if (parsed[1] == "tracking")dtracking = 1;
+				if (parsed[1] == "2dsupport")d2dsupport = 0;
+			} else if (parsed[0] == "sign" and parsed.length() > 8) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				string t = parsed[7];
+				spawn_sign(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], parsed[8]);
+			} else if (parsed[0] == "txt" and parsed.length() > 7) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				string t = string_trimleft(ld, (parsed[0] + ":" + parsed[1] + ":" + parsed[2] + ":" + parsed[3] + ":" + parsed[4] + ":" + parsed[5] + ":" + parsed[6] + ":").length());
+				t = map_vars(t);
+				spawn_txt(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7]);
+			} else if (parsed[0] == "timedtext" and parsed.length() > 8) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_timedtext(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), parsed[8]);
+			} else if (parsed[0] == "vanishing_platform" and parsed.length() > 9) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_vanishing_platform(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), parsed[8], parsed[9]);
+			} else if (parsed[0] == "forcefield" and parsed.length() >= 11) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_forcefield(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), parsed[9], parsed[10]);
+			} else if (parsed[0] == "teleporter" and parsed.length() >= 7) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_teleporter(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]));
+			} else if (parsed[0] == "dialog" and parsed.length() >= 7) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_dialog(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7]);
+			} else if (parsed[0] == "automatic_dialog" and parsed.length() >= 7) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_automatic_dialog(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7]);
+			} else if (parsed[0] == "door" and parsed.length() >= 16) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_door(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], string_to_number(parsed[11]), parsed[12], parsed[13], parsed[14], parsed[15]);
+			} else if (parsed[0] == "pdoor" and parsed.length() >= 17) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_pdoor(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], parsed[11], string_to_number(parsed[12]), parsed[13], parsed[14], parsed[15], parsed[16]);
+			} else if (parsed[0] == "icdoor" and parsed.length() >= 18) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_icdoor(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16], parsed[17]);
+			} else if (parsed[0] == "itdoor" and parsed.length() >= 18) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_itdoor(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16], parsed[17]);
+			} else if (parsed[0] == "igdoor" and parsed.length() >= 18) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_igdoor(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16], parsed[17]);
+			} else if (parsed[0] == "automover" and parsed.length() >= 16) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_automover(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], string_to_number(parsed[11]), parsed[12], parsed[13], parsed[14], parsed[15]);
+			} else if (parsed[0] == "pautomover" and parsed.length() >= 17) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_pautomover(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], parsed[11], string_to_number(parsed[12]), parsed[13], parsed[14], parsed[15], parsed[16]);
+			} else if (parsed[0] == "icautomover" and parsed.length() >= 18) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_icautomover(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16], parsed[17]);
+			} else if (parsed[0] == "itautomover" and parsed.length() >= 18) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_itautomover(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16], parsed[17]);
+			} else if (parsed[0] == "igautomover" and parsed.length() >= 18) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z or string_to_number(parsed[7])<min.x or string_to_number(parsed[7])>max.x or string_to_number(parsed[8])<min.y or string_to_number(parsed[8])>max.y or string_to_number(parsed[9])<min.z or string_to_number(parsed[9])>max.z) continue;
+				spawn_igautomover(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), string_to_number(parsed[7]), string_to_number(parsed[8]), string_to_number(parsed[9]), parsed[10], parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16], parsed[17]);
+			} else if (parsed[0] == "automatic_travelpoint" and parsed.length() >= 15) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_automatic_travelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], parsed[12], parsed[13], parsed[14]);
+			} else if (parsed[0] == "pautomatic_travelpoint" and parsed.length() >= 16) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_pautomatic_travelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], string_to_number(parsed[12]), parsed[13], parsed[14], parsed[15]);
+			} else if (parsed[0] == "icautomatic_travelpoint" and parsed.length() >= 17) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_icautomatic_travelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16]);
+			} else if (parsed[0] == "itautomatic_travelpoint" and parsed.length() >= 17) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_itautomatic_travelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16]);
+			} else if (parsed[0] == "igautomatic_travelpoint" and parsed.length() >= 17) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_igautomatic_travelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16]);
+			} else if (parsed[0] == "travelpoint" and parsed.length() >= 15) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_travelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], parsed[12], parsed[13], parsed[14]);
+			} else if (parsed[0] == "ptravelpoint" and parsed.length() >= 16) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_ptravelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], string_to_number(parsed[12]), parsed[13], parsed[14], parsed[15]);
+			} else if (parsed[0] == "ictravelpoint" and parsed.length() >= 17) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_ictravelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16]);
+			} else if (parsed[0] == "ittravelpoint" and parsed.length() >= 17) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_ittravelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16]);
+			} else if (parsed[0] == "igtravelpoint" and parsed.length() >= 17) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spawn_igtravelpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]), string_to_number(parsed[4]), string_to_number(parsed[5]), string_to_number(parsed[6]), parsed[7], string_to_number(parsed[8]), string_to_number(parsed[9]), string_to_number(parsed[10]), parsed[11], string_to_number(parsed[12]), string_to_number(parsed[13]), parsed[14], parsed[15], parsed[16]);
+			} else if (parsed[0] == "checkpoint" and parsed.length() >= 3) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.y or string_to_number(parsed[2])>max.y or string_to_number(parsed[3])<min.z or string_to_number(parsed[3])>max.z) continue;
+				spawn_checkpoint(string_to_number(parsed[1]), string_to_number(parsed[2]), string_to_number(parsed[3]));
+			} else if (parsed[0] == "rain")
+				somchuva = parsed[1];
+			else if (parsed[0] == "wind")
+				somwind = parsed[1];
+			else if (parsed[0] == "night")
+				somnight = parsed[1];
+			else if (parsed[0] == "maxx" and parsed.length() > 1)
+				max.x = stn(parsed[1]);
+			else if (parsed[0] == "maxy" and parsed.length() > 1)
+				max.y = stn(parsed[1]);
+			else if (parsed[0] == "maxz" and parsed.length() > 1)
+				max.z = stn(parsed[1]);
+			if (parsed[0] == "minx" and parsed.length() > 1)
+				min.x = stn(parsed[1]);
+			if (parsed[0] == "miny" and parsed.length() > 1)
+				min.y = stn(parsed[1]);
+			if (parsed[0] == "minz" and parsed.length() > 1)
+				min.z = stn(parsed[1]);
+			if (parsed[0] == "x" and parsed.length() > 1)
+				me.x = stn(parsed[1]);
+			if (parsed[0] == "y" and parsed.length() > 1)
+				me.y = stn(parsed[1]);
+			if (parsed[0] == "z" and parsed.length() > 1)
+				me.z = stn(parsed[1]);
+		} catch {
+			string ei = get_exception_info();
+			string ems = "Error.";
+			if (ei.starts_with("w..")) {
+				ems = "Warning.";
+				ei = string_trimleft(ei, ("w..").length());
+			}
+			if (ei != "") ems += " " + ei + ".";
+			ems += " on line " + i + ", \"" + ldata[i] + "\"";
+			maperrs.insert_last(ems);
+		}
+	}
+	in_map = true;
+	if (chuvatelhado.playing) chuvatelhado.close();
+	chuvatelhado.volume = -12;
+	if (chuvaativa == 1 and somchuva != "none.ogg") {
+		chuvatelhado.load(somchuva);
+		chuvatelhado.play_looped();
+	}
+	if (windtelhado.playing) windtelhado.close();
+	windtelhado.volume = -12;
+	if (windativa == 1 and somwind != "none.ogg") {
+		windtelhado.load(somwind);
+		windtelhado.play_looped();
+	}
+	if (nighttelhado.playing) nighttelhado.close();
+	nighttelhado.volume = -12;
+	if (nightativa == 1 and somnight != "none.ogg") {
+		nighttelhado.load(somnight);
+		nighttelhado.play_looped();
+	}
+	if (maperrs.length() > 0) add_buffer_item("misc", join(maperrs, "\n\n"));
+	garbage_collect();
+}
+void spawn_tile(int minx, int maxx, int miny, int maxy, int minz, int maxz, string plattype) {
+	spawn_tile(minx, maxx, miny, maxy, minz, maxz, mapname, plattype, false);
+}
+string linear(string[] a) {
+	string final;
+	for (uint i = 0; i < a.length(); i++)
+		final += (a[i] + "\n");
+	return final;
+}
+string[] delinear(string a) {
+	return string_split(a, "\n");
+}
+void bforward() {
+	double ox = me.x;
+	double oy = me.y;
+	for (uint i = 1; i < 6; i++) {
+		me = move(me.x, me.y, me.z, facing, 0, north, 0);
+		if (round(me.x, 0)<min.x or round(me.x, 0)>max.x or round(me.y, 0)<min.y or round(me.y, 0)>max.y) {
+			me.x = ox;
+			me.y = oy;
+			return;
+		}
+		bcheckaround(ox, oy);
+	}
+}
+void bcheckaround(double ox, double oy) {
+	me.x = round(me.x, 0);
+	me.y = round(me.y, 0);
+	if (string_contains(get_tile_at(me.x, me.y, me.z), "wall", 1) > -1) {
+		rvp.play_stationary("bikecrash.ogg", false);
+		me.x = ox;
+		me.y = oy;
+		me.x = round(ox, 3);
+		me.y = round(oy, 3);
+		send_reliable(peer_id, "bmove_to " + me.x + " " + me.y + " " + me.z, 8);
+	} else
+		send_reliable(peer_id, "bmove_to " + me.x + " " + me.y + " " + me.z, 8);
+}
+void bbforward() {
+	double ox = me.x;
+	double oy = me.y;
+	for (uint i = 1; i < 4; i++) {
+		me = move(me.x, me.y, me.z, facing, 0, north, 0);
+		if (round(me.x, 0)<min.x or round(me.x, 0)>max.x or round(me.y, 0)<min.y or round(me.y, 0)>max.y) {
+			me.x = ox;
+			me.y = oy;
+			return;
+		}
+		bbcheckaround(ox, oy);
+	}
+}
+void bbcheckaround(double ox, double oy) {
+	me.x = round(me.x, 0);
+	me.y = round(me.y, 0);
+	send_reliable(peer_id, "bmove_to " + me.x + " " + me.y + " " + me.z, 8);
+}
+void wforward() {
+	double oz = me.z;
+	for (uint i = 1; i < 11; i++) {
+		me = move(me.x, me.y, me.z, facing, 0, north, 0);
+		if (round(me.z, 0) > max.z) {
+			me.z = oz;
+			return;
+		}
+		wcheckaround(oz);
+	}
+}
+void wcheckaround(double oz) {
+	me.z = round(me.z, 0);
+	if (string_contains(get_tile_at(me.x, me.y, me.z), "wall", 1) > -1) {
+		p.play_stationary("spellfail_nomana.ogg", false);
+		me.z = oz;
+		me.z = round(oz, 3);
+		send_reliable(peer_id, "wmove_to " + me.z, 8);
+	} else
+		send_reliable(peer_id, "wmove_to " + me.z, 8);
+}
+void playstep() {
+	int x = me.x, y = me.y, z = me.z;
+	if (jumping == false)
+		rvp.play_stationary(get_tile_at(me.x, me.y, me.z) + "step" + random(1, 5) + ".ogg", false);
+}
+void cameramove(string dir) {
+	if (dir == Up) {
+		if (round(camera.z, 0) < max.z) {
+			camera.z += 1;
+			playcamera();
+			if (dcamerawall == 0 and string_contains(get_tile_at(camera.x, camera.y, camera.z), "wall", 1) > -1) camera.z -= 1;
+		}
+	}
+	if (dir == Down) {
+		if (round(camera.z, 0) > min.z) {
+			camera.z -= 1;
+			playcamera();
+			if (dcamerawall == 0 and string_contains(get_tile_at(camera.x, camera.y, camera.z), "wall", 1) > -1) camera.z += 1;
+		}
+	}
+	if (dir == Forward) {
+		double ox = camera.x;
+		double oy = camera.y;
+		camera = move(camera.x, camera.y, camera.z, facing, north);
+		if (round(camera.x, 0)<min.x or round(camera.x, 0)>max.x or round(camera.y, 0)<min.y or round(camera.y, 0)>max.y) {
+			camera.x = ox;
+			camera.y = oy;
+			return;
+		}
+		if (dcamerawall == 0 and string_contains(get_tile_at(camera.x, camera.y, camera.z), "wall", 1) > -1) {
+			if (mfwc == 1) rvp.play_stationary(get_tile_at(camera.x, camera.y, camera.z) + ".ogg", false);
+			else rvp.play_3d(get_tile_at(camera.x, camera.y, camera.z) + ".ogg", me.x, me.y, me.z, round(camera.x, 0), round(camera.y, 0), camera.z, calculate_theta(facing), false);
+			camera.x = ox;
+			camera.y = oy;
+			return;
+		}
+		playcamera();
+	}
+	if (dir == Backward) {
+		double ox = camera.x;
+		double oy = camera.y;
+		camera = move(camera.x, camera.y, camera.z, facing, south);
+		if (round(camera.x, 0)<min.x or round(camera.x, 0)>max.x or round(camera.y, 0)<min.y or round(camera.y, 0)>max.y) {
+			camera.x = ox;
+			camera.y = oy;
+			return;
+		}
+		if (dcamerawall == 0 and string_contains(get_tile_at(camera.x, camera.y, camera.z), "wall", 1) > -1) {
+			if (mfwc == 1) rvp.play_stationary(get_tile_at(camera.x, camera.y, camera.z) + ".ogg", false);
+			else rvp.play_3d(get_tile_at(camera.x, camera.y, camera.z) + ".ogg", me.x, me.y, me.z, round(camera.x, 0), round(camera.y, 0), camera.z, calculate_theta(facing), false);
+			camera.x = ox;
+			camera.y = oy;
+			return;
+		}
+		playcamera();
+	}
+	if (dir == Left) {
+		double ox = camera.x;
+		double oy = camera.y;
+		camera = move(camera.x, camera.y, camera.z, facing, west);
+		if (round(camera.x, 0)<min.x or round(camera.x, 0)>max.x or round(camera.y, 0)<min.y or round(camera.y, 0)>max.y) {
+			camera.x = ox;
+			camera.y = oy;
+			return;
+		}
+		if (dcamerawall == 0 and string_contains(get_tile_at(camera.x, camera.y, camera.z), "wall", 1) > -1) {
+			if (mfwc == 1) rvp.play_stationary(get_tile_at(camera.x, camera.y, camera.z) + ".ogg", false);
+			else rvp.play_3d(get_tile_at(camera.x, camera.y, camera.z) + ".ogg", me.x, me.y, me.z, round(camera.x, 0), round(camera.y, 0), camera.z, calculate_theta(facing), false);
+			camera.x = ox;
+			camera.y = oy;
+			return;
+		}
+		playcamera();
+	}
+	if (dir == Right) {
+		double ox = camera.x;
+		double oy = camera.y;
+		camera = move(camera.x, camera.y, camera.z, facing, east);
+		if (round(camera.x, 0)<min.x or round(camera.x, 0)>max.x or round(camera.y, 0)<min.y or round(camera.y, 0)>max.y) {
+			camera.x = ox;
+			camera.y = oy;
+			return;
+		}
+		if (dcamerawall == 0 and string_contains(get_tile_at(camera.x, camera.y, camera.z), "wall", 1) > -1) {
+			if (mfwc == 1) rvp.play_stationary(get_tile_at(camera.x, camera.y, camera.z) + ".ogg", false);
+			else rvp.play_3d(get_tile_at(camera.x, camera.y, camera.z) + ".ogg", me.x, me.y, me.z, round(camera.x, 0), round(camera.y, 0), camera.z, calculate_theta(facing), false);
+			camera.x = ox;
+			camera.y = oy;
+			return;
+		}
+		playcamera();
+	}
+}
+timer wallt;
+void move(string dir) {
+	double ox = me.x, oy = me.y, oz = me.z;
+	if (dir == Up) {
+		if (get_tile_at(me.x, me.y, me.z + 1) != "" && get_tile_at(me.x, me.y, me.z + 1) != "blank" && get_tile_at(me.x, me.y, me.z + 1) != "air" && me.z + 1 <= max.z) {
+			me.z++;
+			checkaround(ox, oy, oz);
+		}
+	}
+	if (dir == Down) {
+		if (get_tile_at(me.x, me.y, me.z - 1) != "" && get_tile_at(me.x, me.y, me.z - 1) != "blank" && get_tile_at(me.x, me.y, me.z - 1) != "air" && me.z - 1 >= min.z) {
+			me.z--;
+			checkaround(ox, oy, oz);
+		}
+	}
+	if (dir == Forward) {
+		vector ma = move(me.x, me.y, me.z, facing, north);
+		if (round(ma.x, 0)<min.x or round(ma.x, 0)>max.x or round(ma.y, 0)<min.y or round(ma.y, 0)>max.y) return;
+		me = ma;
+		me.x = round(me.x, 0);
+		me.y = round(me.y, 0);
+		checkaround(ox, oy, oz);
+	}
+	if (dir == Backward) {
+		vector ma = move(me.x, me.y, me.z, facing, south);
+		if (round(ma.x, 0)<min.x or round(ma.x, 0)>max.x or round(ma.y, 0)<min.y or round(ma.y, 0)>max.y) return;
+		me = ma;
+		me.x = round(me.x, 0);
+		me.y = round(me.y, 0);
+		checkaround(ox, oy, oz);
+	}
+	if (dir == Left) {
+		vector ma = move(me.x, me.y, me.z, facing, west);
+		if (round(ma.x, 0)<min.x or round(ma.x, 0)>max.x or round(ma.y, 0)<min.y or round(ma.y, 0)>max.y) return;
+		me = ma;
+		me.x = round(me.x, 0);
+		me.y = round(me.y, 0);
+		checkaround(ox, oy, oz);
+	}
+	if (dir == Right) {
+		vector ma = move(me.x, me.y, me.z, facing, east);
+		if (round(ma.x, 0)<min.x or round(ma.x, 0)>max.x or round(ma.y, 0)<min.y or round(ma.y, 0)>max.y) return;
+		me = ma;
+		me.x = round(me.x, 0);
+		me.y = round(me.y, 0);
+		checkaround(ox, oy, oz);
+	}
+}
+void checkaround(double ox, double oy, double oz) {
+	me.x = round(me.x, 0); me.y = round(me.y, 0); me.z = round(me.z, 0);
+	if (forcefields.length() > 0) {
+		for (uint i = 0; i < forcefields.length(); i++) {
+			if (me.x >= forcefields[i].minx and me.x <= forcefields[i].maxx and me.y >= forcefields[i].miny and me.y <= forcefields[i].maxy and me.z >= forcefields[i].minz and me.z <= forcefields[i].maxz and forcefields[i].forcefielded == true) {
+				rvp.play_stationary("electricityhit.ogg", false);
+				send_reliable(peer_id, "draw electricityhit.ogg", 8);
+				send_reliable(peer_id, "ffhhealth " + forcefields[i].health, 0);
+				me.x = ox; me.y = oy; me.z = oz; me.x = round(ox, 0); me.y = round(oy, 0); me.z = round(oz, 0);
+				return;
+			}
+		}
+	}
+	if (stringcontains(get_tile_at(me.x, me.y, me.z), "wall", 1) > -1) {
+		if (wallt.elapsed >= 250) {
+			wallt.restart();
+			rvp.play_stationary(get_tile_at(me.x, me.y, me.z) + "" + sndtype + "", false);
+			playmap(get_tile_at(me.x, me.y, me.z) + "" + sndtype + "");
+		}
+		me.x = ox; me.y = oy; me.z = oz; me.x = round(ox, 0); me.y = round(oy, 0); me.z = round(oz, 0);
+	} else {
+		playstep();
+		send_reliable(peer_id, "move " + me.x + " " + me.y + " " + me.z, 8);
+	}
+}
+void playmap(string snd) {
+	send(peer_id, "draw " + snd, 7);
+}
+class binput {
+	string[] indata;
+	string[] innames;
+	binput(string[] names, string[] input) {
+		indata = input;
+		innames = names;
+	}
+	int num(string val) {
+		int ix = innames.find(val);
+		if (ix > -1) return string_to_number(indata[ix]);
+		return -1;
+	}
+	string str(string val) {
+		int ix = innames.find(val);
+		if (ix > -1) return indata[ix];
+		return "";
+	}
+}
+binput@ builder_input(string spec) {
+	spec.replace_this("\r\n", "\n").trim_whitespace_this();
+	if (spec == "") return null;
+	string[] items = delinear(spec);
+	string[] names, vals;
+	for (uint i = 0; i < items.length(); i++) {
+		string[] p = string_split(items[i], "=", false);
+		names.insert_last(p[0].trim_whitespace());
+		string tmp;
+		if (p[1] == "enter the text which should be displayed when checking the time. You can leave it empty if you don't want anything to be displayed before time checking" or p[1] == "enter the text which should be displayed when checking the date. You can leave it empty if you don't want anything to be displayed before date checking") tmp = input("Field", p[1], "empty");
+		else if (string_contains(p[1], ". The default entered volume is 100", 1) > -1) tmp = input("Field", p[1], "100");
+		else tmp = input("Field", p[1].trim_whitespace());
+		if (tmp == "")
+			return null;
+		vals.insert_last(tmp);
+	}
+	binput res(names, vals);
+	return res;
+}
+string get_line(string text, string data, string split_line = "|", string split_data = "=", string def = "") {
+	return get_line_from_str(text, data, split_line, split_data, def);
+}
+string[] get_lines(string text, string data, string split_line = "|", string split_data = "=", string[] def = {}) {
+	return get_lines_from_str(text, data, split_line, split_data, def);
+}
+bool get_moveable() property {
+	return partially_moveable && !systemmoving;
+}
+bool get_systemmoving() property {
+	return evmoving;
+}
+bool get_partially_moveable() property {
+	return can_move;
+}
+bool buildcheck() {
+	if (!moveable) return false;
+	return evcheck();
+}
+dictionary@ default_mapvars = dictionary();
+string mapvars(string t, dictionary@ args = default_mapvars, string o = "%", string c = "%") {
+	return dvars(t, args, o, c);
+}
+string map_vars(string t, dictionary@ args = default_mapvars, string o = "%", string c = "%") {
+	args.set("name", name);
+	args.set("map", mapname);
+	t = mapvars(t, args, o, c);
+	t = genderreplace(gender, t, o + "g_", c);
+	return t;
+}

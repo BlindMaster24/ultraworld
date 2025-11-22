@@ -1,0 +1,72 @@
+enum dl_status {
+	dl_status_done = 0,
+	dl_status_canceled,
+	dl_status_fail
+}
+#include "speech.nvgt"
+#include "hip.nvgt"
+	string dl_default_user_agent = "harrymk/downloader";
+	dictionary@ dl_default_headers = dictionary();
+int dl_file(string url, string disk_file, bool quiet = false, string msg = "Downloading. Press Space for percentage, 1 2 and 3 keys for detailed progress, or escape to cancel. Press h to read this help message again.", string user_agent = dl_default_user_agent, dictionary@ headers = dl_default_headers) {
+	int status;
+	if (@headers == null) @headers = dictionary();
+	#if plugin_nvgt_curl
+	internet_request r(url, disk_file, false);
+	r.user_agent = user_agent;
+	string[] hds = headers.get_keys();
+	if (hds.length() > 0) {
+		for (uint i = 0; i < hds.length(); i++) {
+			string v;
+			if (!headers.get(hds[i], v)) continue;
+			r.set_header(hds[i], v);
+		}
+	}
+	if (!quiet) speak(msg);
+	double last_percentage = 0;
+	int progbeeps = 1;
+	if (!r.perform()) return dl_status_fail;
+	while (!r.complete) {
+		wait(5);
+		if (r.download_percent == r.download_percent && r.download_percent >= 0 && r.download_percent - last_percentage >= 1) {
+			//if (progbeeps == 1 && r.download_percent > 0) beep_percentage(r.download_percent);
+			last_percentage = r.download_percent;
+		}
+		if (key_pressed(KEY_ESCAPE)) {
+			status = dl_status_canceled;
+			return status;
+		}
+		if (key_pressed(KEY_1)) {
+			string size = round(r.download_size / 1024 / 1024, 0) + " MB (" + round(r.download_size / 1024, 0) + " KB)";
+			speak("File size: " + size);
+		}
+		if (key_pressed(KEY_2)) {
+			string size = round(r.bytes_downloaded / 1024 / 1024, 0) + " MB (" + round(r.bytes_downloaded / 1024, 0) + " KB)";
+			speak("Total downloaded: " + size);
+		}
+		if (key_pressed(KEY_3)) {
+			string size = (round(r.download_size / 1024 / 1024, 0) - round(r.bytes_downloaded / 1024 / 1024, 0)) + " MB( " + (round(r.download_size / 1024, 0) - round(r.bytes_downloaded / 1024, 2)) + " KB)";
+			speak("Total remaining: " + size);
+		}
+		if (key_pressed(KEY_H))
+			speak(msg);
+		/*if (key_pressed(KEY_M)) {
+			if (progbeeps == 1) {
+				progbeeps = 0;
+				speak("Progress beeps muted.");
+			} else if (progbeeps == 0) {
+				progbeeps = 1;
+				speak("Progress beeps unmuted.");
+			}
+		}*/
+		if (key_pressed(KEY_SPACE)) {
+			if (r.download_percent == r.download_percent && r.download_percent >= 0)
+				speak(round(r.download_percent, 0) + " percent downloaded");
+			else
+				speak("Download progress not available yet");
+		}
+		if (r.complete)
+			status = dl_status_done;
+	}
+	#endif
+	return status;
+}

@@ -1,0 +1,23 @@
+# Games Rules
+Each player must agree to these rules. If you have any issues with these rules or believe something should be changed, please contact us. Our contact information can be found in the README file located in the "docs" folder.
+1. No spamming. Sending messages that crash screen readers, lag the game, or repeatedly sending the same message is considered spam. Please do not paste game messages into the public or local chat.
+2. Please show respect to everybody. No hate speech, bullying, racest, sexual comments or bad language will be tolerated.
+3. Follow instructions. If a staff member gives an instruction, you are expected to comply. In addition, please read all signs in the game.
+4. Please do not ask to be staff. If a slot becomes available, we shall contact individduals who we've observed may be suitable for the job.
+5. No combat avoidance. Since combat is part of our game, it is absolutely forbidden to disable PvP or disconnect while in the midst of a fight.
+6. Report bugs. If you discover a bug in the game that simplifies obtaining items or offers any other advantage, you are obligated to report it to the administrators by sending an admin tell or pressing the F7 key.
+7. No empty admin tells. Sending empty spam messages in admin tells is prohibited. Continued violation may result in being jailed.
+8. Cheating is strictly forbidden. You may not cheat or hack the game. This includes, but is not limited to: editing variables, intercepting server data, modifying packets, decrypting sounds or dynamic link libraries, and stealing credentials such as configuration files, usernames, or passwords stored by the game.
+9. Character and housing limits. Players are limited to a maximum of two characters and one house per account. for example,  if you have two characters, they will share the one house.
+10. Please make sure your char logs in at least once every six months to avoid character deletion along with your houses and stores. This ensures there is enough space for everyone on the server.
+11. Boss rules. After killing bosses, such as gods or other large monsters, you must leave the map. and make opertunities for other players to kill. No stealing kills. If you are caught doing so, or someone reports you, you will be sent to jail for at least 12 hours.
+12. Suggestions welcome, demands are not. We welcome any suggestions and feedback; however,, Forcing us to implement specific changes will result in you being jailed.
+
+Any non-compliance with these rules will result in consequences, the severity of which will depend on the nature and frequency of your actions.
+
+General rules regarding this will be:
+- Two official staff warnings.
+- Jail.
+- A temporary ban or to follow a permanent ban, depending on the situation.
+
+If you do not agree with the rules outlined above, please log out of the game immediately.

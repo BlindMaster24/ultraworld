@@ -1,0 +1,15 @@
+string ritem_ntm(string w) {
+	inventory v;
+	json j;
+	if (!j.loadf("ntm/" + w + ".json")) return "";
+	json_object r = j.get("ritems", json_object());
+	string[] k = r.get_keys();
+	if (k.length() < 1) return "";
+	for (uint a = 0; a < k.length(); a++) {
+		string l = k[a];
+		double f = r.get(l, 0);
+		if (f < 1) continue;
+		v.give(l, f);
+	}
+	return v.export();
+}

@@ -1,0 +1,5 @@
+namespace scp::actions::server {
+	void svehicles() {
+		sendcommand("/stop_vehicles");
+	}
+}

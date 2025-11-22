@@ -1,0 +1,41 @@
+#include "msgpack.nvgt"
+class messager {
+	private mp_map items;
+	messager() {
+		this.items = mp_map();
+	}
+	messager(mp_map@ i) {
+		this.items = i;
+	}
+	messager(string val) {
+		this.load_str(val);
+	}
+	void load_str(string str) {
+		this.items = mp_map();
+		mp_value@ v = mp_loads(str);
+		if (@v == null) return;
+		if (v.type != MPT_MAP) return;
+		this.items = v;
+	}
+	void add(string name, string val) {
+		this.items.set(name, val);
+	}
+	//Function to read
+	string get_value(string name) property {
+		string f;
+		this.items.get(name, f);
+		return f;
+	}
+	string get_value(string key, string def) {
+		string f = this.value[key];
+		if (f == "") f = def;
+		return f;
+	}
+	bool exists(string key) {
+		return this.items.exists(key);
+	}
+	string get_packet() property {
+		string f;
+		return mp_dumps(this.items);
+	}
+}//End

@@ -1,0 +1,44 @@
+namespace scp::actions::misc {
+	void multicommand() {
+		nv_form f;
+		f.create_window("Multicommand", false);
+		nv_form_list_box@ list = f.add_list("Commands", "cmds");
+		@list.shortcut = nv_shortcut(KEY_C, false, false, true);
+		nv_form_button@ add = f.add_button("Add command", "acmd");
+		@add.shortcut = nv_shortcut(KEY_A, false, false, true);
+		nv_form_button@ ok = f.add_button("Send", "ok", primary = true);
+		@ok.shortcut = nv_shortcut(KEY_S, false, false, true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(list, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			else if (f.is_pressed(ok)) {
+				if (list.items.length() < 1) {
+					speak("One or more commands is required");
+					f.focus_control(list, false, false);
+					continue;
+				}
+				string[] cmds;
+				foreach (nv_form_list_item@ l: list.items)
+					cmds.insert_last(l.text);
+				multicmd(cmds);
+				break;
+			} else if (f.is_pressed(add)) {
+				string cmd = input("Command", "Command to add", multiline = true);
+				if (cmd == "") continue;
+				list.add(cmd, cmd);
+				speak("Command added");
+			} else if (@f.current_control == @list && @list.focused_item != null) {
+				if (key_pressed(KEY_DELETE)) {
+					string rm = list.focused_item.text;
+					list.delete(list.focused_item.id);
+					speak("Command deleted: " + rm);
+					continue;
+				}
+			}
+		}
+		f.reset();
+	}
+}

@@ -1,0 +1,124 @@
+int auctiontime = 30000;
+timer auctimer;
+namespace auction {
+	bool doing = false;
+	string item, need, auctioner, last_bidder;
+	double amount, bid, minbid;
+	void reset(string msg = "", string snd = "auctionwon" + sndtype, string buffer = "auctions", string prefix = "Auction reset: %x%") {
+		auction::auctioner = "";
+		auction::last_bidder = "";
+		auction::item = "";
+		auction::amount = -1;
+		auction::bid = -1;
+		auction::minbid = 0;
+		auction::doing = false;
+		auction::need = "";
+		auctimer.restart();
+		string f = prefix.replace("%x%", msg);
+		if (msg != "") {
+			bsend(0, buffer, snd, f);
+		}
+	}
+	void start(string what, double am, string whatget, double mbid, player@ p) {
+		am = round(am, 0);
+		mbid = round(mbid, 0);
+		if (mbid < 1) return;
+		if (auction::doing) {
+			p.sendpacket("There is an auction in progress", 0);
+			return;
+		}
+		if (p.inv.get_item_amount(what) < am) {
+			p.sendpacket("You don't have that much " + what, 0);
+			return;
+		}
+		auction::reset();
+		auction::item = what;
+		auction::amount = am;
+		auction::minbid = mbid;
+		auction::need = whatget;
+		@auction::owner = p;
+		auction::doing = true;
+		snotify(0, "A new auction from " + p.nickname + "! " + am + " " + what + ", minimum bid " + mbid + " " + whatget, "auction" + sndtype, true, "auctions");
+	}
+	string get_info() property {
+		if (!auction::doing) return "No auction's in progress";
+		string[] f;
+		f.insert_last("Remaining time: " + ms_to_readable_time(auctiontime - auctimer.elapsed));
+		f.insert_last("Auction from " + auction::owner.nickname + ": " + auction::amount + " " + auction::item + ", minimum bid " + auction::minbid + " " + auction::need);
+		player@ l = auction::bidder;
+		if (@l != null) f.insert_last("Last bidding: " + auction::bid + " " + auction::need + " by " + l.nickname);
+		return join(f, " - ");
+	}
+	player@ owner {
+		get {
+			return get_player_obj_from(auction::auctioner);
+		}
+		set {
+			auction::auctioner = "";
+			if (@value != null) auction::auctioner = value.name;
+		}
+	}
+	player@ bidder {
+		get {
+			return get_player_obj_from(auction::last_bidder);
+		}
+		set {
+			auction::last_bidder = "";
+			if (@value != null) auction::last_bidder = value.name;
+		}
+	}
+	void make_bid(player@ p, double b) {
+		b = round(b, 0);
+		if (!auction::doing) {
+			p.sendpacket("There is no auction in progress", 0);
+			return;
+		}
+		if (@auction::owner == @p) {
+			p.sendpacket("You cannot bid in your own auction", 0);
+			return;
+		}
+		if (p.inv.get_item_amount(auction::need) < b) {
+			p.sendpacket("You don't have that much " + auction::need, 0);
+			return;
+		}
+		if (b < auction::minbid) {
+			p.sendpacket("Minimum bid is " + auction::minbid + " " + auction::need, 0);
+			return;
+		}
+		if (b <= auction::bid) {
+			p.sendpacket("Last bid is " + auction::bid + " " + auction::need, 0);
+			return;
+		}
+		auction::bid = b;
+		@auction::bidder = p;
+		auctimer.restart();
+		snotify(0, p.nickname + " has bid " + b + " " + auction::need + "!", "bid" + sndtype, true, "auctions");
+	}
+	void loop() {
+		if (!auction::doing) return;
+		player@ own = auction::owner;
+		if (@own == null) {
+			auction::reset("Owner offline");
+			return;
+		}
+		player@ l = auction::bidder;
+		if (own.inv.get_item_amount(auction::item) < auction::amount || (@l != null && l.inv.get_item_amount(auction::need) < auction::bid)) {
+			auction::reset("One or more items required are not met");
+			return;
+		}
+		if (auctimer.elapsed < auctiontime) return;
+		if (auction::last_bidder == "") {
+			auction::reset("Auction returned to " + own.nickname, prefix = "%x%");
+			return;
+		}
+		if (@l == null) {
+			auction::reset("Last bidder offline");
+			return;
+		}
+		own.inv_add_item(auction::item, -auction::amount, false);
+		own.inv_add_item(auction::need, auction::bid);
+		l.inv_add_item(auction::need, -auction::bid, false);
+		l.inv_add_item(auction::item, auction::amount);
+		auction::reset("Auction's ended. " + own.nickname + " sold " + auction::amount + " " + auction::item + " to " + l.nickname + " for " + auction::bid + " " + auction::need, prefix = "%x%");
+	}
+}

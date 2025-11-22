@@ -1,0 +1,56 @@
+void buildreverb() {
+	string nums = "1234567890-";
+	string mx, mmx, my, mmy, mz, mmz, id, dry, wet, rooms, damp, width;
+	form.create_window("Reverb", false);
+	int a = form.create_input_box("type the minimum x of the Reverb");
+	int b = form.create_input_box("type the maximum x of the Reverb");
+	int c = form.create_input_box("type the minimum y of the Reverb");
+	int d = form.create_input_box("type the maximum y of the Reverb");
+	int e = form.create_input_box("type the minimum z of the Reverb");
+	int f = form.create_input_box("type the maximum z of the Reverb");
+	int g = form.create_input_box("type the ID of the Reverb");
+	int dm = form.create_input_box("type the dry value of the Reverb (0.0 to 1.0)", "1.0");
+	int wm = form.create_input_box("type the wet value of the Reverb (0.0 to 1.0)", "1.0");
+	int rs = form.create_input_box("type the room size of the Reverb (0.0 to 1.0)", "0.8");
+	int dp = form.create_input_box("type the damp value of the Reverb (0.0 to 1.0)", "0.5");
+	int wt = form.create_input_box("type the width value of the Reverb (0.0 to 1.0)", "1.0");
+	form.set_disallowed_chars(a, nums, true);
+	form.set_disallowed_chars(b, nums, true);
+	form.set_disallowed_chars(c, nums, true);
+	form.set_disallowed_chars(d, nums, true);
+	form.set_disallowed_chars(e, nums, true);
+	form.set_disallowed_chars(f, nums, true);
+	int ok = form.create_button("finish", false);
+	int can = form.create_button("cancel", false, true);
+	form.focus(a);
+	while (true) {
+		wait(5);
+		form.monitor(); mainloop();
+		mx = form.get_text(a);
+		mmx = form.get_text(b);
+		my = form.get_text(c);
+		mmy = form.get_text(d);
+		mz = form.get_text(e);
+		mmz = form.get_text(f);
+		id = form.get_text(g);
+		dry = form.get_text(dm);
+		wet = form.get_text(wm);
+		rooms = form.get_text(rs);
+		damp = form.get_text(dp);
+		width = form.get_text(wt);
+		if (form.is_pressed(ok)) {
+			form.reset();
+			break;
+		} else if (form.is_pressed(can)) {
+			form.reset();
+			return;
+		}
+	}//while
+	if (mx == "" || mmx == "" || my == "" || mmy == "" || mz == "" || mmz == "" || id == "" || dry == "" || wet == "" || rooms == "" || damp == "" || width == "") {
+		speak("canceled");
+		return;
+	}
+	string se = "reverb:" + mx + ":" + mmx + ":" + my + ":" + mmy + ":" + mz + ":" + mmz + ":" + join({id, dry, wet, rooms, damp, width}, ":");
+	send(0, buildadd + " " + se, 0);
+	return;
+}

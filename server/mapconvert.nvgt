@@ -1,0 +1,32 @@
+#include "includes/hip.nvgt"
+void main() {
+	string[] f = find_files("maps/*.map");
+	if (f.length() > 0) {
+		foreach (string l: f) {
+			string a = l.replace(".map", "");
+			string cf = "maps/" + a;
+			if (!directory_exists(cf)) directory_create(cf);
+			file_put(cf + "/!.map", file_get("maps/" + l));
+			file_delete("maps/" + l);
+		}
+	}
+	string[] es = {
+		"house_of_"
+	};
+	string[] ec = {
+		"_store_of_"
+	};
+	string[] d = find_directories("maps/*");
+	foreach (string a: d) {
+		bool r = false;
+		foreach (string b: es) {
+			if (a.starts_with(b)) r = true;
+		}
+		foreach (string b: ec) {
+			if (stringcontains(a, b, 1) > -1) r = true;
+		}
+		if (!r) continue;
+		directory_delete("maps/" + a);
+	}
+	alert("Done", f.length());
+}

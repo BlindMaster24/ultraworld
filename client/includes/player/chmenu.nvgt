@@ -1,0 +1,19 @@
+namespace player::menu {
+	void ch() {
+		custom_menu c;
+		setupmenu(c);
+		c.add("Change password", "cp");
+		c.create("Managing " + name, true);
+		while(c.running) {
+			wait(5);
+			c.monitor();
+			mainloop();
+			string r = c.click;
+			if (r == "cp") {
+				player::dialog::ch_password();
+				break;
+			}
+		}
+		return;
+	}
+}//

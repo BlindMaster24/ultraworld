@@ -1,0 +1,13 @@
+{
+  "item": "empty_bottle",
+  "items": "carbonated_water;sugar;caramel_syrup;caffeine;phosphoric_acid;cola_essence;citrus",
+  "ritems": {
+    "carbonated_water": 5,
+    "sugar": 5,
+    "caramel_syrup": 2,
+    "caffeine": 1,
+    "phosphoric_acid": 1,
+    "cola_essence": 2,
+    "citrus": 1
+  }
+}

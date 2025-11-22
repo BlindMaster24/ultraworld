@@ -1,0 +1,145 @@
+string banpath = "bans";
+string banex = ".json";
+#include "dget.nvgt"
+class ban {
+	string name;
+	json config;
+	ban(string name) {
+		this.name = name;
+		this.load();
+	}
+	string get_path() property {
+		return join({banpath, this.name + banex}, "/");
+	}
+	bool load() {
+		return this.config.loadf(this.path);
+	}
+	double minutes {
+		get {
+			return this.config.get("minutes", 0);
+		} set {
+			this.config.set("minutes", value);
+			this.save();
+		}
+	}
+	string reason {
+		get {
+			return this.config.get("reason", "");
+		} set {
+			this.config.remove("reason");
+			if (value != "") this.config.set("reason", value);
+			this.save();
+		}
+	}
+	string compid {
+		get {
+			return this.config.get("compid", "");
+		} set {
+			this.config.remove("compid");
+			if (value != "") this.config.set("compid", value);
+			this.save();
+		}
+	}
+	string node_id {
+		get {
+			return this.config.get("node_id", "");
+		} set {
+			this.config.remove("node_id");
+			if (value != "") this.config.set("node_id", value);
+			this.save();
+		}
+	}
+	string date {
+		get {
+			return this.config.get("date", "");
+		} set {
+			this.config.set("date", value);
+			this.save();
+		}
+	}
+	bool save() {
+		if (!directory_exists(banpath)) directory_create(banpath);
+		return file_put(this.path, this.config.dump(2));
+	}
+	bool remove() {
+		if (!file_exists(this.path)) return false;
+		return file_delete(this.path);
+	}
+}
+ban@ load_ban(string name, bool caseless = true) {
+	if (caseless) name = verify_ban(name);
+	if (!file_exists(banpath + "/" + name + banex)) return null;
+	ban b(name);
+	return b;
+}
+ban@ load_ban(string name, bool caseless, dictionary@ args) {
+	if (caseless) name = verify_ban(name);
+	ban@ b = null;
+	ban@[] bs = load_bans();
+	string compid = dgets(args, "compid", "");
+	string node_id = dgets(args, "node_id", "");
+	foreach (ban@ l: bs) {
+		if (@l == null) continue;
+		bool c = false;
+		if (l.name == name) c = true;
+		if (compid != "" && l.compid == compid) c= true;
+		if (node_id != "" && l.node_id == node_id) c= true;
+		if (c) {
+			@b = @l;
+			continue;
+		}
+	}
+	return b;
+}
+ban@[] load_bans() {
+	ban@[] bs(0);
+	string[] f = find_files(banpath + "/*" + banex);
+	if (f.length() < 1) return bs;
+	for (uint i = 0; i < f.length(); i++) {
+		string l = string_trimright(f[i], banex.length());
+		ban@ b = load_ban(l, false);
+		if (@b == null) continue;
+		bs.insert_last(b);
+	}
+	return bs;
+}
+string verify_ban(string name) {
+	string[] f = find_files(banpath + "/*" + banex);
+	if (f.length() > 1) {
+		for (uint i = 0; i < f.length(); i++) {
+			string l = string_trimright(f[i], banex.length());
+			if (l.lower() == name.lower()) name = l;
+		}
+	}
+	return name;
+}
+void check_ban(ban@ b) {
+	if (@b is null) return;
+	if (b.minutes <= 0) return;
+	datetime c;
+	string[] l = b.date.split("/");
+	double y = 0, m = 0, d = 0, h = 0, mn = 0, s = 0;
+	try {
+		y = stn(l[0]);
+		m = stn(l[1]);
+		d = stn(l[2]);
+		h = stn(l[3]);
+		mn = stn(l[4]);
+		s = stn(l[5]);
+	} catch {}
+	if (y < 1) return;
+	c.set(y, m, d, h, mn, s);
+	timestamp t = c.timestamp;
+	t += b.minutes * MINUTES;
+	c = t;
+	datetime n;
+	if (n >= c) b.remove();
+}
+void check_bans() {
+	ban@[] bs = load_bans();
+	if (bs.length() < 1) return;
+	foreach (ban@ b: bs) {
+		if (@b == null) continue;
+		check_ban(@b);
+	}
+}

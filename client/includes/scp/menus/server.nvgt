@@ -1,0 +1,78 @@
+namespace scp::menus {
+	void server() {
+		custom_menu c;
+		setupmenu(c);
+		if (assistant) {
+			c.add("Collect the garbage", "garbage_collect");
+			c.add("Clean the chartrash", "chartrash");
+		}
+		if (admin) {
+			c.add("start the game", "gstart");
+			c.add("stop the game", "gstop");
+			c.add("Destroy player properties", "psd");
+			c.add("Backup data", "backup");
+			c.add("Toggle XP features", "xp");
+			c.add("Reboot all AI's", "reai");
+			c.add("Reboot the mapsystem", "remaps");
+		}
+		if (manager) {
+			c.add("Set a server variable", "vset");
+			c.add("Remove a server variable", "vrem");
+			c.add("stop all vehicles", "svehicles");
+			c.add("stop all motors", "smotors");
+			c.add("Destroy a team", "tdest");
+		}
+		if (c.get_item_length() < 1) return;
+		c.create("Server Management Panel", true);
+		while (c.running) {
+			wait(5);
+			c.monitor();
+			mainloop();
+			string r = c.click;
+			if (r == "svehicles") {
+				scp::actions::server::svehicles();
+				break;
+			} else if (r == "smotors") {
+				scp::actions::server::smotors();
+				break;
+			} else if (r == "garbage_collect") {
+				scp::actions::server::garbage_collect();
+				break;
+			} else if (r == "chartrash") {
+				scp::actions::server::chartrash();
+				break;
+			} else if (r == "gstart") {
+				scp::actions::server::gstart();
+				break;
+			} else if (r == "gstop") {
+				scp::actions::server::gstop();
+				break;
+			} else if (r == "reai") {
+				scp::actions::server::reai();
+				break;
+			} else if (r == "remaps") {
+				scp::actions::server::remaps();
+				break;
+			} else if (r == "vset") {
+				scp::actions::server::vset();
+				break;
+			} else if (r == "vrem") {
+				scp::actions::server::vrem();
+				break;
+			} else if (r == "psd") {
+				scp::actions::server::psd();
+				break;
+			} else if (r == "backup") {
+				scp::actions::server::backup();
+				break;
+			} else if (r == "xp") {
+				scp::actions::server::xp();
+				break;
+			} else if (r == "tdest") {
+				scp::actions::server::tdest();
+				break;
+			}
+		}//While
+		return;
+	}//End
+}

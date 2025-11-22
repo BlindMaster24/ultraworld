@@ -1,0 +1,50 @@
+namespace scp::menus {
+	void porms() {
+		custom_menu c;
+		setupmenu(c);
+		if (assistant) {
+			c.add("Kick a player", "kick");
+			c.add("Warn a player", "warn");
+			c.add("Jail a player", "jail");
+			c.add("Unjail a player", "unjail");
+		}
+		if (manager) {
+			c.add("Ban a player", "ban");
+			c.add("Unban a player", "unban");
+		}
+		if (assistant) {
+			c.add("Modify player features", "pfeature");
+		}
+		if (c.get_item_length() < 1) return;
+		c.create("Player Offense Repercussion Management System", true);
+		while (c.running) {
+			wait(5);
+			c.monitor();
+			mainloop();
+			string r = c.click;
+			if (r == "kick") {
+				scp::actions::porms::kick();
+				break;
+			} else if (r == "warn") {
+				scp::actions::porms::warn();
+				break;
+			} else if (r == "ban") {
+				scp::actions::porms::ban();
+				break;
+			} else if (r == "unban") {
+				scp::actions::porms::unban();
+				break;
+			} else if (r == "jail") {
+				scp::actions::porms::jail();
+				break;
+			} else if (r == "unjail") {
+				scp::actions::porms::unjail();
+				break;
+			} else if (r == "pfeature") {
+				scp::actions::porms::pfeature();
+				break;
+			}
+		}//While
+		return;
+	}//End
+}

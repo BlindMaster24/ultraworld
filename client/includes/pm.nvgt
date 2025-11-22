@@ -1,0 +1,75 @@
+pmmsg@[] pmlist(0);
+int maxpm = 100;
+class pmmsg {
+	string name, nickname, message, id;;
+	bool your_reply, reply;
+	pmmsg(string name, string nickname, string message, bool reply = false, bool your_reply = false) {
+		this.name = name;
+		this.nickname = nickname;
+		this.message = message;
+		if (this.nickname == "") this.nickname = this.name;
+		this.reply = reply;
+		this.your_reply = your_reply;
+	}
+	string get_print() property {
+		if (this.your_reply) {
+			if (this.reply)
+				return "You replied to " + this.nickname + " (" + this.name + "): " + message;
+			else
+				return "You sent to " + this.nickname + " (" + this.name + "): " + this.message;
+		}
+		return this.nickname + " (" + this.name + "): " + this.message;
+	}
+}
+string get_pmid() property {
+	return generate_token(10);
+}
+int pm_index(string id) {
+	foreach (pmmsg@ l, uint i: pmlist) {
+		if (l.id == id) return i;
+	}
+	return -1;
+}
+pmmsg@ pm_obj(string id) {
+	int x = pm_index(id);
+	if (x < 0) return null;
+	return @pmlist[x];
+}
+string add_pm(string w, string nickname, string message, bool reply = false, bool your_reply = false) {
+	pmmsg a(w, nickname, message, reply, your_reply);
+	string id = pmid;
+	while(pm_index(id) > -1) {
+		id = pmid;
+		if (pm_index(id) < 0) break;
+	}
+	a.id = id;
+	pmlist.insert_last(a);
+	if (pmlist.length() > maxpm) pmlist.remove_at(0);
+	return id;
+}
+void pmmenu() {
+	if (pmlist.length() < 1) {
+		speak("No history");
+		return;
+	}
+	custom_menu c;
+	setupmenu(c);
+	foreach (pmmsg@ l: pmlist) {
+		c.add(l.print, l.id);
+	}
+	c.create("Private messages history (" + c.item_length + " " + pluralize(c.item_length, "entry", "entries") + ")", true);
+	while(c.running) {
+		wait(5);
+		c.monitor();
+		mainloop();
+		string r = c.click;
+		if (r != "" && pm_index(r) > -1) {
+			pmmsg@ l = pm_obj(r);
+			string i = input("Reply", "Type the message to reply to " + l.nickname + " (" + l.name + ")");
+			if (i != "") {
+				send(peer_id, "reply " + l.name + " " + i, 0);
+				break;
+			}
+		}
+	}
+}

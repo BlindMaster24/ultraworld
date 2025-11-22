@@ -1,0 +1,8 @@
+{
+  "item": "big_chocolate_bar",
+  "items": "milk;sugar",
+  "ritems": {
+    "milk": 1,
+    "sugar": 1
+  }
+}

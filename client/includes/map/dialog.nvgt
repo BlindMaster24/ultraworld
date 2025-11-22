@@ -1,0 +1,63 @@
+dialog@[] dialogs(0);
+class dialog {
+	double minx, maxx, miny, maxy, minz, maxz;
+	string map, id;
+	string[] items;
+	dialog(double a, double b, double c, double d, double e, double f, string m, string zID = randomstring(15)) {
+		this.minx = a; this.maxx = b;
+		this.miny = c; this.maxy = d;
+		this.minz = e; this.maxz = f;
+		this.map = m;
+		this.id = zID;
+	}
+}//
+dialog@ find_dialog(string id) {
+	if (dialogs.length() < 1) return null;
+	for (uint i = 0; i < dialogs.length(); i++) {
+		if (dialogs[i].id == id) return dialogs[i];
+	}
+	return null;
+}
+void spawn_dialog(double a, double b, double c, double d, double e, double f, string m, string sid = generate_token(10)) {
+	dialog@ sf = find_dialog(sid);
+	while (@sf != null) {
+		sid = generate_token(10);
+		@sf = find_dialog(sid);
+		if (@sf == null) break;
+	}
+	dialog s(a, b, c, d, e, f, m, sid);
+	dialogs.insert_last(s);
+}
+bool dialogcheck() {
+	if (dialogs.length() < 1) return false;
+	for (uint i = 0; i < dialogs.length(); i++) {
+		if (inrange(me.x, me.y, me.z, vector(dialogs[i].minx, dialogs[i].miny, dialogs[i].minz), vector(dialogs[i].maxx, dialogs[i].maxy, dialogs[i].maxz))) {
+			send_dlgs(dialogs[i].items);
+			return true;
+		}
+	}//i
+	return false;
+}
+void send_dlgs(string[] items) {
+	if (items.length() < 1) return;
+	uint count = 0;
+	get_characters();
+	speak(items[count]);
+	while (true) {
+		wait(5);
+		mainloop();
+		if (key_pressed(KEY_LEFT) or key_pressed(KEY_RIGHT) or key_pressed(KEY_UP) or key_pressed(KEY_DOWN))
+			speak(items[count]);
+		else if (key_pressed(KEY_RETURN)) {
+			if (shift_down) {
+				if (count > 0) count --;
+			} else {
+				count++;
+			}
+			if (count >= items.length()) break;
+			speak(items[count]);
+		}
+		if (key_pressed(KEY_ESCAPE) or key_pressed(KEY_AC_BACK))
+			break;
+	}//While
+}//

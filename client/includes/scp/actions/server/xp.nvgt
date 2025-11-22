@@ -1,0 +1,36 @@
+namespace scp::actions::server {
+	void xp() {
+		nv_form f;
+		f.create_window("XP Features", false);
+		nv_form_list_box@ features = f.add_list("Types of XP to toggle (multiple options)", "features", multiselect = true);
+		features.add("Double XP", "double");
+		features.add("Super XP", "super");
+		features.add("Mega XP", "mega");
+		features.add("Giga XP", "giga");
+		features.add("Master XP", "master");
+		@features.shortcut = nv_shortcut(KEY_L, alt = true);
+		nv_form_button@ ok = f.add_button("Ok", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(features, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				string[] list;
+				foreach (nv_form_list_item@ l: features.items) {
+					if (@l == null || !l.selected) continue;
+					list.insert_last("/" + l.id + "xp");
+				}
+				if (list.length() < 1) {
+					speak("One or more features has to be selected");
+					f.focus_control(features, false, false);
+					continue;
+				}
+				multicmd(list);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

@@ -1,0 +1,30 @@
+namespace scp::actions::porms {
+	void ban() {
+		nv_form f;
+		f.create_window("Ban", false);
+		nv_form_input@ user = f.add_input("Username", "user");
+		@user.shortcut = nv_shortcut(KEY_U, alt = true);
+		nv_form_input@ reason = f.add_input("Reason (optional)", "reason");
+		@reason.shortcut = nv_shortcut(KEY_R, alt = true);
+		nv_form_input@ mmin = f.add_input("Minute (0 is permanent)", "min", "0");
+		@mmin.shortcut = nv_shortcut(KEY_M, alt = true);
+		nv_form_button@ ok = f.add_button("Ban", "ban", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(user, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (user.text == "") {
+					speak("Username is required");
+					f.focus_control(user, false, false);
+					continue;
+				}
+				sendcommand("/ban " + user.text + " reason=" + reason.text + "|minute=" + stn(mmin.text));
+				break;
+			}
+		}
+		f.reset();
+	}
+}

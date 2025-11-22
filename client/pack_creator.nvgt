@@ -1,0 +1,203 @@
+/*
+MIT License
+
+Copyright (c) 2024 [Harry Min Khant](https://harrymkt.github.io)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+#pragma namespace sound upcoming
+#pragma plugin legacy_sound
+file f;
+pack pfile;
+bool encrypt = false;
+string[] folder;
+string encryption_key = "";
+string filename;
+string foldername;
+string[] fol;
+bool cont = true;
+bool silent = false;
+timer pkctimer;
+#include "size.nvgt"
+#include "speech.nvgt"
+uint64 packsize;
+void main() {
+	string[] lines = COMMAND_LINE.split(" ", true);
+	if (lines.find("/s") > -1) silent = true;
+	if (file_exists("pack.pk")) {
+		int a = 0;
+		if (silent == false)
+			a = question("File was found.", "Would you like to use the existing saved data?");
+		else
+			a = 1;
+		if (a == 1)
+			cont = false;
+	}
+	if (cont == false) {
+		f.open("pack.pk", "rb");
+		string a = f.read();
+		f.close();
+		string[] b = a.split("{:}", true);
+		filename = b[0];
+		foldername = b[1];
+		/*int aencrypt = parse_int(b[2]);
+		if (aencrypt == 1)
+			encrypt = true;
+		else
+			encrypt = false;
+		if (encrypt == true)
+			encryption_key = b[3];*/
+	} else if (cont == true) {
+		filename = input_box("Pack Creator", "enter the name of the pack you wish to create");
+		if (filename == "")
+			exit();
+		foldername = input_box("Pack Creator", "enter the path that the files you wish to pack are contained.");
+		if (foldername == "")
+			exit();
+		/*int answer = question("Pack Creator", "Would you like these files to be encrypted");
+		if (answer == 1) {
+			encrypt = true;
+			encryption_key = input_box("File encrypter", "Enter the encryption key you wish to use.");
+			if (encryption_key == "")
+				exit();
+		} else
+			encrypt = false;*/
+		string a = "";
+		f.open("pack.pk", "wb");
+		a = filename + "{:}" + foldername + "{:}";
+		if (encrypt == false)
+			a += "0";
+		/*else
+			a += "1{:}" + encryption_key;*/
+		f.write(a);
+		f.close();
+	}
+	if (!directory_exists(foldername)) {
+		print("Error", "Folder does not exist.");
+		exit(1);
+	}
+	find_stuff(foldername);
+	int packnow = 1;
+	if (silent == false)
+		packnow = alert("Pack Creator", "There are " + fol.length() + " files in the pack, which is " + size_to_string(packsize) + ". Hit OK to start packing!", true);
+	else
+		printf("There are " + fol.length() + " files in the pack, which is " + size_to_string(packsize) + ". Packing...\n");
+	pkctimer.restart();
+	if (packnow != 1) exit();
+	showtext("Creating pack file...");
+	if (!pfile.open(filename, PACK_OPEN_MODE_CREATE)) {
+		print("Error", "Failed to create pack!");
+		exit(1);
+	}
+	if (!silent) show_window("Creating pack " + filename);
+	wait(1000);
+	if (!silent) speak("Press the number row to check information, press Space to get percentage");
+	uint i = 0;
+	int per = -1;
+	uint currentsize = 0, remain = packsize;
+	while(i < fol.length()) {
+		wait(5);
+		double l = fol.length(), ind = i;
+		int p = (ind / l) * 100;
+		if (p != per) {
+			per = p;
+			//if (!silent) beep_percentage(per);
+		}
+		pfile.add_file(fol[i], fol[i].replace(foldername + "/", "", true));
+		uint s = file_get_size(fol[i]);
+		remain -= s;
+		currentsize += s;
+		if (key_pressed(KEY_SPACE)) {
+			speak(per + " percent, " + i + " of " + fol.length());
+		}
+		if (key_pressed(KEY_1)) speak("Completed: " + i + " (" + size_to_string(currentsize) + ")");
+		if (key_pressed(KEY_2)) speak("Remain: " + (fol.length() - i) + " (" + size_to_string(remain) + ")");
+		i ++;
+	}
+	pkctimer.pause();
+	print("Success!", "Pack has been created successfully. The process took " + tinyexpr(pkctimer.elapsed + "/1000") + "seconds.");
+	pfile.close();
+	exit();
+}
+void find_stuff(string path) {
+	string[] items;
+	string[] folders = find_directories(path + "/*");
+	items = folders;
+	string[] files = find_files(path + "/*.*");
+	for (uint i = 0; i < files.length(); i++) {
+		string pathstr = path + "/" + files[i];
+		fol.insert_last(pathstr);
+		packsize += file_get_size(pathstr);
+	}
+	if (items.length() > 0) {
+		for (uint i = 0; i < items.length(); i++)
+			find_stuff(path + "/" + items[i]);
+	}
+}
+bool string_file_encrypt(string input_file, string output_file, string key) {
+	bool success;
+	file f;
+	success = f.open(input_file, "rb");
+	if (!success) return false;
+	string text = f.read();
+	text = string_aes_encrypt(text, key);
+	if (text == "") return false;
+	success = f.open(output_file, "wb");
+	if (!success) return false;
+	f.write(text);
+	success = f.close();
+	return success;
+}
+string get_script_path(bool prefer_slash) {
+	string scriptpath;
+	if (!SCRIPT_COMPILED) {
+		scriptpath = SCRIPT_CURRENT_FILE;
+	} else {
+		scriptpath = SCRIPT_EXECUTABLE;
+	}
+	if (prefer_slash) scriptpath = scriptpath.replace("\\", "/", true);
+	else scriptpath = scriptpath.replace("/", "\\", true);
+	return scriptpath;
+}
+string get_script_path() property {
+	//Will return the script path with the slash based.
+	return get_script_path(true);
+}
+string get_script_dir(bool prefer_slash) {
+	string sdir = script_path;
+	sdir = sdir.replace("\\", "/", true);
+	string[] lines = sdir.split("/", false);
+	if (lines.length() > 1) lines.remove_at((lines.length() - 1));
+	return join(lines, (prefer_slash ? "/" : "\\"));
+}
+string get_script_dir() property {
+	//Will return the script directory with the slash based.
+	return get_script_dir(true);
+}
+bool showtext(string text) {
+	if (silent) {
+		printf(text + "\n");
+		return true;
+	} else return show_window(text);
+}
+int print(string title, string text, bool newline = true) {
+	if (!silent) return alert(title, text);
+	printf((title != "" ? title + " : " : "") + text + (newline ? "\n" : ""));
+	return 0;
+}

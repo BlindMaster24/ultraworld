@@ -1,0 +1,43 @@
+// Sound implementation
+const int sndchannel = 3;
+void play(string snd, double x, double y, double z, string m, bool reliable = true, bool onlyother = true, int index = -1, string alt_snd = "", int range = 0, int distance = -1) {
+	if (players.length() > 0) {
+		for (uint b = 0; b < players.length(); b++) {
+			if (m != "" && players[b].map != m) continue;
+			if (index > -1 && onlyother && players[index].peer_id == players[b].peer_id) continue;
+			int r = range;
+			if (distance > -1 && get_3d_distance(vector(x, y, z), players[b].cd) > distance) continue;
+			messager a;
+			a.add("message", "playsnd");
+			a.add("soundname", snd);
+			a.add("x", x);
+			a.add("y", y);
+			a.add("z", z);
+			if (alt_snd != "") a.add("alt_snd", alt_snd);
+			if (r > 0) a.add("range", r);
+			uint id = players[b].peer_id;
+			send(id, a, sndchannel, reliable);
+		}
+	}
+	return;
+}
+void play(string snd, vector min, vector max, string m, bool reliable = true, bool onlyother = true, int index = -1, string alt_snd = "", int range = 0, int distance = -1) {
+	if (players.length() > 0) {
+		for (uint b = 0; b < players.length(); b++) {
+			if (m != "" && players[b].map != m) continue;
+			if (index > -1 && onlyother && players[index].peer_id == players[b].peer_id) continue;
+			int r = range;
+			if (distance > -1 && get_clamped_3d_distance(players[b].cd, min, max) > distance) continue;
+			messager a;
+			a.add("message", "playsnd2");
+			a.add("soundname", snd);
+			a.add("min", min.x + ";" + min.y + ";" + min.z);
+			a.add("max", max.x + ";" + max.y + ";" + max.z);
+			if (alt_snd != "") a.add("alt_snd", alt_snd);
+			if (r > 0) a.add("range", r);
+			uint id = players[b].peer_id;
+			send(id, a, sndchannel, reliable);
+		}
+	}
+	return;
+}

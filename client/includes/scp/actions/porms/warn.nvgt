@@ -1,0 +1,30 @@
+namespace scp::actions::porms {
+	void warn() {
+		nv_form f;
+		f.create_window("Warn", false);
+		nv_form_input@ user = f.add_input("Username", "user");
+		nv_form_input@ reason = f.add_input("Reason", "reason");
+		nv_form_button@ ok = f.add_button("Warn", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(user, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (user.text == "") {
+					speak("Username is required");
+					f.focus_control(user, false, false);
+					continue;
+				} else if (reason.text == "") {
+					speak("Reason is required");
+					f.focus_control(reason, false, false);
+					continue;
+				}
+				sendcommand("/warn " + user.text + " " + reason.text);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

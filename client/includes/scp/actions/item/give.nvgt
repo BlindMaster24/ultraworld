@@ -1,0 +1,35 @@
+namespace scp::actions::item {
+	void give() {
+		nv_form f;
+		f.create_window("Give item, a specific player", false);
+		nv_form_input@ user = f.add_input("Username", "user");
+		nv_form_input@ item = f.add_input("Item name", "item");
+		nv_form_input@ amount = f.add_input("amount", "amount");
+		nv_form_button@ ok = f.add_button("Give", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(user, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (user.text == "") {
+					speak("Username is required");
+					f.focus_control(user, false, false);
+					continue;
+				} else if (item.text == "") {
+					speak("item name is required");
+					f.focus_control(item, false, false);
+					continue;
+				} else if (amount.text == "") {
+					speak("Amount is required");
+					f.focus_control(amount, false, false);
+					continue;
+				}
+				sendcommand("/give " + user.text + " " + item.text + " " + amount.text);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

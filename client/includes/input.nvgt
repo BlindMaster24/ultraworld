@@ -1,0 +1,56 @@
+// Input implementations
+funcdef int input_process_loop();
+input_process_loop@ default_input_process_loop = null;
+string input(string title, string field, string default_text = "", string password_mask = "", int maximum_length = 0, bool read_only = false, bool multiline = false, string button1 = "Ok", string button2 = "Cancel", string def = "", string disallowed_chars = "", bool use_only_disallowed_chars = false, string char_disallowed_description = "", bool button1primary = true, bool button1cancel = false, bool button2primary = false, bool button2cancel = true, audio_form@ form = null, input_process_loop@ illop = @default_input_process_loop, int sel_start = -1, int sel_end = -1) {
+	if (@form == null) @form = audio_form();
+	form.reset();
+	form.create_window(title, false);
+	int f = form.create_input_box(field, default_text, password_mask, maximum_length, read_only, multiline, false);
+	form.select_text(sel_start, sel_end);
+	int a = -1, b = -1;
+	if (button1 != "") a = form.create_button(button1, button1primary, button1cancel);
+	if (button2 != "") b = form.create_button(button2, button2primary, button2cancel);
+	if (disallowed_chars.length() > 0) form.set_disallowed_chars(f, disallowed_chars, use_only_disallowed_chars, char_disallowed_description);
+	form.focus(f);
+	while (form.active) {
+		wait(5);
+		form.monitor();
+		if (@illop != null) illop();
+		if (a > -1 && form.is_pressed(a)) {
+			string text = form.get_text(f);
+			if (text == "") text = def;
+			form.reset();
+			return text;
+		} else if (b > -1 && form.is_pressed(b)) {
+			form.reset();
+			return def;
+		}
+	}
+	return def;
+}//
+string nvinput(string title, string field, string default_text = "", string password_mask = "", int maximum_length = 0, bool read_only = false, bool multiline = false, string button1 = "Ok", string button2 = "Cancel", string def = "", string disallowed_chars = "", bool use_only_disallowed_chars = false, string char_disallowed_description = "", bool button1primary = true, bool button1cancel = false, bool button2primary = false, bool button2cancel = true, nv_form@ f = null, input_process_loop@ illop = @default_input_process_loop, int sel_start = -1, int sel_end = -1) {
+	if (@f == null) @f = nv_form();
+	f.reset();
+	f.create_window(title, false);
+	nv_form_input@ ft = f.add_input(field, "text", default_text, password_mask, maximum_length, read_only, multiline);
+	if (disallowed_chars.length() > 0) ft.set_disallowed_chars(disallowed_chars, use_only_disallowed_chars, char_disallowed_description);
+	ft.select(sel_start, sel_end);
+	nv_form_button@ a = null, b = null;
+	if (button1 != "") @a = f.add_button(button1, "b1", button1primary, button1cancel);
+	if (button2 != "") @b = f.add_button(button2, "b2", button2primary, button2cancel);
+	f.focus_control(ft, false, false);
+	while (f.monitor()) {
+		wait(5);
+		if (@illop != null) illop();
+		if (@a != null && f.is_pressed(a)) {
+			string text = ft.text;
+			if (text == "") text = def;
+			f.reset();
+			return text;
+		} else if (@b != null && f.is_pressed(b)) {
+			f.reset();
+			return def;
+		}
+	}
+	return def;
+}//

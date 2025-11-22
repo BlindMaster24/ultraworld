@@ -1,0 +1,66 @@
+void buildev() {
+	if (floors.length() < 1) {
+		speak("Build some floors first");
+		return;
+	}
+	form.reset();
+	string nums = "1234567890-";
+	string mx, mmx, my, mmy, mz, mmz, speed;
+	string text_open, text_close;
+	form.create_window("elevator", false);
+	int a = form.create_input_box("type the minimum &x of the elevator");
+	int b = form.create_input_box("type the maximum &x of the elevator");
+	int c = form.create_input_box("type the minimum &y of the elevator");
+	int d = form.create_input_box("type the maximum &y of the elevator");
+	int e = form.create_input_box("type the minimum &z of the elevator");
+	int f = form.create_input_box("type the maximum &z of the elevator");
+	form.set_disallowed_chars(a, nums, true);
+	form.set_disallowed_chars(b, nums, true);
+	form.set_disallowed_chars(c, nums, true);
+	form.set_disallowed_chars(d, nums, true);
+	form.set_disallowed_chars(e, nums, true);
+	form.set_disallowed_chars(f, nums, true);
+	int sp = form.create_input_box("&Speed, in milliseconds, -1=instant");
+	form.set_disallowed_chars(sp, nums, true);
+	int t_o = form.create_input_box("Text when the elevator is &activated (optional");
+	int t_c = form.create_input_box("Text when the elevator is &deactivated (optional");
+	int ok = form.create_button("finish", false);
+	int can = form.create_button("cancel", false, true);
+	form.focus(a);
+	while (true) {
+		wait(5);
+		form.monitor(); mainloop();
+		mx = form.get_text(a);
+		mmx = form.get_text(b);
+		my = form.get_text(c);
+		mmy = form.get_text(d);
+		mz = form.get_text(e);
+		mmz = form.get_text(f);
+		speed = form.get_text(sp);
+		text_open = form.get_text(t_o);
+		text_close = form.get_text(t_c);
+		if (form.is_pressed(ok)) {
+			form.reset();
+			break;
+		} else if (form.is_pressed(can)) {
+			form.reset();
+			return;
+		}
+	}//while
+	if (mx == "" || mmx == "" || my == "" || mmy == "" || mz == "" || mmz == "") {
+		speak("canceled");
+		return;
+	}
+	string snd_open = list_ds3s();
+	string snd_close = list_ds4s();
+	string[] ha(0);
+	if (speed != "") ha.insert_last("speed=" + speed);
+	if (snd_open != "") ha.insert_last("snd_open=" + snd_open + ".ogg");
+	if (snd_close != "") ha.insert_last("snd_close=" + snd_close + ".ogg");
+	if (text_open != "") ha.insert_last("text_open=" + text_open);
+	if (text_close != "") ha.insert_last("text_close=" + text_close);
+	string se = "elevator:" + mx + ":" + mmx + ":" + my + ":" + mmy + ":" + mz + ":" + mmz;
+	if (ha.length() > 0) se += ":" + join(ha, "|");
+	send(0, buildadd + " " + se, 0);
+	return;
+}

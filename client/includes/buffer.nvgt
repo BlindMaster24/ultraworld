@@ -1,0 +1,313 @@
+/*
+MIT License
+
+Copyright (c) 2024 [Harry Min Khant](https://harrymkt.github.io)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+#include "dget.nvgt"
+#include "speech.nvgt"
+sound buffersound;
+double convert_to_pan(double length, double index, double range1, double range2) {
+	double range = range2 - range1;
+	double percent = 0;
+	try {
+		if (length > 0 and index > 0) percent = index / (length);
+	} catch {
+		percent = 0;
+	}
+	double value = range1 + range * percent;
+	return value;
+}
+int bufferpos;
+int bufferbeep = 1;
+buffer@[] buffers(0);
+string buffer_default_snd = "bufferswitch.ogg";
+string buffer_default_item_snd = "buffermove.ogg";
+class bufferitem {
+	string value, id;
+	any@ data;
+	bufferitem(string value, string id = "", any@ data = null) {
+		this.value = value;
+		this.id = id;
+		@this.data = data;
+	}
+	string get_display() property {
+		return this.value;
+	}
+}
+dictionary@ buffer_text = null;
+bool buffer_hidezero = true;
+funcdef bool can_use_buffer(buffer@ b);
+can_use_buffer@ buffer_default_can_use = null;
+class buffer {
+	bool interrupt = false, muted = false;
+	int active = 1;
+	int pos;
+	string id, name;
+	bufferitem@[] items;
+	bool hidezero = buffer_hidezero;
+	string snd = buffer_default_snd;
+	string item_snd = buffer_default_item_snd;
+	can_use_buffer@ canuse = null;
+	buffer(string id, string name = "", can_use_buffer@ cuse = buffer_default_can_use) {
+		this.name = name;
+		this.id = id;
+		if (this.name == "") this.name = this.id;
+		@this.canuse = @cuse;
+	}
+	void clear() {
+		this.items.resize(0);
+		this.pos = 0;
+	}
+	bufferitem@ get_item(string mid) {
+		foreach (bufferitem@ l: this.items) {
+			if (l.id == mid) return @l;
+		}
+		return null;
+	}
+	bool get_can_use() property {
+		if (@this.canuse == null) return true;
+		return this.canuse(this);
+	}
+}
+buffer@ get_buffer(string id) {
+	foreach (buffer@ b: buffers) {
+		if (b.id == id) return @b;
+	}
+	return null;
+}
+buffer@ get_current_buffer() property {
+	int x = bufferpos;
+	if (buffers.length() < 1 || x < 0 || x > buffers.length() - 1) return null;
+	return @buffers[x];
+}
+buffer@[] get_can_use_buffers() property {
+	buffer@[] b(0);
+	foreach (buffer@ a: buffers) {
+		if (@a == null || !a.can_use) continue;
+		b.insert_last(@a);
+	}
+	return b;
+}
+bool create_buffer(string id, string name = "", can_use_buffer@ canuse = buffer_default_can_use) {
+	buffer@ b = get_buffer(id);
+	if (@b != null) return false;
+	buffer new(id, name, @canuse);
+	buffers.insert_last(new);
+	return true;
+}
+bool add_buffer_item(string id, bufferitem@ item, bool silent = false, bool in_all = true, bool force_speech = false) {
+	if (@get_buffer(id) == null) return false;
+	if (@item == null) return false;
+	buffer@ b = get_buffer(id);
+	buffer@ a = get_buffer("all");
+	if (@b is null) return false;
+	if (b.active != 1) return false;
+	if (b.id != "all" && (force_speech || (!silent && !b.muted))) speak(item.display, b.interrupt);
+	b.items.insert_last(item);
+	if (@a != null && in_all) a.items.insert_last(item);
+	return true;
+}
+bool add_buffer_item(string id, string item, bool silent = false, bool in_all = true, any@ data = null, string mid = "", bool force_speech = false) {
+	return add_buffer_item(id, bufferitem(item, mid, data), silent, in_all, force_speech);
+}
+bool export_buffer(string id, string folder = "logs", string ext = ".log") {
+	if (!directory_exists(folder)) directory_create(folder);
+	buffer@ b = get_buffer(id);
+	if (@b == null) return false;
+	if (b.items.length() <= 0) return false;
+	string temp = "\nexported on " + calendar().format("%d/%m/%Y, %H:%M:%S %A %z");
+	for (uint i2 = 0; i2 < b.items.length(); i2++)
+		temp += "\n" + b.items[i2].display;
+	file f;
+	f.open(join({folder, b.id + ext}, "/"), "a");
+	f.write(temp);
+	f.close();
+	return true;
+}
+void export_all_buffers(string[] excludes = {}) {
+	foreach (buffer@ b: buffers) {
+		if (@b is null) continue;
+		if (excludes.find(b.id) > -1) continue;
+		if (b.items.length() > 0)
+			export_buffer(b.id);
+	}
+}
+void activate_buffer() {
+	if (buffers[bufferpos].active == 1) {
+		buffers[bufferpos].active = 0;
+		speak(buffers[bufferpos].name + " deactivated.");
+	} else if (buffers[bufferpos].active == 0) {
+		buffers[bufferpos].active = 1;
+		speak(buffers[bufferpos].name + " activated.");
+	}
+}
+
+void interrupt_buffer() {
+	if (buffers[bufferpos].interrupt) {
+		buffers[bufferpos].interrupt = false;
+		speak(buffers[bufferpos].name + " not interrupting.");
+	} else if (buffers[bufferpos].interrupt == false) {
+		buffers[bufferpos].interrupt = true;
+		speak(buffers[bufferpos].name + " interrupting.");
+	}
+}
+int buffer_active(string id) {
+	buffer@ b = get_buffer(id);
+	if (@b == null) return 0;
+	return b.active;
+}
+bool buffer_muted(string id) {
+	buffer@ b = get_buffer(id);
+	if (@b == null) return false;
+	return b.muted;
+}
+void copy_buffer_item() {
+	if (buffers[bufferpos].items.length() > 0)
+		clipboard_set_text(buffers[bufferpos].items[buffers[bufferpos].pos].display);
+}
+void play_buffer_sound(string snd) {
+	if (bufferbeep != 1) return;
+	buffersound.close();
+	buffersound.load(snd);
+	buffersound.pan = convert_to_pan(buffers.length(), bufferpos, -20, 20);
+	buffersound.pitch = 100;
+	buffersound.play();
+}
+void play_buffer_item_sound(string snd) {
+	if (bufferbeep != 1) return;
+	buffersound.close();
+	buffersound.load(snd);
+	buffersound.pan = convert_to_pan(buffers[bufferpos].items.length(), buffers[bufferpos].pos, -20, 20);
+	buffersound.pitch = convert_to_pan(buffers[bufferpos].items.length(), buffers[bufferpos].pos, 50, 200);
+	buffersound.play();
+}
+void firstbuffer() {
+	bufferpos = 0;
+	speakfocusedbuffer();
+}
+void lastbuffer() {
+	bufferpos = buffers.length() - 1;
+	speakfocusedbuffer();
+}
+void bufferleft() {
+	if (bufferpos <= 0) {
+		bufferpos = 0;
+		speakfocusedbuffer();
+	} else {
+		bufferpos -= 1;
+		if ((buffers[bufferpos].items.length() < 1 && buffers[bufferpos].hidezero) || !buffers[bufferpos].can_use) {
+			bufferleft();
+			return;
+		}
+		speakfocusedbuffer();
+	}
+}
+void bufferright() {
+	if (bufferpos >= (buffers.length() - 1)) {
+		if (buffers.length() > 0)
+			bufferpos = buffers.length() - 1;
+		speakfocusedbuffer();
+	} else {
+		bufferpos += 1;
+		if ((buffers[bufferpos].items.length() < 1 && buffers[bufferpos].hidezero) || !buffers[bufferpos].can_use) {
+			bufferright();
+			return;
+		}
+		speakfocusedbuffer();
+	}
+}
+void nextbufferitem() {
+	if (buffers[bufferpos].pos < (buffers[bufferpos].items.length() - 1)) {
+		buffers[bufferpos].pos += 1;
+		play_buffer_item_sound(buffers[bufferpos].item_snd);
+		speak(buffers[bufferpos].items[buffers[bufferpos].pos].display);
+	}
+}
+void prevbufferitem() {
+	if (buffers[bufferpos].pos > 0) {
+		buffers[bufferpos].pos -= 1;
+		play_buffer_item_sound(buffers[bufferpos].item_snd);
+		speak(buffers[bufferpos].items[buffers[bufferpos].pos].display);
+	}
+}
+void topbufferitem() {
+	if (buffers[bufferpos].items.length() > 0) {
+		buffers[bufferpos].pos = 0;
+		play_buffer_item_sound(buffers[bufferpos].item_snd);
+		speak(buffers[bufferpos].items[buffers[bufferpos].pos].display);
+	}
+}
+void bottombufferitem() {
+	if (buffers[bufferpos].items.length() > 0) {
+		buffers[bufferpos].pos = (buffers[bufferpos].items.length() - 1);
+		play_buffer_item_sound(buffers[bufferpos].item_snd);
+		speak(buffers[bufferpos].items[buffers[bufferpos].pos].display);
+	}
+}
+void speakfocusedbuffer() {
+	play_buffer_sound(buffers[bufferpos].snd);
+	uint cl = buffers.length();
+	int cupos = bufferpos;
+	speak(dgets(buffer_text, "bufferi1", "%x%. %y% of %z% items. Buffer %ac% of %bc%").replace("%x%", buffers[bufferpos].name).replace("%y%", (buffers[bufferpos].pos + 1)).replace("%z%", buffers[bufferpos].items.length()).replace("%a%", (bufferpos + 1)).replace("%b%", buffers.length()).replace("%ac%", (cupos + 1)).replace("%bc%", cl));
+}
+void clear_all_buffers(string[] excludes = {}) {
+	foreach (buffer@ b: buffers) {
+		if (@b is null) continue;
+		if (excludes.find(b.id) > -1) continue;
+		b.clear ();
+	}
+}
+bool bspeak(string text, string buffer = "all", bool interrupt = tts_default_interrupt, bool in_all = true, any@ data = null, string mid = "") {
+	add_buffer_item(buffer, text, true, in_all, data, mid);
+	return speak(text, interrupt);
+}
+void bufferkeycheck() {
+	if (key_pressed(KEY_LEFTBRACKET)) {
+		if (keyboard_modifiers & KEYMOD_SHIFT > 0)
+			firstbuffer();
+		else
+			bufferleft();
+	}
+	if (key_pressed(KEY_RIGHTBRACKET)) {
+		if (keyboard_modifiers & KEYMOD_SHIFT > 0)
+			lastbuffer();
+		else
+			bufferright();
+	}
+	if (keyboard_modifiers & KEYMOD_SHIFT > 0) {
+		if (key_pressed(KEY_C)) {
+			speak("Copyed");
+			copy_buffer_item();
+		}
+	}
+	if (key_up(KEY_LSHIFT) and key_up(KEY_RSHIFT)) {
+		if (key_repeating(KEY_COMMA))
+			prevbufferitem();
+		if (key_repeating(KEY_PERIOD))
+			nextbufferitem();
+	}
+	if (keyboard_modifiers & KEYMOD_SHIFT > 0) {
+		if (key_repeating(KEY_COMMA))
+			topbufferitem();
+		if (key_repeating(KEY_PERIOD))
+			bottombufferitem();
+	}
+}

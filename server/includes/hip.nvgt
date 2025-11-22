@@ -1,0 +1,742 @@
+/*
+MIT License
+
+Copyright (c) 2024 [Harry Min Khant](https://harrymkt.github.io)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+/*
+Helpful Includes pack (HIP),. by: Harry Min Khant!
+
+Description:
+This pack contain helpful things and shorten words for your programs, with the NVGT language If you are making on.
+I hope you enjoy this pack, and make sure to report any bugs or any rong things If you found any.
+If you think that the function should be added or If there's something to change, please contact!
+email:
+harrymk64@gmail.com
+telegram:
+@harrymktbot
+*/
+bool control_is_down() {
+	return key_down(KEY_LCTRL) || key_down(KEY_RCTRL);
+}
+bool alt_is_down() {
+	return key_down(KEY_LALT) || key_down(KEY_RALT);
+}
+bool shift_is_down() {
+	return key_down(KEY_LSHIFT) || key_down(KEY_RSHIFT);
+}
+bool get_control_down() property {
+	return control_is_down();
+}
+bool get_shift_down() property {
+	return shift_is_down();
+}
+bool get_alt_down() property {
+	return alt_is_down();
+}
+double rdm(double minimum, double maximum, bool rounded = false, double number_of_rounding = 0) {
+	double final = -1;
+	if (rounded) final = round(random(minimum, maximum), number_of_rounding);
+	else
+		final = random(minimum, maximum);
+	return final;
+}
+double stn(string str) {
+	str.trim_whitespace_this();
+	if (stringcontains(str, "random", 1) > -1) {
+		string a = str.replace("random(", "", true);
+		a = a.replace(")", "", true);
+		string[] b = a.split(",", true);
+		double c = 0, d = 0;
+		c = parse_double(b[0]);
+		d = c;
+		if (b.length() > 1) d = parse_double(b[1]);
+		return random(c, d);
+	}
+	return parse_double(str);
+}
+string get_modified_time(double y, double m, double d, double h, double mn, double s) {
+	if (y < 1 and m < 1 and d < 1 and mn < 1 and s < 1) return"just now";
+	string final;
+	calendar now;
+	calendar past;
+	past.set(y, m, d, h, mn, s);
+	timespan pt = past.timestamp.elapsed - now.timestamp.elapsed;
+	double year=past.diff_years(now);
+	year=round(year,0);
+	double month=past.diff_months(now);
+	month=round(month,0);
+	double day = pt.days;
+	double week = floor(day / 7);
+	day %= floor(7);
+	double hour = pt.hours;
+	double minute = pt.minutes;
+	double second = pt.seconds;
+	second = round(second, 0);
+	minute = round(minute, 0);
+	hour = round(hour, 0);
+	day = round(day, 0);
+	week = round(week, 0);
+	if(year>0) final=year+" year"+(year>1?"s":"")+" ago";
+	else if(month>0) final=month+" month"+(month>1?"s":"")+" ago";
+	else if (week > 0) final = week + " week" + (week > 1 ? "s" : "") + " ago";
+	else if (day > 0) final = day + " day" + (day > 1 ? "s" : "") + " ago";
+	else if (hour > 0) final = hour + " hour" + (hour > 1 ? "s" : "") + " ago";
+	else if (minute > 0) final = minute + " minute" + (minute > 1 ? "s" : "") + " ago";
+	else if (second > 0) final = second + " second" + (second > 1 ? "s" : "") + " ago";
+	return final;
+}
+string get_modified_time(calendar@ value) {
+	if (@value == null) return"";
+	calendar d = value;;
+	return get_modified_time(d.year, d.month, d.day, d.hour, d.minute, d.second);
+}
+string get_modified_time(datetime@ value) {
+	if (@value == null) return"";
+	datetime e = value;
+	return get_modified_time(e.year, e.month, e.day, e.hour, e.minute, e.second);
+}
+class lister {
+	//list to string convertion.
+	string convert(any@ value, string sep = ", ", string and_value = "", string def = "") {
+		if (value is null) return def;
+		string[] list;
+		string[] v_str;
+		int[] v_int;
+		int64[] v_int64;
+		uint[] v_uint;
+		uint64[] v_uint64;
+		float[] v_float;
+		double[] v_double;
+		if (value.retrieve(v_str)) list = v_str;
+		else if (value.retrieve(v_int)) {
+			for (uint i = 0; i < v_int.length(); i++)
+				list.insert_last(v_int[i]);
+		} else if (value.retrieve(v_int64)) {
+			for (uint i = 0; i < v_int64.length(); i++)
+				list.insert_last(v_int64[i]);
+		} else if (value.retrieve(v_uint)) {
+			for (uint i = 0; i < v_uint.length(); i++)
+				list.insert_last(v_uint[i]);
+		} else if (value.retrieve(v_uint64)) {
+			for (uint i = 0; i < v_uint64.length(); i++)
+				list.insert_last(v_uint64[i]);
+		} else if (value.retrieve(v_float)) {
+			for (uint i = 0; i < v_float.length(); i++)
+				list.insert_last(v_float[i]);
+		} else if (value.retrieve(v_double)) {
+			for (uint i = 0; i < v_double.length(); i++)
+				list.insert_last(v_double[i]);
+		}
+		if (list.length() < 1) return def;
+		string final;
+		for (uint i = 0; i < list.length(); i++) {
+			if (and_value != "" && list.length() > 2 && i >= list.length() - 1) final += and_value;
+			final += list[i];
+			if (i < list.length() - 1) final += sep;
+		}
+		return final;
+	}
+}//end of lister.
+
+string convert_size(double size, int round_to = 2) {
+	if (size < 1) return"0 B";
+	if (size < 1024)
+		return round(size, round_to) + " B";
+	size = size / 1024;
+	if (size < 1024)
+		return round(size, round_to) + " KB";
+	size = size / 1024;
+	if (size < 1024)
+		return round(size, round_to) + " MB";
+	size = size / 1024;
+	if (size < 1024)
+		return round(size, round_to) + " GB";
+	size = size / 1024;
+	return round(size, round_to) + " TB";
+}
+string convert_month_name(double value) {
+	if (value == 1) return"january";
+	else if (value == 2) return"febuary";
+	else if (value == 3) return"march";
+	else if (value == 4) return"april";
+	else if (value == 5) return"may";
+	else if (value == 6) return"june";
+	else if (value == 7) return"july";
+	else if (value == 8) return"august";
+	else if (value == 9) return"september";
+	else if (value == 10) return"october";
+	else if (value == 11) return"november";
+	else if (value == 12) return"december";
+	else return"";
+}
+double convert_month_number(string monthname) {
+	monthname = monthname.lower();
+	if (monthname == "january") return 1;
+	else if (monthname == "febuary") return 2;
+	else if (monthname == "march") return 3;
+	else if (monthname == "april") return 4;
+	else if (monthname == "may") return 5;
+	else if (monthname == "june") return 6;
+	else if (monthname == "july") return 7;
+	else if (monthname == "august") return 8;
+	else if (monthname == "september") return 9;
+	else if (monthname == "october") return 10;
+	else if (monthname == "november") return 11;
+	else if (monthname == "december") return 12;
+	else return -1;
+}
+string convert_weekday_name(double value) {
+	if (value == 1) return"sunday";
+	else if (value == 2) return"monday";
+	else if (value == 3) return"tuesday";
+	else if (value == 4) return"wednesday";
+	else if (value == 5) return"thursday";
+	else if (value == 6) return"friday";
+	else if (value == 7) return"saturday";
+	else return"";
+}
+double convert_weekday_number(string weekdayname) {
+	weekdayname = weekdayname.lower();
+	if (weekdayname == "sunday") return 1;
+	else if (weekdayname == "monday") return 2;
+	else if (weekdayname == "tuesday") return 3;
+	else if (weekdayname == "wednesday") return 4;
+	else if (weekdayname == "thursday") return 5;
+	else if (weekdayname == "friday") return 6;
+	else if (weekdayname == "saturday") return 7;
+	else return -1;
+}
+tone_synth progress_synth;
+sound@ progress_sound;
+void beep_percentage(double val, double vol = -5) {
+	val = round(val, 0);
+	if (val < 0) val = 0;
+	if (val > 100) val = 100;
+	double freq = 110 * 2 * (val / 25);
+	progress_synth.waveform_type = 4;
+	progress_synth.set_edge_fades(1, 1);
+	progress_synth.freq_ms(freq, 40);
+	@progress_sound = progress_synth.write_wave_sound();
+	progress_synth.reset();
+	if (@progress_sound != null) {
+		progress_sound.volume = vol;
+		progress_sound.play();
+	}
+}
+double get5rating(double five, double four, double three, double two, double one, int round_to = 1) {
+	try {
+		double first = five + four + three + two + one;
+		double second = (five * 5) + (four * 4) + (three * 3) + (two * 2) + (one * 1);
+		if (first < 1) return 0.0;
+		double result = second / first;
+		result = round(result, round_to);
+		return result;
+	} catch {
+		return round(0, round_to);
+	}
+}
+string get_item_text(string text, string split_with = "[[]]") {
+	string final;
+	string[] ma = text.split(split_with, true);
+	if (ma.length() > 1)
+		final = ma[1];
+	else final = ma[0];
+	return final;
+}
+string get_item_name(string text, string split_with = "[[]]") {
+	string final;
+	string[] ma = text.split(split_with, true);
+	final = ma[0];
+	return final;
+}
+double percent(double n1, double n2, bool rounded = false, int place = 0) {
+	try {
+		double result = (n1 / n2) * 100;
+		if (rounded) result = round(result, place);
+		return result;
+	} catch {
+		if (rounded) return round(0, place);
+		return 0;
+	}
+}
+//these are the constants for the file_put_contents function.
+const uint8 FILE_WRITE = 250;
+const uint8 FILE_APPEND = 255;
+bool file_put(string filename, string contents, uint8 filemode = FILE_WRITE) {
+	bool ret;
+	file tempfile;
+	if (filemode == FILE_WRITE) ret = tempfile.open(filename, "wb");
+	else if (filemode == FILE_APPEND) ret = tempfile.open(filename, "ab");
+	else return false;
+	if (!ret) return false;
+	double ret2 = tempfile.write(contents);
+	tempfile.close();
+	ret = (ret2 == contents.length());
+	return ret;
+}
+string file_get(string filename) {
+	file tempfile;
+	tempfile.open(filename, "rb");
+	string r = tempfile.read();
+	tempfile.close();
+	return r;
+}
+string[] get_lines_from_str(string text, string data, string split_line = "\n", string split_data = "=", string[] def = {}) {
+	string[] lines = text.split(split_line);
+	if (text == "" || lines.length() < 1) return def;
+	string[] finals;
+	for (uint j = 0; j < lines.length(); j++) {
+		string[] line = lines[j].split(split_data);
+		if (line.length() > 0 && line[0] == data) finals.insert_last(string_trimleft(lines[j], (data + split_data).length()));
+	}//J
+	if (finals.length() < 1) finals = def;
+	return finals;
+}
+string get_line_from_str(string text, string data, string split_line = "\n", string split_data = "=", string def = "") {
+	string[] finals = get_lines_from_str(text, data, split_line, split_data, {def});
+	if (finals.length() < 1) return def;
+	return finals[0];
+}
+string get_line_from_file(string w, string data, string line_sep = "\n", string sep = "=", string def = "") {
+	string[] l = get_lines_from_file(w, data, line_sep, sep, {def});
+	if (l.length() < 1) return def;
+	return l[0];
+}
+string[] get_lines_from_file(string w, string data, string line_sep = "\n", string sep = "=", string[] def = {}) {
+	if (!file_exists(w)) return def;
+	string c = file_get(w);
+	return get_lines_from_str(c, data, line_sep, sep, def);
+}
+bool is_over_value(string[] pars, double currentc = 0) {
+	if (currentc<0 or currentc>pars.length() - 1) return true;
+	else return false;
+}
+bool is_over_value(double len, double currentc = 0) {
+	if (currentc<0 or currentc>len - 1) return true;
+	else return false;
+}
+string get_time_in_format(string format = "%d/%m/%Y, %H:%M:%S %A %z", double a = datetime().year, double b = datetime().month, double c = datetime().day, double d = datetime().hour, double e = datetime().minute, double f = datetime().second, int timezone_from = 0, int timezone_to = TIMEZONE_OFFSET) {
+	datetime cl;
+	cl.set(a, b, c, d, e, f);
+	cl.make_UTC(timezone_from);
+	cl.make_local(timezone_to);
+	return cl.format(format, timezone_to);
+}
+string get_time_in_format(string format, calendar@ value, int timezone_from = 0, int timezone_to = TIMEZONE_OFFSET) {
+	if (@value == null) return"";
+	calendar d = value;
+	if (format == "") format = "%d/%m/%Y, %H:%M:%S %A %z";
+	return get_time_in_format(format, d.year, d.month, d.day, d.hour, d.minute, d.second, timezone_from, timezone_to);
+}
+string get_time_in_format(string format, datetime@ value, int timezone_from = 0, int timezone_to = TIMEZONE_OFFSET) {
+	if (@value == null) return"";
+	datetime e = value;
+	if (format == "") format = "%d/%m/%Y, %H:%M:%S %A %z";
+	return get_time_in_format(format, e.year, e.month, e.day, e.hour, e.minute, e.second, timezone_from, timezone_to);
+}
+bool toggle(bool b) {
+	return b ? false : true;
+}
+bool int_to_bool(int b) {
+	return b == 1 ? true : false;
+}
+int toggle(int b) {
+	return b == 1 ? 0 : 1;
+}
+int bool_to_int(bool b) {
+	return b ? 1 : 0;
+}
+int64 duration_to_sec(string durstr) {
+	// Seconds in each unit (using int64 for large numbers like weeks)
+	const int64 SECONDS_PER_MINUTE = 60;
+	const int64 SECONDS_PER_HOUR   = 3600;
+	const int64 SECONDS_PER_DAY	= 86400;
+	const int64 SECONDS_PER_WEEK   = 604800;
+	int64 totalSeconds = 0;
+	// 1. Clean the string: trim whitespace and ensure components are space-separated.
+	durstr.trim_whitespace_this();
+	// 2. Split the string into individual duration components (e.g., "5w", "2d", "1h").
+	// Note: The NVGT environment typically uses a string add-on with a split function.
+	array<string> parts = durstr.split(" ");
+	for (uint i = 0; i < parts.length(); ++i) {
+		string part = parts[i].trim_whitespace();
+		if (part.length() == 0)
+			continue; // Skip empty parts from multiple spaces
+		// 3. Find the position of the first non-digit character (the unit).
+		int unit_pos = -1;
+		for (uint j = 0; j < part.length(); ++j) {
+			uint charCode = character_to_ascii(part[j]);
+			if (charCode < 48 || charCode > 57) {
+				unit_pos = j;
+				break;
+			}
+		}
+		// Skip if no unit is found or if the unit is the first character (e.g., "w5")
+		if (unit_pos <= 0)
+			continue; 
+		// 4. Extract the numeric value and the unit character.
+		string numstr = part.substr(0, unit_pos);
+		string unitchar = part.substr(unit_pos, 1);
+		int64 value = parse_int(numstr);
+		// 5. Accumulate the total seconds based on the unit.
+		if (unitchar == "w") {
+			totalSeconds += value * SECONDS_PER_WEEK;
+		} else if (unitchar == "d") {
+			totalSeconds += value * SECONDS_PER_DAY;
+		} else if (unitchar == "h") {
+			totalSeconds += value * SECONDS_PER_HOUR;
+		} else if (unitchar == "m") {
+			totalSeconds += value * SECONDS_PER_MINUTE;
+		} else if (unitchar == "s") {
+			totalSeconds += value;
+		}
+	}
+	return totalSeconds;
+}
+string ms_to_readable_time(double ms, int round_year_to = 0, int round_month_to = 0, int round_week_to = 0, int round_day_to = 0, int round_hour_to = 0, int round_minute_to = 0, int round_second_to = 0, dictionary@ args = null) {
+	if (@args == null) @args = dictionary();
+	string notime;
+	args.get("zero", notime);
+	if (notime == "") notime = "no time at all";
+	if (ms <= 0) return notime;
+	if (ms < 1000) {
+		string mil;
+		args.get("ms" + pluralize(ms), mil);
+		if (mil == "") mil = ms + " millisecond" + (ms > 1 ? "s" : "");
+		return mil.replace("%x%", ms);
+	}
+	double days, hours, minutes, weeks, months, seconds, years;
+	seconds = floor(ms / 1000);
+	minutes = floor(seconds / 60);
+	seconds %= floor(60);
+	hours = floor(minutes / 60);
+	minutes %= floor(60);
+	days = floor(hours / 24);
+	hours %= floor(24);
+	days = round(days, round_day_to);
+	weeks = floor(days / 7);
+	days %= floor(7);
+	months = floor(weeks / 4.35);
+	weeks %= floor(4.35);
+	years = floor(months / 12);
+	months %= floor(12);
+	months = round(months, round_month_to);
+	weeks = round(weeks, round_week_to);
+	minutes = round(minutes, round_minute_to);
+	hours = round(hours, round_hour_to);
+	seconds = round(seconds, round_second_to);
+	years = round(years, round_year_to);
+	string[] ret;
+	if (years > 0) {
+		string y;
+		args.get("year" + pluralize(years), y);
+		if (y == "") y = "%x% year" + pluralize(years);
+		ret.insert_last(y.replace("%x%", years));
+	}
+	if (months > 0) {
+		string m;
+		args.get("month" + pluralize(months), m);
+		if (m == "") m = "%x% month" + pluralize(months);
+		ret.insert_last(m.replace("%x%", months));
+	}
+	if (weeks > 0) {
+		string w;
+		args.get("week" + pluralize(months), w);
+		if (w == "") w = "%x% week" + pluralize(weeks);
+		ret.insert_last(w.replace("%x%", weeks));
+	}
+	if (days > 0) {
+		string d;
+		args.get("day" + pluralize(days), d);
+		if (d == "") d = "%x% day" + pluralize(days);
+		ret.insert_last(d.replace("%x%", days));
+	}
+	if (hours > 0) {
+		string h;
+		args.get("hour" + pluralize(hours), h);
+		if (h == "") h = "%x% hour" + pluralize(hours);
+		ret.insert_last(h.replace("%x%", hours));
+	}
+	if (minutes > 0) {
+		string m;
+		args.get("minute" + pluralize(minutes), m);
+		if (m == "") m = "%x% minute" + pluralize(minutes);
+		ret.insert_last(m.replace("%x%", minutes));
+	}
+	if (seconds > 0) {
+		string s;
+		args.get("second" + pluralize(seconds), s);
+		if (s == "") s = "%x% second" + pluralize(seconds);
+		ret.insert_last(s.replace("%x%", seconds));
+	}
+	return join(ret, ", ");
+}
+/*
+string utilities
+*/
+string stringleft(const string& in str, uint count) {
+	if (str == "") return str;
+	return str.substr(0, count);
+}
+string stringright(const string& in str, uint count) {
+	if (str == "") return str;
+	if (count >= str.length()) return str;
+	return str.slice(str.length() - count, str.length());
+}
+string string_trimleft(const string& in str, uint count) {
+	if (str == "") return str;
+	return str.substr(count);
+}
+string string_trimright(const string& in str, uint count) {
+	if (str == "") return str;
+	if (count > 0 and str.length() == 1) return "";
+	return str.slice(0, str.length() - count);
+}
+shared int stringcontains(const string& in str, const string& in search, int occurance = 1) {
+	uint c = 0;
+	int pos = -1;
+	while (c < occurance) {
+		pos = str.find_first(search, pos + 1);
+		if (pos > -1)
+			c++;
+		else
+			break;
+	}
+	return c == occurance ? pos : -1;
+}
+string string_capitalize(string str) {
+	str.trim_whitespace_this();
+	if (str.length() > 0) str[0] = str[0].upper();
+	return str;
+}
+bool is_disallowed_char(string char, string[] listchars, bool search_all = true) {
+	if (char.length() < 1)
+		return false;
+	if (search_all) {
+		for (uint i = 0; i < char.length(); i++) {
+			if (listchars.find(char[i]) > -1) return true;
+		}
+		return false;
+	}
+	return listchars.find(char) > -1;
+}
+bool is_disallowed_char(string char, string listchars, bool search_all = true) {
+	string[] chlist(0);
+	if (listchars.length() < 1)
+		chlist.resize(0);
+	else {
+		for (uint i = 0; i < listchars.length(); i++)
+			chlist.insert_last(listchars[i]);
+	}
+	return is_disallowed_char(char, chlist, search_all);
+}
+string var_replace(string text, string[] replacers = {}, string opening = "%", string closing = "%") {
+	if (replacers.length() < 1) return text;
+	for (uint b = 0; b < replacers.length(); b++) {
+		if (stringcontains(text, opening + "" + (b + 1) + "" + closing, 1) > -1) text = text.replace(opening + "" + (b + 1) + "" + closing, replacers[b], true);
+	}
+	return text;
+}
+string var_replace2(string text, string[] fir = {}, string[] sec = {}) {
+	if (fir.length() < 1) return text;
+	if (fir.length() != sec.length()) return text;
+	for (uint b = 0; b < fir.length(); b++) {
+		if (stringcontains(text, fir[b], 1) > -1) text = text.replace(fir[b], sec[b], true);
+	}
+	return text;
+}
+string stringencrypt(string str, string key) {
+	return string_base64_encode(string_aes_encrypt(str, key));
+}
+string stringdecrypt(string str, string key) {
+	return string_aes_decrypt(string_base64_decode(str), key);
+}
+bool inrange(double x, double y, double z, double minx, double maxx, double miny, double maxy, double minz, double maxz) {
+	if (x >= minx && x <= maxx && y >= miny && y <= maxy && z >= minz && z <= maxz) return true;
+	return false;
+}
+bool inrange(double x, double y, double z, vector min, vector max) {
+	try {
+		return inrange(x, y, z, min.x, max.x, min.y, max.y, min.z, max.z);
+	} catch {
+		return false;
+	}
+}
+bool inrange(vector current, vector min, vector max) {
+	try {
+		return inrange(current.x, current.y, current.z, min.x, max.x, min.y, max.y, min.z, max.z);
+	} catch {
+		return false;
+	}
+}
+enum gendercodes {
+	gender_s = 1, //Subject, He/She/They
+	gender_o, //Object, Him/Her/Them
+	gender_pd, //His/Her/Their
+	gender_pp, //His/Hers/Theirs
+	gender_r, //Himself/Herself/Themselves
+	gender_n, //Boy/Girl
+}
+string get_gender(string gend, int n = 0) {
+	if (gend == "") gend = "unknown";
+	if (gend == "0") gend = "male";
+	if (gend == "1") gend = "female";
+	if (n < 1 || n > gender_n) return gend;
+	string gen = gend.lower();
+	if (gen == "male") {
+		if (n == gender_s) return "he";
+		else if (n == gender_o) return "him";
+		else if (n == gender_pd) return "his";
+		else if (n == gender_pp) return "his";
+		else if (n == gender_r) return "himself";
+		else if (n == gender_n) return"boy";
+		else return "";
+	} else if (gen == "female") {
+		if (n == gender_s) return "she";
+		else if (n == gender_o) return "her";
+		else if (n == gender_pd) return "her";
+		else if (n == gender_pp) return "hers";
+		else if (n == gender_r) return "herself";
+		else if (n == gender_n) return"girl";
+		else return "";
+	} else if (n == gender_s) return "they";
+	else if (n == gender_o) return "them";
+	else if (n == gender_pd) return "their";
+	else if (n == gender_pp) return "theirs";
+	else if (n == gender_r) return "themselves";
+	else return "";
+}
+string genderreplace(string g, string t, string o = "%", string c = "%") {
+	//o=object, s=subject, pd=mine, pp=pronoun mine, r, n=noun. Use u_ first to uppercase
+	t = t.replace(o + "s" + c, get_gender(g, gender_s), true);
+	t = t.replace(o + "o" + c, get_gender(g, gender_o), true);
+	t = t.replace(o + "pd" + c, get_gender(g, gender_pd), true);
+	t = t.replace(o + "pp" + c, get_gender(g, gender_pp), true);
+	t = t.replace(o + "r" + c, get_gender(g, gender_r), true);
+	t = t.replace(o + "n" + c, get_gender(g, gender_n), true);
+	//upper, u_ prefix
+	t = t.replace(o + "u_s" + c, string_capitalize(get_gender(g, gender_s)), true);
+	t = t.replace(o + "u_o" + c, string_capitalize(get_gender(g, gender_o)), true);
+	t = t.replace(o + "u_pd" + c, string_capitalize(get_gender(g, gender_pd)), true);
+	t = t.replace(o + "u_pp" + c, string_capitalize(get_gender(g, gender_pp)), true);
+	t = t.replace(o + "u_r" + c, string_capitalize(get_gender(g, gender_r)), true);
+	t = t.replace(o + "u_n" + c, string_capitalize(get_gender(g, gender_n)), true);
+	return t;
+}
+string pluralize(double num, string singular = "", string plural = "s") {
+	if (abs(num) == 1) return singular;
+	return plural;
+}
+string[] get_seps(string t, string sep_a = "@", string sep_b = "@", bool lower = false) {
+	string[] a(0);
+	uint al = sep_a.length(), bl = sep_b.length();
+	while(true) {
+		int f = t.find_first(sep_a);
+		int l = t.find_first(sep_b, f + al);
+		if (f < 0 || l < 0) break;
+		string v = t.substr(f + al, l - f - bl);
+		t.replace_this(sep_a + v + sep_b, "");
+		if (lower) v.lower_this();
+		a.insert_last(v);
+	}
+	return a;
+}
+bool is_email(string text) {
+	regexp re("^[\\w\\.-]+@[\\w\\.-]+\\.\\w+$");
+	return re.match(text);
+}
+bool name_match(string name1, string name2, bool caseless = true) {
+	if (caseless) {
+		name1 = name1.lower();
+		name2 = name2.lower();
+	}
+	return name1 == name2;
+}
+string[] exclude_titles = {"a", "an", "in", "of", "the", "to"};
+string string_title(string str, string[] excludes = exclude_titles, string sep = " ") {
+	string[] finals;
+	if (str.empty()) return"";
+	string[] lines = str.split(sep, true);
+	for (uint i = 0; i < lines.length(); i++) {
+		string t = lines[i]; //For short.
+		if (excludes.find(t) < 0 or i<1 or i >= lines.length() - 1) t = string_capitalize(t);
+		finals.insert_last(t);
+	}
+	return join(finals, sep);
+}
+string[] article_silents_a = {"uni", "use", "user", "ut", "eu", "euro"};
+string[] article_silents_an = {"hour", "hon", "herb"};
+string string_article(const string &in w, string[] silents_a = article_silents_a, string[] silents_an = article_silents_an) {
+	string t = w.trim_whitespace();
+	if (t.empty())
+		return "a";
+	string wl = t.lower();
+	string fc = wl.substr(0, 1);
+	string[] vowels = {"a", "e", "i", "o", "u"};
+	// Silent an, always an.
+	for (uint i = 0; i < silents_an.length(); i++) {
+		if (wl.starts_with(silents_an[i]))
+			return "an";
+	}
+	// Silent a, always a.
+	for (uint i = 0; i < silents_a.length(); i++) {
+		if (wl.starts_with(silents_a[i]))
+			return "a";
+	}
+	// Regular vowel
+	if (vowels.find(fc) != -1)
+		return "an";
+	return "a";
+}
+string get_platform_name() property {
+	#if android
+		return "android";
+	#endif
+	#if linux
+		return "linux";
+	#endif
+	#if mac
+		return"mac";
+	#endif
+	#if windows
+		return"windows";
+	#endif
+	return"";
+}
+int timezone_to_seconds(const string &in timezone) {
+	if (timezone.length() < 3 || (timezone[0] != '+' && timezone[0] != '-')) {
+		return -1; // Invalid format
+	}
+	int sign = (timezone[0] == '+') ? 1 : -1;
+	int hours = parse_int(timezone.substr(1, 2));
+	int minutes = 0;
+	if (timezone.length() > 3 && timezone[3] == ':') {
+		if (timezone.length() == 6) {
+			minutes = parse_int(timezone.substr(4, 2));
+		} else {
+			return -1; // Invalid format
+		}
+	} else if (timezone.length() != 3) {
+		return -1; // Invalid format
+	}
+	int total_seconds = sign * (hours * 3600 + minutes * 60);
+	return total_seconds;
+}

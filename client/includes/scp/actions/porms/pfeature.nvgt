@@ -1,0 +1,49 @@
+namespace scp::actions::porms {
+	void pfeature() {
+		nv_form f;
+		f.create_window("Player's Feature Modifier", false);
+		nv_form_input@ user = f.add_input("Username of the player to modify features", "user");
+		@user.shortcut = nv_shortcut(KEY_U, alt = true);
+		nv_form_switch@ type = f.add_switch("These features should be: ", "switch");
+		type.add("blocked", "add");
+		type.add("unblocked", "rm");
+		nv_form_list_box@ features = f.add_list("Features", "features", multiselect = true);
+		features.add("Chat", "chat");
+		features.add("Admintell", "admintell");
+		features.add("Ability to change AFK status", "afk");
+		@features.shortcut = nv_shortcut(KEY_L, alt = true);
+		nv_form_button@ ok = f.add_button("Finish", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(user, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (user.text == "") {
+					speak("Username is required");
+					f.focus_control(user, false, false);
+					continue;
+				} else if (@type.focused_item == null) {
+					speak("Oops, the switch is required");
+					f.focus_control(type, false, false);
+					continue;
+				}
+				string cmd = (type.focused_item.id == "add" ? "/blockfeature" : "/unblockfeature") + " " + user.text + " ";
+				string[] list;
+				foreach (nv_form_list_item@ l: features.items) {
+					if (@l == null || !l.selected) continue;
+					list.insert_last(cmd + l.id);
+				}
+				if (list.length() < 1) {
+					speak("One or more features has to be selected");
+					f.focus_control(features, false, false);
+					continue;
+				}
+				multicmd(list);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

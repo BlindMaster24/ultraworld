@@ -1,0 +1,82 @@
+//online menus.
+class cmenu {
+	string[] menuitems;
+	string[] menuids;
+	private string[] infs;
+	string initial_packet;
+	string intro;
+	int type = 0;
+	string focus = "";
+	void add(string item, string id, string inf = "") {
+		menuitems.insert_last(item);
+		menuids.insert_last(id);
+		if (inf != "") this.infs.insert_last(id + "[=]" + inf);
+	}
+	void reset() {
+		menuids.resize(0);
+		menuitems.resize(0);
+		this.infs.resize(0);
+	}
+	void send(uint id) {
+		if (menuids.length() > 0 and menuitems.length() > 0) {
+			string l;
+			for (uint i = 0; i < menuitems.length(); i++)
+				l += menuitems[i] + "[cmu]" + menuids[i] + "{cmu}";
+			string inf = "";
+			if (this.infs.length() > 0) inf = join(this.infs, "{inf}");
+			send_cmenu(id, intro, initial_packet, l, inf, this.type, this.focus);
+		}
+	}
+}
+class cmenupage {
+	string[] menuitems;
+	string[] menuids;
+	private string[] infs;
+	string initial_packet;
+	string intro;
+	int type = 0;
+	uint maxitem = 50;
+	void add(string item, string id, string inf = "") {
+		menuitems.insert_last(item);
+		menuids.insert_last(id);
+		if (inf != "") this.infs.insert_last(id + "[=]" + inf);
+	}
+	void reset() {
+		menuids.resize(0);
+		menuitems.resize(0);
+		this.infs.resize(0);
+	}
+	void send(uint id) {
+		if (menuids.length() > 0 and menuitems.length() > 0) {
+			string l;
+			for (uint i = 0; i < menuitems.length(); i++)
+				l += menuitems[i] + "[cmu]" + menuids[i] + "{cmu}";
+			string inf = "";
+			if (this.infs.length() > 0) inf = join(this.infs, "{inf}");
+			send_cmenupage(id, intro, initial_packet, l, 1, this.maxitem, inf, this.type);
+		}
+	}
+}
+void send_cmenu(uint id, string menuintro, string text, string items, string inf = "", int type = 0, string focus = "") {
+	messager m;
+	m.add("intro", menuintro);
+	m.add("packet", text);
+	m.add("type", type);
+	if (focus != "") m.add("focus", focus);
+	m.add("items", items);
+	m.add("message", "launchcmenu");
+	if (inf != "") m.add("informationals", inf);
+	send(id, m, 0);
+}
+void send_cmenupage(int id, string menuintro, string text, string items, int page = 1, uint maxi = 50, string inf = "", int type = 0) {
+	messager m;
+	m.add("intro", menuintro);
+	m.add("packet", text);
+	m.add("type", type);
+	m.add("items", items);
+	m.add("page", page);
+	m.add("maxi", maxi);
+	m.add("message", "launchcmenupage");
+	if (inf != "") m.add("informationals", inf);
+	send(id, m, 0);
+}

@@ -1,0 +1,38 @@
+namespace player {
+	void options(string n) {
+		if (n == "") return;
+		custom_menu cm;
+		setupmenu(cm);
+		cm.add("Copy this player's name to clipboard (Control+C)", "copy");
+		if (assistant) cm.add("Respond to this player (Shift+F1)", "respond");
+		cm.add("Check player's stats (F1)", "stats");
+		cm.add("Send a private message (F2)", "pm");
+		cm.add("Where is this player? (F3)", "where");
+		cm.add("Check player chat language (F4)", "channel");
+		cm.add("Check player's main account (F5)", "macc");
+		cm.add("Check player's status message (F6)", "status");
+		string[] ctrls = {"trust", "untrust", "mute", "unmute", "look"};
+		for (uint i = 0; i < ctrls.length(); i++) {
+			string l = ctrls[i];
+			string f = l.lower();
+			string msg = l + " this player (Ctrl+";
+			string g = f[0];
+			if (f.starts_with("un")) {
+				msg += "Shift+";
+				string t = string_trimleft(f, 2);
+				g = t[0];
+			}
+			g.upper_this();
+			msg += g;
+			cm.add(msg, l);
+		}
+		cm.create("Choose an option for " + n);
+		while (cm.running) {
+			wait(5);
+			cm.monitor();
+			mainloop();
+			string r = cm.click;
+			if (r != "") player::perform(n, r);
+		}
+	}
+}//

@@ -1,0 +1,1294 @@
+mapdata@[] maps(0);
+class mapdata {
+	string name;
+	int litem = 0;
+	int spminx = 0, spmaxx = 0, spminy = 0, spmaxy = 0, spminz = 0, spmaxz = 0;
+	int dpminx = 0, dpmaxx = 0, dpminy = 0, dpmaxy = 0, dpminz = 0, dpmaxz = 0;
+	int chminx = 1000000000, chmaxx = 1000000000, chminy = 1000000000, chmaxy = 1000000000, chminz = 1000000000, chmaxz = 1000000000;
+	int pvpminx = 1000000000, pvpmaxx = 1000000000, pvpminy = 1000000000, pvpmaxy = 1000000000, pvpminz = 1000000000, pvpmaxz = 1000000000, pvp = 0;
+	int satminx = 1000000000, satmaxx = 1000000000, satminy = 1000000000, satmaxy = 1000000000, satminz = 1000000000, satmaxz = 1000000000, specified_air_temperature;
+	int szminx = 1000000000, szmaxx = 1000000000, szminy = 1000000000, szmaxy = 1000000000, szminz = 1000000000, szmaxz = 1000000000;
+	int minhour = 0, maxhour = 24;
+	double minlevel = 0, maxlevel = 0;
+	double minreinforcement = 0, maxreinforcement = 0;
+	string finishitem;
+	double finishamount;
+	string description;
+	mapispawn@[] mapispawns;
+	mapai@[] mapais;
+	string[] owners;
+	string rawdata;
+	vector min, max;
+	mapdata(string loadname) {
+		internal_load(loadname);
+	}
+	void internal_load(string loadname, bool is_file = true) {
+		if (is_file == true) {
+			file f;
+			f.open("maps/" + loadname + "/!.map", "r");
+			rawdata = f.read();
+			rawdata.replace_this("\r\n", "\n").replace_this("\r", "");
+			f.close();
+			clear_ntms_on_map(loadname);
+			clear_vending_machines_on_map(loadname);
+			clear_firemaps_on_map(loadname);
+			clear_toilets_on_map(loadname);
+			clear_washbasins_on_map(loadname);
+			clear_showers_on_map(loadname);
+			clear_trashcans_on_map(loadname);
+			clear_beds_on_map(loadname);
+			clear_clocks_on_map(loadname);
+			clear_ccalendars_on_map(loadname);
+			clear_ovens_on_map(loadname);
+		} else
+			rawdata = loadname;
+		rawdata.replace_this("\r\n", "\n").replace_this("\r", "");
+		string[] map = delinear(rawdata);
+		for (uint i = 0; i < map.length(); i++) {
+			if (map[i].is_empty()) continue;
+			if (map.length() < 1) continue;
+			if (string_contains(map[i], ":", 1) < 0) continue;
+			string[] parsed = string_split(map[i], ":", false);
+			if (parsed.length() < 2) continue;
+			if (parsed[0] == "mapname") name = parsed[1];
+			else if (parsed[0] == "minx") min.x = string_to_number(parsed[1]);
+			else if (parsed[0] == "maxx") max.x = string_to_number(parsed[1]);
+			else if (parsed[0] == "miny") min.y = string_to_number(parsed[1]);
+			else if (parsed[0] == "maxy") max.y = string_to_number(parsed[1]);
+			else if (parsed[0] == "minz") min.z = string_to_number(parsed[1]);
+			else if (parsed[0] == "maxz") max.z = string_to_number(parsed[1]);
+			else if (parsed[0] == "specified_air_temperature") {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				satminx = string_to_number(parsed[1]);
+				satmaxx = string_to_number(parsed[2]);
+				satminy = string_to_number(parsed[3]);
+				satmaxy = string_to_number(parsed[4]);
+				satminz = string_to_number(parsed[5]);
+				satmaxz = string_to_number(parsed[6]);
+				specified_air_temperature = string_to_number(parsed[7]);
+			} else if (parsed[0] == "safezone" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				szminx = string_to_number(parsed[1]);
+				szmaxx = string_to_number(parsed[2]);
+				szminy = string_to_number(parsed[3]);
+				szmaxy = string_to_number(parsed[4]);
+				szminz = string_to_number(parsed[5]);
+				szmaxz = string_to_number(parsed[6]);
+			} else if (parsed[0] == "litem" and parsed.length() > 1) litem = string_to_number(parsed[1]);
+			else if (parsed[0] == "ntm") {
+				double a, b, c, d, e, f;
+				string id = "";
+				if (parsed.length() > 6) {
+					a = stn(parsed[1]);
+					b = stn(parsed[2]);
+					c = stn(parsed[3]);
+					d = stn(parsed[4]);
+					e = stn(parsed[5]);
+					f = stn(parsed[6]);
+					id = (parsed.length() > 7 ? parsed[7] : "");
+				} else if (parsed.length() > 3) {
+					a = stn(parsed[1]);
+					c = stn(parsed[2]);
+					e = stn(parsed[3]);
+					b = a; d = c; f = e;
+					id = (parsed.length() > 4 ? parsed[4] : "");
+				}
+				vector aa(a, c, e);
+				vector bb(b, d, f);
+				if (@ntm_in(aa, this.name) != null || @ntm_in(bb, this.name) != null) continue;
+				spawn_ntm(aa, bb, this.name, id);
+			} else if (parsed[0] == "pvp" and parsed.length() > 7) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				chminx = string_to_number(parsed[1]);
+				chmaxx = string_to_number(parsed[2]);
+				chminy = string_to_number(parsed[3]);
+				chmaxy = string_to_number(parsed[4]);
+				chminz = string_to_number(parsed[5]);
+				chmaxz = string_to_number(parsed[6]);
+				pvp = string_to_number(parsed[7]);
+			} else if (parsed[0] == "opening_hours" and parsed.length() > 2) {
+				if (string_to_number(parsed[1])<0 or string_to_number(parsed[1])>24 or string_to_number(parsed[2])<0 or string_to_number(parsed[2])>24) continue;
+				minhour = string_to_number(parsed[1]);
+				maxhour = string_to_number(parsed[2]);
+			} else if (parsed[0] == "level" and parsed.length() > 2) {
+				minlevel = string_to_number(parsed[1]);
+				maxlevel = string_to_number(parsed[2]);
+			} else if (parsed[0] == "reinforcement" and parsed.length() > 2) {
+				minreinforcement = string_to_number(parsed[1]);
+				maxreinforcement = string_to_number(parsed[2]);
+			} else if (parsed[0] == "task_status" and parsed.length() > 8) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				chminx = string_to_number(parsed[1]);
+				chmaxx = string_to_number(parsed[2]);
+				chminy = string_to_number(parsed[3]);
+				chmaxy = string_to_number(parsed[4]);
+				chminz = string_to_number(parsed[5]);
+				chmaxz = string_to_number(parsed[6]);
+				finishitem = parsed[7];
+				finishamount = string_to_number(parsed[8]);
+			} else if (parsed[0] == "tile" and parsed.length() > 7) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int minx = string_to_number(parsed[1]);
+				int maxx = string_to_number(parsed[2]);
+				int miny = string_to_number(parsed[3]);
+				int maxy = string_to_number(parsed[4]);
+				int minz = string_to_number(parsed[5]);
+				int maxz = string_to_number(parsed[6]);
+				string type = parsed[7];
+			} else if (parsed[0] == "vending_machine" and parsed.length() > 3) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.y or string_to_number(parsed[2])>max.y or string_to_number(parsed[3])<min.z or string_to_number(parsed[3])>max.z) continue;
+				int vx = string_to_number(parsed[1]);
+				int vy = string_to_number(parsed[2]);
+				int vz = string_to_number(parsed[3]);
+				spawn_vending_machine(vx, vy, vz, name);
+			} else if (parsed[0] == "owner" and parsed.length() > 1)
+				owners.insert_last(parsed[1]);
+			else if (parsed[0] == "starting_point" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				spminx = string_to_number(parsed[1]);
+				spmaxx = string_to_number(parsed[2]);
+				spminy = string_to_number(parsed[3]);
+				spmaxy = string_to_number(parsed[4]);
+				spminz = string_to_number(parsed[5]);
+				spmaxz = string_to_number(parsed[6]);
+			} else if (parsed[0] == "deathpoint" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				dpminx = string_to_number(parsed[1]);
+				dpmaxx = string_to_number(parsed[2]);
+				dpminy = string_to_number(parsed[3]);
+				dpmaxy = string_to_number(parsed[4]);
+				dpminz = string_to_number(parsed[5]);
+				dpmaxz = string_to_number(parsed[6]);
+			} else if (parsed[0] == "fire" and parsed.length() > 8) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int fminx = string_to_number(parsed[1]);
+				int fmaxx = string_to_number(parsed[2]);
+				int fminy = string_to_number(parsed[3]);
+				int fmaxy = string_to_number(parsed[4]);
+				int fminz = string_to_number(parsed[5]);
+				int fmaxz = string_to_number(parsed[6]);
+				int fdam = string_to_number(parsed[7]);
+				int fhurttime = string_to_number(parsed[8]);
+				spawn_firemap(fminx, fmaxx, fminy, fmaxy, fminz, fmaxz, name, fdam, fhurttime);
+			} else if (parsed[0] == "toilet" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int tminx = string_to_number(parsed[1]);
+				int tmaxx = string_to_number(parsed[2]);
+				int tminy = string_to_number(parsed[3]);
+				int tmaxy = string_to_number(parsed[4]);
+				int tminz = string_to_number(parsed[5]);
+				int tmaxz = string_to_number(parsed[6]);
+				spawn_toilet(tminx, tmaxx, tminy, tmaxy, tminz, tmaxz, name);
+			} else if (parsed[0] == "trashcan" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int tminx = string_to_number(parsed[1]);
+				int tmaxx = string_to_number(parsed[2]);
+				int tminy = string_to_number(parsed[3]);
+				int tmaxy = string_to_number(parsed[4]);
+				int tminz = string_to_number(parsed[5]);
+				int tmaxz = string_to_number(parsed[6]);
+				spawn_trashcan(tminx, tmaxx, tminy, tmaxy, tminz, tmaxz, name);
+			} else if (parsed[0] == "bed" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int bminx = string_to_number(parsed[1]);
+				int bmaxx = string_to_number(parsed[2]);
+				int bminy = string_to_number(parsed[3]);
+				int bmaxy = string_to_number(parsed[4]);
+				int bminz = string_to_number(parsed[5]);
+				int bmaxz = string_to_number(parsed[6]);
+				spawn_bed(bminx, bmaxx, bminy, bmaxy, bminz, bmaxz, name);
+			} else if (parsed[0] == "clock" and parsed.length() > 7) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int cminx = string_to_number(parsed[1]);
+				int cmaxx = string_to_number(parsed[2]);
+				int cminy = string_to_number(parsed[3]);
+				int cmaxy = string_to_number(parsed[4]);
+				int cminz = string_to_number(parsed[5]);
+				int cmaxz = string_to_number(parsed[6]);
+				string ctext = parsed[7];
+				spawn_clock(cminx, cmaxx, cminy, cmaxy, cminz, cmaxz, name, ctext);
+			} else if (parsed[0] == "calendar" and parsed.length() > 7) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int cminx = string_to_number(parsed[1]);
+				int cmaxx = string_to_number(parsed[2]);
+				int cminy = string_to_number(parsed[3]);
+				int cmaxy = string_to_number(parsed[4]);
+				int cminz = string_to_number(parsed[5]);
+				int cmaxz = string_to_number(parsed[6]);
+				string ctext = parsed[7];
+				spawn_ccalendar(cminx, cmaxx, cminy, cmaxy, cminz, cmaxz, name, ctext);
+			} else if (parsed[0] == "oven" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int ominx = string_to_number(parsed[1]);
+				int omaxx = string_to_number(parsed[2]);
+				int ominy = string_to_number(parsed[3]);
+				int omaxy = string_to_number(parsed[4]);
+				int ominz = string_to_number(parsed[5]);
+				int omaxz = string_to_number(parsed[6]);
+				spawn_oven(ominx, omaxx, ominy, omaxy, ominz, omaxz, name);
+			} else if (parsed[0] == "washbasin" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int tminx = string_to_number(parsed[1]);
+				int tmaxx = string_to_number(parsed[2]);
+				int tminy = string_to_number(parsed[3]);
+				int tmaxy = string_to_number(parsed[4]);
+				int tminz = string_to_number(parsed[5]);
+				int tmaxz = string_to_number(parsed[6]);
+				spawn_washbasin(tminx, tmaxx, tminy, tmaxy, tminz, tmaxz, name);
+			} else if (parsed[0] == "shower" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int tminx = string_to_number(parsed[1]);
+				int tmaxx = string_to_number(parsed[2]);
+				int tminy = string_to_number(parsed[3]);
+				int tmaxy = string_to_number(parsed[4]);
+				int tminz = string_to_number(parsed[5]);
+				int tmaxz = string_to_number(parsed[6]);
+				spawn_shower(tminx, tmaxx, tminy, tmaxy, tminz, tmaxz, name);
+			} else if (parsed[0] == "fishingcoordinate" and parsed.length() > 6) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int fminx = string_to_number(parsed[1]);
+				int fmaxx = string_to_number(parsed[2]);
+				int fminy = string_to_number(parsed[3]);
+				int fmaxy = string_to_number(parsed[4]);
+				int fminz = string_to_number(parsed[5]);
+				int fmaxz = string_to_number(parsed[6]);
+			} else if (parsed[0] == "description" and parsed.length() > 1) description = string_replace(get_event_message(), parsed[0] + " ", "", true);
+			else if (parsed[0] == "item" and parsed.length() > 8) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int minx = string_to_number(parsed[1]);
+				int maxx = string_to_number(parsed[2]);
+				int miny = string_to_number(parsed[3]);
+				int maxy = string_to_number(parsed[4]);
+				int minz = string_to_number(parsed[5]);
+				int maxz = string_to_number(parsed[6]);
+				int mapispawntime = string_to_number(parsed[7]);
+				int maxobjs = string_to_number(parsed[8]);
+				mapispawn temp;
+				temp.minx = minx;
+				temp.maxx = maxx;
+				temp.miny = miny;
+				temp.maxy = maxy;
+				temp.minz = minz;
+				temp.maxz = maxz;
+				temp.mapispawntime = mapispawntime;
+				temp.maxobjs = maxobjs;
+				if (parsed.length() > 9) {
+					for (uint x = 9; x < parsed.length(); x++)
+						temp.mapobjs.insert_last(parsed[x]);
+				} else
+					temp.mapobjs = string_split(itemlist, ":", false);
+				temp.imap = name;
+				mapispawns.insert_last(temp);
+			} else if (parsed[0] == "ai" and parsed.length() > 8) {
+				if (string_to_number(parsed[1])<min.x or string_to_number(parsed[1])>max.x or string_to_number(parsed[2])<min.x or string_to_number(parsed[2])>max.x or string_to_number(parsed[3])<min.y or string_to_number(parsed[3])>max.y or string_to_number(parsed[4])<min.y or string_to_number(parsed[4])>max.y or string_to_number(parsed[5])<min.z or string_to_number(parsed[5])>max.z or string_to_number(parsed[6])<min.z or string_to_number(parsed[6])>max.z) continue;
+				int minx = string_to_number(parsed[1]);
+				int maxx = string_to_number(parsed[2]);
+				int miny = string_to_number(parsed[3]);
+				int maxy = string_to_number(parsed[4]);
+				int minz = string_to_number(parsed[5]);
+				int maxz = string_to_number(parsed[6]);
+				int mapaitime = string_to_number(parsed[7]);
+				int maxais = string_to_number(parsed[8]);
+				mapai temp;
+				temp.minx = minx;
+				temp.maxx = maxx;
+				temp.miny = miny;
+				temp.maxy = maxy;
+				temp.minz = minz;
+				temp.maxz = maxz;
+				temp.mapaitime = mapaitime;
+				temp.maxais = maxais;
+				if (parsed.length() > 9) {
+					for (uint x = 9; x < parsed.length(); x++)
+						temp.mapais.insert_last(parsed[x]);
+				} else
+					temp.mapais = string_split(ailist, ":", false);
+				temp.imap = name;
+				mapais.insert_last(temp);
+			}
+		}
+	}
+	void loop() {
+		if (mapais.length() > 0) {
+			for (uint i = 0; i < mapais.length(); i++)
+				mapais[i].loop();
+		}
+		if (mapispawns.length() > 0) {
+			for (uint i = 0; i < mapispawns.length(); i++)
+				mapispawns[i].loop();
+		}
+	}
+}
+class mapispawn {
+	int minx;
+	int maxx;
+	int miny;
+	int maxy;
+	int minz;
+	int maxz;
+	string[] mapobjs;
+	timer mapispawntimer;
+	int mapispawntime;
+	int maxobjs;
+	string imap;
+	bool is_in_area(double x, double y, double z, mapdata@m) {
+		if (m.name == imap and minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+			return true;
+		return false;
+	}
+	obj@[] get_objs_in_area() {
+		obj@[] tempobjs;
+		for (uint i = 0; i < objs.length(); i++) {
+			if (is_in_area(objs[i].x, objs[i].y, objs[i].z, objs[i].map))
+				tempobjs.insert_last(objs[i]);
+		}
+		return tempobjs;
+	}
+	int get_objs_in_area_length() {
+		obj@[] o = get_objs_in_area();
+		return o.length();
+	}
+	void loop() {
+		if (mapispawntimer.elapsed > mapispawntime) {
+			mapispawntimer.restart();
+			int tempobjs = get_objs_in_area_length();
+			if (tempobjs >= maxobjs)
+				return;
+			else
+				spawn_rand_obj(minx, maxx, miny, maxy, minz, maxz, maps[get_map_index(imap)], mapobjs);
+		}
+	}
+}
+class mapai {
+	int minx;
+	int maxx;
+	int miny;
+	int maxy;
+	int minz;
+	int maxz;
+	string[] mapais;
+	timer mapaitimer;
+	int mapaitime;
+	int maxais;
+	string imap;
+	vector get_min() property { return vector(this.minx, this.miny, this.minz); }
+	vector get_max() property { return vector(this.maxx, this.maxy, this.maxz); }
+	bool is_in_area(double x, double y, double z, mapdata@m) {
+		if (m.name == imap and minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+			return true;
+		return false;
+	}
+	ai@[] get_ais_in_area() {
+		ai@[] tempais;
+		for (uint i = 0; i < ais.length(); i++) {
+			if (is_in_area(ais[i].x, ais[i].y, ais[i].z, ais[i].map))
+				tempais.insert_last(ais[i]);
+		}
+		return tempais;
+	}
+	int get_ais_in_area_length() {
+		ai@[] o = get_ais_in_area();
+		return o.length();
+	}
+	void loop() {
+		if (mapaitimer.elapsed > mapaitime) {
+			mapaitimer.restart();
+			int tempais = get_ais_in_area_length();
+			if (tempais >= maxais)
+				return;
+			else
+				spawn_ai(random(minx, maxx), random(miny, maxy), random(minz, maxz), maps[get_map_index(imap)], mapais[random(0, (mapais.length() - 1))], m1 = this.min, mm1 = this.max);
+		}
+	}
+}
+string get_tile_at(int x, int y, int z, mapdata@m, bool includeglobal = true) {
+	string outval;
+	if (includeglobal == true) {
+		if (!directory_exists("maps/" + m.name))return"";
+		file f;
+		f.open("maps/" + m.name + "/!.map", "r");
+		string[] map = delinear(f.read());
+		f.close();
+		for (uint i = 0; i < map.length(); i++) {
+			string[] parsed = string_split(map[i], ":", false);
+			if (parsed[0] == "tile") {
+				int minx = string_to_number(parsed[1]);
+				int maxx = string_to_number(parsed[2]);
+				int miny = string_to_number(parsed[3]);
+				int maxy = string_to_number(parsed[4]);
+				int minz = string_to_number(parsed[5]);
+				int maxz = string_to_number(parsed[6]);
+				if (inrange(x, y, z, minx, maxx, miny, maxy, minz, maxz)) {
+					if (is_on_fire(x, y, z, maps[get_map_index(m.name)])) outval = "fire";
+					else if (chovendo == 1 and string_contains(parsed[7], "wall", 1)<0 and string_contains(parsed[7], "concrete", 1)> -1) outval = "wetconcrete";
+					else if (chovendo == 1 and string_contains(parsed[7], "wall", 1)<0 and string_contains(parsed[7], "dirt", 1)> -1) outval = "mud" + random(2, 4) + "";
+					else if (chovendo == 1 and string_contains(parsed[7], "wall", 1)<0 and string_contains(parsed[7], "grass", 1)> -1) outval = "mud" + random(2, 4) + "";
+					else if (chovendo == 1 and string_contains(parsed[7], "wall", 1)<0 and string_contains(parsed[7], "gravel", 1)> -1) outval = "gravel3";
+					else if (chovendo == 1 and string_contains(parsed[7], "wall", 1)<0 and string_contains(parsed[7], "lawn", 1)> -1) outval = "mud" + random(2, 4) + "";
+					else if (chovendo == 1 and string_contains(parsed[7], "wall", 1)<0 and string_contains(parsed[7], "mud", 1)> -1) outval = "mud" + random(6, 7) + "";
+					else outval = parsed[7];
+				}
+			}
+		}
+	}
+	return outval;
+}
+string get_zone_at(double x, double y, double z, string map, string def = "Unknown", dictionary@ args = dictionary()) {
+	map = map.replace(".map", "");
+	string[] lines = get_map_text(map).split("\n");
+	if (lines.length() < 1) return def;
+	uint l = (":trackme").length();
+	string final = "";
+	for (uint i = 0; i < lines.length(); i++) {
+		string[] parsed = lines[i].split(":");
+		if (parsed[0] == "zone" and parsed.length() > 7) {
+			double a = stn(parsed[1]);
+			double b = stn(parsed[2]);
+			double c = stn(parsed[3]);
+			double d = stn(parsed[4]);
+			double e = stn(parsed[5]);
+			double f = stn(parsed[6]);
+			string t = string_trimleft(lines[i], (parsed[0] + ":" + parsed[1] + ":" + parsed[2] + ":" + parsed[3] + ":" + parsed[4] + ":" + parsed[5] + ":" + parsed[6] + ":").length());
+			if (stringright(t, l) == ":trackme") t = string_trimright(t, l);
+			if (inrange(x, y, z, a, b, c, d, e, f)) final = t;
+		}//parsed
+	}//i
+	if (final == "") final = def;
+	return map_vars(args, final);
+}
+string get_zone_at(int x, int y, int z, mapdata@m, bool includeglobal = true, string def = "", dictionary@ args = null) {
+	if (@m == null) return def;
+	return get_zone_at(x, y, z, m.name, def, args);
+}
+string array_to_string(string[] r, string delimiter = "\n") {
+	string final;
+	for (uint i = 0; i < r.length(); i++)
+		final += r[i] + delimiter;
+	return final;
+}
+string array_to_string_n(int[] r, string delimiter = "\n") {
+	string final;
+	for (uint i = 0; i < r.length(); i++)
+		final += "" + r[i] + delimiter;
+	return final;
+}
+string linear(string[] a) {
+	string final;
+	for (uint i = 0; i < a.length(); i++) {
+		if (a[i] == "") continue;
+		final += (a[i] + "\n");
+	}
+	return final;
+}
+string[] delinear(string a) {
+	return string_split(a.replace("\r\n", "\n").replace("\r", ""), "\n");
+}
+string[] delinear2(string a) {
+	return string_split(a, ":");
+}
+string select_random_map() {
+	string[] maps = find_directories("maps/*");
+	string[] finalmaps;
+	for (uint i = 0; i < maps.length(); i++) {
+		file f;
+		f.open("maps/" + maps[i] + "/!.map", "rb");
+		if (string_contains(f.read(), "enable:disasters", 1) > -1)
+			finalmaps.insert_last(maps[i]);
+	}
+	return string_replace(finalmaps[random(0, finalmaps.length() - 1)], ".map", "", true);
+}
+string get_map_data(mapdata@m, string data) {
+	if (!directory_exists("maps/" + m.name))
+		return "";
+	file f;
+	f.open("maps/" + m.name + "/!.map", "r");
+	string mdatas = f.read();
+	mdatas.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] mdata = string_split(mdatas, "\n");
+	for (uint i = 0; i < mdata.length(); i++) {
+		string[] p = string_split(mdata[i], ":");
+		if (p[0] == data)
+			return string_replace(mdata[i], data + ":", "", false);
+	}
+	return "";
+}
+void init_mapsystem() {
+	maps.resize(0);
+	string[] mapfiles = find_directories("maps/*");
+	for (uint i = 0; i < mapfiles.length(); i++) {
+		string workingname = string_replace(mapfiles[i], ".map", "", true);
+		mapdata temp(workingname);
+		maps.insert_last(temp);
+	}
+}
+int get_map_index(string name) {
+	for (uint i = 0; i < maps.length(); i++) {
+		if (maps[i].name == name)
+			return i;
+	}
+	return -1;
+}
+mapdata@ get_map_obj(string name) {
+	int x = get_map_index(name);
+	if (x < 0) return null;
+	return @maps[x];
+}
+vector get_min_values(string map) {
+	int ind = get_map_index(map);
+	vector temp;
+	if (ind < 0) return temp;
+	temp.x = maps[ind].min.x;
+	temp.y = maps[ind].min.y;
+	temp.z = maps[ind].min.z;
+	return temp;
+}
+vector get_max_values(string map) {
+	int ind = get_map_index(map);
+	vector temp;
+	if (ind < 0) return temp;
+	temp.x = maps[ind].max.x;
+	temp.y = maps[ind].max.y;
+	temp.z = maps[ind].max.z;
+	return temp;
+}
+bool mapex(string m) { return directory_exists("maps/" + m); }
+bool map_exists(string map) {
+	string[] m = find_directories("maps/*");
+	for (uint x = 0; x < m.length(); x++) {
+		if (string_to_lower_case(m[x]) == string_to_lower_case(map)) return true;
+	}
+	return false;
+}
+string get_map_text(mapdata@m) {
+	if (@m == null) return "";
+	return m.rawdata;
+}
+string get_map_text(string map) {
+	string final = "";
+	int ind = get_map_index(map);
+	if (ind < 0)
+		final = file_get("maps/" + map + "/!.map");
+	else
+		final = maps[ind].rawdata;
+	final.replace_this("\r\n", "\n");
+	return final;
+}
+void load(string name) {
+	if (stringright(name, 4) == ".map") name = name.replace(".map", "");
+	if (get_map_index(name) > -1) maps.remove_at(get_map_index(name));
+	if (directory_exists("maps/" + name)) {
+		mapdata temp(name);
+		maps.insert_last(temp);
+	}//existing
+}
+bool is_travelpoint(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "travelpoint" and parsed.length() > 11) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			string newmap = parsed[7];
+			int newx = string_to_number(parsed[8]);
+			int newy = string_to_number(parsed[9]);
+			int newz = string_to_number(parsed[10]);
+			string text = parsed[11];
+			string sec = "";
+			if (parsed.length() > 12) sec = parsed[12];
+			string[] tmpout;
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_fishingcoordinate(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "fishingcoordinate" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_safe(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "safezone" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_toilet(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "toilet" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_washbasin(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "washbasin" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_shower(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "shower" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_trashcan(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "trashcan" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_bed(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "bed" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_clock(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "clock" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_calendar(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "calendar" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool is_oven(int x, int y, int z, mapdata@m) {
+	bool ret = false;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "oven" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = true;
+		}
+	}
+	return ret;
+}
+bool can_use_item_at(int x, int y, int z, mapdata@m, string item) {
+	string[] tempi;
+	bool ret = true;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "item_usage_restriction" and parsed.length() > 7) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			for (uint x = 7; x < parsed.length(); x++)
+				tempi.insert_last(parsed[x]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z and tempi.find(item) > -1)
+				ret = false;
+		}
+	}
+	return ret;
+}
+bool can_spawn_item_at(int x, int y, int z, mapdata@m, string item) {
+	string[] tempi;
+	bool ret = true;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "noitem" and parsed.length() > 7) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			for (uint x = 7; x < parsed.length(); x++)
+				tempi.insert_last(parsed[x]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z and tempi.find(item) > -1)
+				ret = false;
+		}
+	}
+	return ret;
+}
+bool can_spawn_locker_at(int x, int y, int z, mapdata@m) {
+	string[] tempi;
+	bool ret = true;
+	int ind = get_map_index(m.name);
+	if (ind < 0)
+		return false;
+	string d = maps[ind].rawdata;
+	d.replace_this("\r\n", "\n").replace_this("\r", "");
+	string[] text = string_split(d, "\n");
+	for (uint i = 0; i < text.length(); i++) {
+		string[] parsed = string_split(text[i], ":", false);
+		if (parsed[0] == "nolockers" and parsed.length() > 6) {
+			int minx = string_to_number(parsed[1]);
+			int maxx = string_to_number(parsed[2]);
+			int miny = string_to_number(parsed[3]);
+			int maxy = string_to_number(parsed[4]);
+			int minz = string_to_number(parsed[5]);
+			int maxz = string_to_number(parsed[6]);
+			if (minx <= x and maxx >= x and miny <= y and maxy >= y and minz <= z and maxz >= z)
+				ret = false;
+		}
+	}
+	return ret;
+}
+bool remove_map(string mapname, bool delete = true) {
+	mapname = verify_mapname_case(mapname);
+	int id = get_map_index(mapname);
+	bool r = false;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == mapname) move_player(players[i], "main_map", random(5, 10), 1, 0);
+	}
+	map_destroy(mapname);
+	if (id > -1) {
+		@maps[id] = null;
+		maps.remove_at(id);
+		r = true;
+	}
+	if (delete == true) {
+		if (directory_delete("maps/" + mapname)) r = true;
+	}
+	return r;
+}
+void map_destroy(string mapname) {
+	for (uint i2 = 0; i2 < msounds.length(); i2++) {
+		if (msounds[i2].map == mapname) {
+			msounds.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < ais.length(); i2++) {
+		if (ais[i2].map.name == mapname) {
+			if (ais[i2].voice != "" and ais[i2].rapidvoice == true) destroy_moving_sound(ais[i2].voice);
+			ais.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < houses.length(); i2++) {
+		if (houses[i2].map == mapname) {
+			file_delete("houses/" + houses[i2].housemap + ".house");
+			remove_map(houses[i2].housemap);
+			houses.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < villas.length(); i2++) {
+		if (villas[i2].map == mapname) {
+			file_delete("villas/" + villas[i2].villamap + ".villa");
+			remove_map(villas[i2].villamap);
+			villas.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < beehives.length(); i2++) {
+		if (beehives[i2].map == mapname) {
+			file_delete("beehives/" + beehives[i2].beehivemap + ".beehive");
+			remove_map(beehives[i2].beehivemap);
+			beehives.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < playerstores.length(); i2++) {
+		if (playerstores[i2].map == mapname) {
+			file_delete("playerstores/" + playerstores[i2].playerstoremap + ".playerstore");
+			remove_map(playerstores[i2].playerstoremap);
+			playerstores.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < lockers.length(); i2++) {
+		if (lockers[i2].map == mapname) {
+			file_delete("lockers/" + lockers[i2].id + ".locker");
+			lockers.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < fridges.length(); i2++) {
+		if (fridges[i2].map == mapname) {
+			destroy_moving_sound(fridges[i2].mid);
+			file_delete("fridges/" + fridges[i2].id + ".fridge");
+			fridges.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < microwaves.length(); i2++) {
+		if (microwaves[i2].map == mapname) {
+			destroy_moving_sound(microwaves[i2].midsound);
+			file_delete("microwaves/" + microwaves[i2].id + ".microwave");
+			microwaves.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < air_conditioners.length(); i2++) {
+		if (air_conditioners[i2].map == mapname) {
+			destroy_moving_sound(air_conditioners[i2].mid);
+			file_delete("air_conditioners/" + air_conditioners[i2].id + ".air_conditioner");
+			air_conditioners.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < steams.length(); i2++) {
+		if (steams[i2].map == mapname) {
+			destroy_moving_sound(steams[i2].mid);
+			file_delete("steams/" + steams[i2].id + ".steam");
+			steams.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < fans.length(); i2++) {
+		if (fans[i2].map == mapname) {
+			destroy_moving_sound(fans[i2].mid);
+			file_delete("fans/" + fans[i2].id + ".fan");
+			fans.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < timeitems.length(); i2++) {
+		if (timeitems[i2].map == mapname) {
+			timeitems.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < objs.length(); i2++) {
+		if (objs[i2].map.name == mapname) {
+			objs.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < silenceobjs.length(); i2++) {
+		if (silenceobjs[i2].map.name == mapname) {
+			silenceobjs.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < bodyfalls.length(); i2++) {
+		if (bodyfalls[i2].map == mapname) {
+			bodyfalls.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < weapons.length(); i2++) {
+		if (weapons[i2].map.name == mapname) {
+			weapons.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < censor_bombs.length(); i2++) {
+		if (censor_bombs[i2].map.name == mapname) {
+			censor_bombs.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < nuclear_bombs.length(); i2++) {
+		if (nuclear_bombs[i2].map.name == mapname) {
+			nuclear_bombs.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < small_nuclear_bombs.length(); i2++) {
+		if (small_nuclear_bombs[i2].map.name == mapname) {
+			small_nuclear_bombs.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < large_nuclear_bombs.length(); i2++) {
+		if (large_nuclear_bombs[i2].map.name == mapname) {
+			large_nuclear_bombs.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < time_bombs.length(); i2++) {
+		if (time_bombs[i2].map.name == mapname) {
+			time_bombs.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < grenades.length(); i2++) {
+		if (grenades[i2].map.name == mapname) {
+			grenades.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < canisters.length(); i2++) {
+		if (canisters[i2].map.name == mapname) {
+			canisters.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < snares.length(); i2++) {
+		if (snares[i2].map.name == mapname) {
+			snares.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < rockets.length(); i2++) {
+		if (rockets[i2].map.name == mapname) {
+			rockets.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < rpgs.length(); i2++) {
+		if (rpgs[i2].map.name == mapname) {
+			rpgs.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < turrets.length(); i2++) {
+		if (turrets[i2].map.name == mapname) {
+			turrets.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < mines.length(); i2++) {
+		if (mines[i2].map.name == mapname) {
+			mines.remove_at(i2);
+			continue;
+		}
+	}
+	for (uint i2 = 0; i2 < robots.length(); i2++) {
+		if (robots[i2].map.name == mapname) {
+			destroy_moving_sound(robots[i2].mid);
+			robots.remove_at(i2);
+			continue;
+		}
+	}
+}
+bool can_travel(string sy, int ind, string[] &out outputstring) {
+	string[] dostuff;
+	if (sy == "") return true;
+	else {
+		string[] p = string_split(sy, ",", false);
+		bool[] returns;
+		uint returned = 0;
+		for (uint i = 0; i < p.length(); i++) {
+			if (p[i] == "admin") returns.insert_last(players[ind].admin);
+			else if (p[i] == "dev") returns.insert_last(players[ind].dev);
+			//else if(string_left(p[i],7)=="inv_has ") returns.insert_last(players[ind].inv_item_number(string_trim_left(p[i],7)));
+			else if (string_left(p[i], 5) == "send ") {
+				returns.insert_last(true);
+				dostuff.insert_last(p[i]);
+			} else if (string_left(p[i], 15) == "inv_has_amount " && string_split(p[i], " ", false).length() > 2) {
+				string[] p2 = string_split(p[i], " ", false);
+				string invitem = p2[1];
+				double invamount = string_to_number(p2[2]);
+				returns.insert_last(players[ind].inv_item_number(invitem) >= invamount);
+			} else if (string_left(p[i], 12) == "inv_has_sub " && string_split(p[i], " ", false).length() > 2) {
+				string[] p2 = string_split(p[i], " ", false);
+				string invitem = p2[1];
+				double invamount = string_to_number(p2[2]);
+				if (players[ind].inv_item_number(invitem) >= invamount) {
+					returns.insert_last(true);
+					dostuff.insert_last("inv " + invitem + "=" + (0 - invamount));
+				} else {
+					returns.insert_last(false);
+					send_reliable(e.peer_id, "error: you don't have the " + invitem + " or " + invamount + " " + invitem + " to enter...", 2);
+				}
+			}
+		}
+		for (uint i = 0; i < returns.length(); i++) {
+			if (returns[i]) returned++;
+		}
+		outputstring = dostuff;
+		return returned == returns.length();
+	}
+}
+void check_maps_for(string w) {
+	string cf = "chars/" + w;
+	string[] lines;
+	foreach (mapdata@ l: maps) {
+		if (l.owners.find(w) > -1) lines.insert_last(l.name);
+	}
+	file_put(cf + "/maps.usr", join(lines, "\n"));
+}
+string get_dmg(double x, double y, double z, string map) {
+	map = map.replace(".map", "");
+	string[] lines = get_map_text(map).split("\n");
+	if (lines.length() < 1) return"";
+	string[] mess;
+	for (uint i = 0; i < lines.length(); i++) {
+		string[] parsed = lines[i].split(":");
+		if (parsed[0] == "dmg" and parsed.length() > 7) {
+			double a = round(stn(parsed[1]), 0);
+			double b = round(stn(parsed[2]), 0);
+			double c = round(stn(parsed[3]), 0);
+			double d = round(stn(parsed[4]), 0);
+			double e = round(stn(parsed[5]), 0);
+			double f = round(stn(parsed[6]), 0);
+			string m = lines[i].replace(parsed[0] + ":" + a + ":" + b + ":" + c + ":" + d + ":" + e + ":" + f + ":", "");
+			if ((a <= round(x, 0) and b >= round(x, 0)) and (c <= round(y, 0) and d >= round(y, 0)) and (e <= round(z, 0) and f >= round(z, 0))) mess.insert_last(m);
+		}
+	}//i
+	if (mess.length() < 1) return"";
+	return mess[random(0, mess.length() - 1)];
+}
+void map_updated(string m) {
+	m = verify_mapname_case(m);
+	if (!map_exists(m)) return;
+	string cf = "maps/" + m;
+	if (!directory_exists(cf)) directory_create(cf);
+	calendar c;
+	string bb = c.year + "/" + c.month + "/" + c.day + "/" + c.hour + "/" + c.minute + "/" + c.second;
+	string nnn = m;
+	file_put("maps/" + nnn + "/updated.mf", bb);
+}
+string get_map_update_short(string m) {
+	m = verify_mapname_case(m);
+	if (!map_exists(m)) return"";
+	string[] l = file_get("maps/" + m + "/updated.mf").split("/");
+	if (l.length() < 5) return "never";
+	return get_modified_time(stn(l[0]), stn(l[1]), stn(l[2]), stn(l[3]), stn(l[4]), stn(l[5]));
+}
+double get_map_update_second(string m) {
+	m = verify_mapname_case(m);
+	if (!map_exists(m)) return 0;
+	string[] l = file_get("maps/" + m + "/updated.mf").split("/");
+	if (l.length() < 5) return 0;
+	calendar now, past;
+	past.set(stn(l[0]), stn(l[1]), stn(l[2]), stn(l[3]), stn(l[4]), stn(l[5]));
+	timespan diff = past.timestamp.elapsed - now.timestamp.elapsed;
+	return diff.total_seconds;
+}
+string set_line(string text, string what, string value, string split_line = "|", string split_data = "=") {
+	text = text.replace("\r\n", "\n");
+	string[] lines = text.split(split_line);
+	if (text == "" || lines.length() < 1) {
+		text = what + split_data + value;
+		lines = text.split(split_line);
+	}
+	if (text == "" || lines.length() < 1) return text;
+	for (uint j = 0; j < lines.length(); j++) {
+		string[] line = lines[j].split(split_data);
+		if (line.length() > 0 && line[0] == what) lines[j] = what + split_data + value;
+	}//J
+	text = join(lines, split_line).trim_whitespace();
+	return text;
+}
+string verify_mapname_case(string name) {
+	string[] d = find_directories("maps/*");
+	if (d.length() < 1) return name;
+	for (uint i = 0; i < d.length(); i++) {
+		d[i].replace_this(".map", "");
+		if (name.lower() == d[i].lower()) name = d[i];
+	}
+	return name;
+}
+bool mapname_is_valid(string t) {
+	string nomname = "\"\\/`!~@#$%^&*+=[]{};: <>?";
+	return !t.is_digits() && !t.is_punctuation() && t != " " && !t.empty() && !is_disallowed_char(t, nomname);
+}
+string get_map_info(string m) {
+	m = verify_mapname_case(m);
+	int a = get_map_index(m);
+	if (a < 0) return"not loaded";
+	string i = "info for " + m + ":";
+	i += "\nthis map is updated " + get_map_update_short(m) + ".";
+	return i;
+}
+dictionary@ default_mapvars = dictionary();
+string mapvars(string t, dictionary@ args = default_mapvars, string o = "%", string c = "%") {
+	return dvars(t, args, o, c);
+}
+string map_vars(dictionary@ args, string t, string o = "%", string c = "%") {
+	if (@args == null) return t;
+	t = mapvars(t, args, o, c);
+	string g;
+	if (args.get("gender", g)) t = genderreplace(g, t, o + "g_", c);
+	return t;
+}
+string map_vars(player@ p, string t, dictionary@ args = default_mapvars, string o = "%", string c = "%") {
+	if (@p != null) {
+		args.set("name", p.name);
+		args.set("nickname", p.nickname);
+		args.set("map", p.map);
+		args.set("zone", get_zone_at(p.x, p.y, p.z, p.map));
+	}
+	if (@p != null) args.set("gender", string(p.gender));
+	t = map_vars(args, t, o, c);
+	return t;
+}

@@ -1,0 +1,31 @@
+#include"messager.nvgt"
+bool send(uint pid, string packet, int ch, bool reliable = true) {
+	string msg = get_deflate(packet);
+	return reliable ? n.send_reliable(pid, msg, ch) : n.send_unreliable(pid, msg, ch);
+}
+bool send(uint pid, messager@ packet, int ch, bool reliable = true) {
+	if (@packet == null) return false;
+	return send(pid, packet.packet, ch, reliable);
+}
+string get_event_message() property {
+	string tp = e.message;
+	string msg = get_inflate(tp);
+	return msg;
+}
+messager@ get_event_message_as_object() property {
+	string d = event_message;
+	return messager(d);
+}
+string get_deflate(string str) {
+	//string final = string_deflate(str);
+	string final = str;
+	//if (final.length() > str.length()) final = str;
+	return final;
+}
+string get_inflate(string str) {
+	string final = str;
+	/*try {
+		final = string_inflate(str);
+	} catch { }*/
+	return final;
+}

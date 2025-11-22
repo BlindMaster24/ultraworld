@@ -1,0 +1,62 @@
+namespace tents {
+string tnts = """
+mapname:%00mapname00%
+minx:-1
+maxx:11
+miny:-1
+maxy:11
+minz:-1
+maxz:11
+tile:-1:11:-1:11:-1:11:wallcloth
+owner:NicoDiAngelo
+litem:0
+starting_point:5:5:0:0:0:0
+deathpoint:5:5:0:0:0:0
+tile:0:10:0:10:0:10:air
+tile:0:10:0:10:0:0:cloth
+music:0:10:0:10:0:10:-10:101:musica6.ogg:1
+zone:0:10:0:10:0:10:tent
+tile:5:5:0:0:0:0:carpet5
+zone:4:6:0:1:0:10:near the tent flap
+zone:5:5:0:0:0:10:the tent flap:trackme
+tile:0:0:4:6:0:1:wallcardboard
+tile:1:1:4:6:0:0:wallcardboard
+tile:0:0:4:6:2:2:wood16
+tile:1:1:5:5:0:0:chair
+tile:1:1:4:4:1:1:carpet8
+tile:1:1:6:6:1:1:carpet8
+zone:0:0:4:6:2:10:backrest of the rocking_chair
+zone:1:1:4:6:1:10:armrest of the rocking_chair
+src:1:1:5:5:0:10:-15:101:cadeira_ringindo3.ogg
+tile:6:10:8:10:0:0:wallcouch
+zone:1:1:5:5:0:10:rocking-chair:trackme
+
+tile:6:10:8:10:1:1:carpet9
+zone:5:10:7:10:0:10:near a small cumfy bed
+zone:6:10:8:10:1:10:a small cumfy bed:trackme
+bed:6:10:8:10:1:10
+tile:0:0:10:10:0:0:hay
+zone:0:1:9:10:0:10:near a trashcan
+zone:0:0:10:10:0:10:a trashcan:trackme
+trashcan:0:0:10:10:0:10
+rain:telhado.ogg
+night:none.ogg
+wind:none.ogg
+tile:4:6:4:6:0:0:stone2
+tile:5:5:5:5:0:0:fire
+zone:4:6:4:6:0:10:stones surrounding a fireplace in the center of the tent that keeps the tent warm in winter
+zone:5:5:5:5:0:10:a fireplace in the center of the tent, it keeps the tent warm and comfortable in the winters, and you can also cook in it.:trackme
+src:5:5:5:5:0:10:-3:101:fire5.ogg
+oven:5:5:5:5:0:10
+clock:10:10:5:5:0:10:the time is 
+zone:9:10:4:6:0:10:near a clock
+zone:10:10:5:5:0:10:a clock is here:trackme
+tile:10:10:5:5:0:0:metal20
+door:10:10:5:5:0:10:10:5:0: :0:silence.ogg:silence.ogg:timecheck.ogg:silence.ogg
+zone:0:1:0:1:0:10:near a waterpot
+zone:0:0:0:0:0:10:a waterpot. you can wash your hands or fil your bottles or other water containers in this:trackme
+tile:0:1:0:1:0:0:synthetic
+tile:0:0:0:0:0:0:puddle
+washbasin:0:0:0:0:0:10
+""";
+}

@@ -1,0 +1,8 @@
+{
+  "build": {
+    "linux_bundle": 1
+  },
+  "scripting": {
+    "allow_multiline_strings": true
+  }
+}

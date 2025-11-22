@@ -1,0 +1,13 @@
+{
+  "item": "carbonated_water",
+  "items": "carbonated_water;caffeine;taurine;vitamin_b12;citrus;citric_acid;sugar",
+  "ritems": {
+    "carbonated_water": 4,
+    "sugar": 2,
+    "caffeine": 1,
+    "taurine": 1,
+    "vitamin_b12": 1,
+    "citrus": 2,
+    "citric_acid": 1
+  }
+}

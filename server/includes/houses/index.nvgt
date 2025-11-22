@@ -1,0 +1,6 @@
+#include "*.nvgt"
+namespace houses {
+	string mapget(string t, string mapname, string owner) {
+		return t.trim_whitespace().replace("%00mapname00%", mapname).replace("%00owner00%", owner);
+	}
+}

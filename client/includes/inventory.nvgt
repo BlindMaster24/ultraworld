@@ -1,0 +1,141 @@
+/*
+MIT License
+
+Copyright (c) 2024 [Harry Min Khant](https://harrymkt.github.io)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+#include"speech.nvgt"
+class inventory {
+	inventory_item@[]items(0);
+	int invpos;
+	//constructor.
+	inventory() {
+		reset();
+	}
+	uint get_size() property {
+		return this.items.length();
+	}
+	int get_item_index(const string name) property {
+		for (uint i = 0; i < this.items.length(); i += 1) {
+			if (this.items[i].name == name) return i;
+		}
+		return -1;
+	}
+	inventory_item@get_current_item() property {
+		if (this.invpos >= 0 and this.invpos < this.items.length())
+			return @this.items[this.invpos];
+		return null;
+	}
+	string get_current_item_str() property {
+		if (current_item != null)
+			return current_item.name;
+		return "";
+	}
+	string speakitem(inventory_item@ i, string text = "%name%, you have %count%", string def = "") {
+		if (@i == null) return def;
+		string f = text.replace("%name%", i.name).replace("%count%", i.amount);
+		if (f == "") f = def;
+		return f;
+	}
+	void speak_item(bool speak_position = true, string text = "%name%, you have %count%", string def = "") {
+		if (this.items.length() > 0 && @current_item != null) {
+			text = this.speakitem(@this.current_item, text);
+			speak(text);
+			if (speak_position) speak("Item " + (this.invpos + 1) + " of " + this.items.length(), false);
+		} else speak("no item");
+	}
+	void cycle(const int direction = 1) {
+		if (this.items.length() <= 0) return;
+		invpos = (invpos + direction) % this.items.length();
+		if (invpos < 0) invpos += this.items.length();
+	}
+	inventory_item@get_inv_item_handle(const string name) property {
+		for (uint i = 0; i < this.items.length(); i += 1) {
+			if (this.items[i].name == name) return @this.items[i];
+		}
+		return null;
+	}
+	bool exists(string name) {
+		return @this.get_inv_item_handle(name) != null;
+	}
+	void reset() {
+		//this will remove all items in the inventory.
+		this.items.resize(0);
+	}
+	string export(const string del = "=", const string del2 = "\n") {
+		//This prints a human-friendly version of your inventory. It will return in ini format by default, but you can change this by changing the del and del2 strings to something else.
+		if (this.items.length() <= 0) //nothing here.
+			return "";
+		string[] output;
+		for (uint i = 0; i < this.items.length(); i += 1)
+			output.insert_last(items[i].name + del + items[i].amount);
+		return join(output, del2);
+	}
+	int64 import_inv(string data, string del = "=", string del2 = "\n") {
+		this.reset();
+		if (data == "") return -1;
+		data.replace_this("\r\n", "\n", true);
+		string[] l = data.split(del2);
+		if (l.length() < 1) return -1;
+		uint count = 0;
+		for (uint i = 0; i < l.length(); i++) {
+			string[] parsed = l[i].split(del);
+			if (parsed.length() < 2) continue;
+			double amount = parse_double(parsed[1]);
+			if (amount <= 0) continue;
+			this.give(parsed[0], amount);
+			count++;
+		}
+		return count;
+	}
+	bool give(const string what, const double amount) {
+		inventory_item@temp = get_inv_item_handle(what);
+		if (@temp == null) {
+			if (amount <= 0) return false;
+			@temp = inventory_item(what, amount);
+			this.items.insert_last(temp);
+		} else {
+			temp.amount += amount;
+			if (temp.amount <= 0)
+				this.items.remove_at(this.get_item_index(temp.name));
+		}
+		return true;
+	}
+	bool remove(string name) {
+		int x = this.get_item_index(name);
+		if (x < 0) return false;
+		@this.items[x] = null;
+		this.items.remove_at(x);
+		return true;
+	}
+	double get_item_amount(const string name) property {
+		inventory_item@ i = this.inv_item_handle[name];
+		if (@i != null && i.name == name) return i.amount;
+		return 0;
+	}
+}//end of inventory class.
+class inventory_item {
+	string name;
+	double amount;
+	inventory_item(string a, double b) {
+		this.name = a;
+		this.amount = b;
+	}
+}

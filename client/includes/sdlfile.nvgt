@@ -1,0 +1,3 @@
+string sdl_file(string url, string disk_file, bool quiet = false, string msg = "") {
+	return "";
+}

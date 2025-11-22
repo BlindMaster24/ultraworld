@@ -1,0 +1,73 @@
+/*
+MIT License
+
+Copyright (c) 2025 [Harry Min Khant](https://harrymkt.github.io)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+class logfile {
+	funcdef void logfilecb(string, dictionary@);
+	logfilecb@ default_callback = null;
+	dictionary@ default_data = null;
+	string folder = "logs";
+	string ext = ".log";
+	string format_date = "%W, %B %d, %Y at %H:%M %z";
+	bool log(string name, string what, bool dir = true, logfilecb@ callback = null, dictionary@ data = null) {
+		name.replace_this("\\", "/");
+		if (@data == null) @data = this.default_data;
+		if (@callback == null) @callback = this.default_callback;
+		string currentdate = calendar().format("%Y-%m-%d");
+		if (!directory_exists(this.folder))
+			directory_create(this.folder);
+		if (directory_exists(this.folder + "/" + currentdate) == false and dir == true) directory_create(this.folder + "/" + currentdate);
+		file@ f = file();
+		if (dir == true)
+			f.open(this.folder + "/" + currentdate + "/" + name + "" + this.ext, "ab");
+		else
+			f.open(this.folder + "/" + name + "" + this.ext, "ab");
+		bool r = this.log(what, f, callback, data);
+		f.close();
+		return r;
+	}
+	bool log(string what, datastream@&inout d, logfilecb@ callback = null, dictionary@ data = null) {
+		if (@d == null || !d.active) return false;
+		what.replace_this("\r", "");
+		if (@data == null) @data = this.default_data;
+		if (@callback == null) @callback = this.default_callback;
+		d.write("\n\"\"\"\n" + what + "\n\"\"\" On " + calendar().format(this.format_date) + ".\n");
+		if (@callback != null) callback(what, data);
+		return true;
+	}
+	string get(string name) {
+		file f;
+		f.open(this.folder + "/" + name + "" + this.ext, "r");
+		string data = f.read();
+		f.close();
+		return data;
+	}
+	bool remove(string name) {
+		return file_delete(this.folder + "/" + name + "" + this.ext);
+	}
+	void clear_all() {
+		directory_delete(this.folder);
+	}
+	bool exists(string log) {
+		return file_exists(this.folder + "/" + log + "" + this.ext);
+	}
+}

@@ -1,0 +1,70 @@
+zone@[] zones(0);
+class zone {
+	double minx, maxx, miny, maxy, minz, maxz;
+	string text;
+	string id;
+	string map;
+	bool trackable = false;
+	zone(double a, double b, double c, double d, double e, double f, string m, string t, bool tracka = false, string zID = generate_token(15)) {
+		this.minx = a; this.maxx = b;
+		this.miny = c; this.maxy = d;
+		this.minz = e; this.maxz = f;
+		this.map = m;
+		this.text = t;
+		this.trackable = tracka;
+		this.id = zID;
+	}
+	vector get_min() property {
+		return vector(this.minx, this.miny, this.minz);
+	}
+	vector get_max() property {
+		return vector(this.maxx, this.maxy, this.maxz);
+	}
+}
+bool remove_zone(string of, string type = "id") {
+	type = type.lower();
+	if (type == "") type = "id";
+	if (zones.length() < 1) return false;
+	for (uint i = 0; i < zones.length(); i++) {
+		if (type == "id" && zones[i].id == of) {
+			@zones[i] = null;
+			zones.remove_at(i);
+			return true;
+		} else if (type == "text" && zones[i].text == of) {
+			@zones[i] = null;
+			zones.remove_at(i);
+			return true;
+		}
+	}//i
+	return false;
+}
+int get_zone_index(string of, string type = "id") {
+	type = type.lower();
+	if (type == "") type = "id";
+	if (zones.length() < 1) return -1;
+	for (uint i = 0; i < zones.length(); i++) {
+		if (type == "id" && zones[i].id == of) return i;
+		else if (type == "text" && zones[i].text == of) return i;
+	}//i
+	return -1;
+}
+string get_zone_at(double x, double y, double z, string m = mapname) {
+	string final = "";
+	for (uint i = 0; i < zones.length(); i++) {
+		if (zones[i].minx <= x and zones[i].maxx >= x and zones[i].miny <= y and zones[i].maxy >= y and zones[i].minz <= z and zones[i].maxz >= z) {
+			if (m != "" && zones[i].map == m) final = zones[i].text;
+			else final = zones[i].text;
+		}
+	}//i
+	if (final == "") final = "Unknown area";
+	return map_vars(final);
+}
+string spawn_zone(double a, double b, double c, double d, double e, double f, string m, string t, bool tracka = false, string id = generate_token(15)) {
+	while (get_zone_index(id) > -1) {
+		id = generate_token(15);
+		if (get_zone_index(id) < 0) break;
+	}
+	zone z1(a, b, c, d, e, f, m, t, tracka, id);
+	zones.insert_last(z1);
+	return id;
+}

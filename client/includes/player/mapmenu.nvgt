@@ -1,0 +1,116 @@
+namespace player::menu {
+	void map(string[] players) {
+		bool tellme = true;
+		get_characters();
+		string cl, char, multichar, test;
+		speak("Select a player to track");
+		double counter = 0;
+		while (true) {
+			wait(5);
+			mainloop();
+			if (counter > players.length() - 1)
+				counter = players.length() - 1;
+			if (counter < 0) counter = 0;
+			if (tellme == true) {
+				speak(players[counter], false);
+				tellme = false;
+			}
+			if (navtime.elapsed > 1000 and multichar != "")
+				multichar = "";
+			string c = get_characters().lower();
+			if (c != "" and multichar != c) {
+				navtime.restart();
+				multichar += c;
+			}
+			if (multichar != "" and c != "") {
+				multichar = multichar.lower();
+				bool found = false;
+				for (uint i = counter; i < players.length(); i++) {
+					if (i == counter) continue;
+					test = players[i];
+					test = test.lower();
+					if (stringleft(test, multichar.length()) == multichar) {
+						if (stringleft(players[counter], multichar.length()).lower() == multichar and multichar.length() > 1) {
+							found = true;
+							break;
+						}
+						if (counter < i)
+							counter = i;
+						else if (counter > i)
+							counter = i;
+						speak(players[counter]);
+						found = true;
+						break;
+					}
+				}
+				if (found == false) {
+					multichar = multichar.lower();
+					for (uint i = 0; i < players.length(); i++) {
+						test = players[i];
+						test = test.lower();
+						if (stringleft(test, multichar.length()) == multichar) {
+							if (stringleft(players[counter], multichar.length()).lower() == multichar and multichar.length() > 1) {
+								found = true;
+								break;
+							}
+							if (counter < i)
+								counter = i;
+							else if (counter > i)
+								counter = i;
+							speak(players[counter]);
+							found = true;
+							break;
+						}
+					}
+				}
+				if (!found)
+					speak("no such player exists");
+			}
+			string[] p = players[counter].split(" ");
+			if (key_pressed(KEY_HOME)) {
+				counter = 0;
+				speak(players[counter]);
+			}
+			if (key_pressed(KEY_END)) {
+				counter = players.length() - 1;
+				speak(players[counter]);
+			}
+			if (key_pressed(KEY_UP)) {
+				if (players.length() == 1) {
+					speak(players[0]);
+					counter = 0;
+				} else if (counter > 0) {
+					counter--;
+					speak(players[counter]);
+				}
+			}
+			if (key_pressed(KEY_DOWN)) {
+				if (players.length() == 1) {
+					speak(players[0]);
+					counter = 0;
+				} else if (counter < players.length() - 1) {
+					counter++;
+					speak(players[counter]);
+				}
+			}
+			player::keycheck(p[0]);
+			if ((key_pressed(KEY_RETURN)) and counter <= players.length() - 1 and players[counter] != "") {
+				if (counter > 0) {
+					::p.play_stationary("tracked.ogg", false);
+					speak("now tracking " + p[0]);
+					tracking = p[0];
+					return;
+				} else {
+					speak("stopped tracking");
+					tracking = "";
+					return;
+				}
+			}
+			if (key_pressed(KEY_ESCAPE)) {
+				speak("canceled");
+				return;
+			}
+		}
+		return;
+	}
+}//

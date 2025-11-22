@@ -1,0 +1,26 @@
+#include "includes/hip.nvgt"
+void main() {
+	int64 c = 0;
+	string f = "string allsounds = \"";
+	string[] d = findfilesr("packs/sounds");
+	for (uint i = 0; i < d.length(); i++) {
+		string s = d[i];
+		if (s.ends_with(".wav")) continue;
+		string t = s.replace("packs/sounds/", "").replace(".ogg", "");
+		f += t + "\n";
+		c ++;
+	}
+	f += "\";";
+	file_put("includes/mapdata/allsounds.nvgt", f);
+	alert("Info", c + " all sounds list generated");
+}
+string[] findfilesr(string path) {
+	string[] f;
+	string[] a = find_files(path + "/*.*");
+	string[] b = find_directories(path + "/*");
+	for (uint i = 0; i < b.length(); i++)
+		f.extend(findfilesr(path + "/" + b[i]));
+	for (uint i = 0; i < a.length(); i++)
+		f.insert_last(path + "/" + a[i]);
+	return f;
+}

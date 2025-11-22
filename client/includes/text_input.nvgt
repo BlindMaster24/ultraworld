@@ -1,0 +1,263 @@
+#include "bgt_compat.nvgt"#include "bgt_compat.nvgt"class text_input
+{
+	bool space_pressed = false;
+	string ltrims = "6780,`3-4";
+	string rtrims = "12346780-;.,\'";
+	string[] chars = { " ", "a", "1", "b", "\'", "k", "2", "l", "`", "c", "i", "f", "/", "m", "s", "p", "\"", "e", "3", "h", "9", "o", "6", "r", "~", "d", "j", "g", ">", "n", "t", "q", ",", "*", "5", "<", "-", "u", "8", "v", ".", "%", "{", "$", "+", "x", "!", "&", ";", ":", "4", "|", "0", "z", "7", "(", "_", "?", "w", "}", "#", "y", ")", "="};
+	int mark;
+	string clipboard;
+	sound capital;
+	string[]entry;
+	string title;
+	int cursor = 0;
+	bool passworded = false;
+	int textlength = 0;
+	int repeat = 1;
+	int caps = 1;
+	int keyboardclicks = 1;
+	int keyboardtheme = 3;
+	int keyboardsoundforothers = 1;
+	int hearotherskeyboardsound = 1;
+	int braille_mode = 0;
+	string mask = "";
+	key_hold back(KEY_BACK, 500, 40);
+	key_hold back2(KEY_DELETE, 500, 40);
+	key_hold larrow(KEY_LEFT, 500, 40);
+	key_hold rarrow(KEY_RIGHT, 500, 40);
+	text_input() {
+		reset();
+	}
+	~text_input() {
+	}
+	void reset() {
+		cursor = 0;
+		entry.resize(0);
+		title = "";
+		passworded = false;
+		mask = "";
+		textlength = 0;
+	}
+	void speak_character_at(int position) {
+		if (position > entry.length() - 1 or position < 0) {
+			speak("Blank");
+			return;
+		} else {
+			string char = entry[position];
+			if (passworded)
+				speak(mask);
+			else {
+				if (string_is_upper_case(char)) {
+					if (currentkeyboardlangfile == "english") {
+						if (caps == 1)
+							speak("Capital " + char);
+						else if (caps == 2) {
+							capital.stop(); capital.play();
+							speak(char);
+						} else if (caps == 3)
+							speak(char);
+					} else
+						speak(char);
+				} else if (char == " ")
+					speak("space");
+				else
+					speak(char);
+			}
+		}
+	}
+	void input_character(string char) {
+		if (entry.length() == textlength and textlength > 0) {
+			cursor = entry.length() - 1;
+			return;
+		} else {
+			if (passworded) {
+				vplay("type");
+				if (repeat == 1) speak(mask);
+			} else {
+				if (string_is_upper_case(char)) {
+					if (keyboardtheme == 1) vplay("keyboard1type" + random(1, 10) + "");
+					else if (keyboardtheme == 2) vplay("keyboard2type" + random(1, 10) + "");
+					else if (keyboardtheme == 3) vplay("keyboard3type" + random(1, 5) + "");
+					else if (keyboardtheme == 4) vplay("keyboard4type" + random(1, 3) + "");
+					else if (keyboardtheme == 5) vplay("keyboard5key" + random(1, 4) + "");
+					else if (keyboardtheme == 6) vplay("keyboard6type" + random(1, 4) + "");
+					else if (keyboardtheme == 7) vplay("keyboard7");
+					else if (keyboardtheme == 8) vplay("keyboard8key" + random(1, 4) + "");
+					else if (keyboardtheme == 9) vplay("keyboard9type");
+					else if (keyboardtheme == 10) vplay("phonekeytype");
+					else if (keyboardtheme == 11) vplay("l" + random(1, 15) + "");
+					else if (keyboardtheme == 12) vplay("keyboard10type" + random(1, 10) + "");
+					else if (keyboardtheme == 13) vplay("telephone" + random(1, 9) + "");
+					else if (keyboardtheme == 14) vplay("keytype");
+					if (currentkeyboardlangfile == "english") {
+						if (caps == 1) {
+							if (repeat == 1) speak("Capital " + char);
+						} else if (caps == 2) {
+							capital.stop(); capital.play();
+							if (repeat == 1) speak(char);
+						} else if (caps == 3) {
+							if (repeat == 1) speak(char);
+						}
+					} else {
+						if (repeat == 1) speak(char);
+					}
+				} else if (char == " ") {
+					if (keyboardtheme == 4) vplay("keyboard4type" + random(1, 3) + "");
+					else if (keyboardtheme == 5) vplay("keyboard5key" + random(1, 4) + "");
+					else if (keyboardtheme == 6) vplay("keyboard6type" + random(1, 4) + "");
+					else if (keyboardtheme == 7) vplay("keyboard7");
+					else if (keyboardtheme == 8) vplay("keyboard8key" + random(1, 4) + "");
+					else if (keyboardtheme == 10) vplay("phonekeyspace");
+					else if (keyboardtheme == 11) vplay("l" + random(1, 15) + "");
+					else if (keyboardtheme == 12) vplay("keyboard10space");
+					else if (keyboardtheme == 13) vplay("telephone0");
+					else if (keyboardtheme == 14) vplay("keyspace");
+					else vplay("keyboard" + keyboardtheme + "space");
+					if (repeat == 1) speak("space");
+				} else {
+					if (keyboardtheme == 1) vplay("keyboard1type" + random(1, 10) + "");
+					else if (keyboardtheme == 2) vplay("keyboard2type" + random(1, 10) + "");
+					else if (keyboardtheme == 3) vplay("keyboard3type" + random(1, 5) + "");
+					else if (keyboardtheme == 4) vplay("keyboard4type" + random(1, 3) + "");
+					else if (keyboardtheme == 5) vplay("keyboard5key" + random(1, 4) + "");
+					else if (keyboardtheme == 6) vplay("keyboard6type" + random(1, 4) + "");
+					else if (keyboardtheme == 7) vplay("keyboard7");
+					else if (keyboardtheme == 8) vplay("keyboard8key" + random(1, 4) + "");
+					else if (keyboardtheme == 9) vplay("keyboard9type");
+					else if (keyboardtheme == 10) vplay("phonekeytype");
+					else if (keyboardtheme == 11) vplay("l" + random(1, 15) + "");
+					else if (keyboardtheme == 12) vplay("keyboard10type" + random(1, 10) + "");
+					else if (keyboardtheme == 13) vplay("telephone" + random(1, 9) + "");
+					else if (keyboardtheme == 14) vplay("keytype");
+					if (repeat == 1) speak(char);
+				}
+			}
+			entry.insert_at(cursor, char);
+		}
+	}
+	//string input(string ttl, string default_text = "", int ccursor = 1, bool uses_password = false, string mask_char = "", int txtlength = 0) {
+	string input(string ttl, string default_text = "") {
+		return ::input("Field", ttl, default_text);
+	}
+	void nextword() {
+		int counter;
+		if (entry.length() == 0)
+			return;
+		if ((cursor < 0) || (cursor >= entry.length()))
+			return;
+		for (counter = cursor; counter < entry.length(); counter++) {
+			if ((entry[counter] != " ") && (entry[counter] != "\r"))
+				continue;
+			if (entry[counter] == " ") {
+				cursor = counter + 1;
+				speak(speak_word(cursor));
+				break;
+			}
+			if (entry[counter] == "\r") {
+				cursor = counter + 2;
+				speak(speak_word(cursor));
+				break;
+			}
+		}
+		if (counter == entry.length() - 1) {
+			cursor = entry.length();
+			speak("Blank");
+		}
+	}
+	void prevword() {
+		bool found_end = false;
+		int counter;
+		int start;
+		int end;
+		if (entry.length() == 0)
+			return;
+		if (cursor <= 0)
+			return;
+		for (counter = cursor; counter >= 0; counter--) {
+			if (counter == entry.length())
+				continue;
+			if (counter > entry.length())
+				break;
+			if ((entry[counter] != " ") && (entry[counter] != "\n"))
+				continue;
+			if (entry[counter] == " ") {
+				if (found_end == false) {
+					end = counter - 1;
+					found_end = true;
+				} else {
+					cursor = counter + 1;
+					speak(speak_word(cursor));
+					break;
+				}
+			}
+			if (entry[counter] == "\n") {
+				if (found_end == false) {
+					end = counter - 2;
+					found_end = true;
+				} else {
+					cursor = counter + 2;
+					speak(speak_word(cursor));
+					break;
+				}
+			}
+		}
+		if ((counter <= 0) || (counter > entry.length())) {
+			cursor = 0;
+			speak(speak_word(cursor));
+		}
+	}
+	string speak_word(int p) {
+		string word;
+		for (uint i = p; i < entry.length(); i++) {
+			if (entry[i] != " ") word += entry[i];
+			else break;
+		}
+		return word;
+	}
+}
+void vplay(string dsound) {
+	if (v.keyboardclicks == 1) {
+		if (stereotyping == 1) {
+			rvp.play_stationary("" + dsound + ".ogg", false);
+			if (v.keyboardsoundforothers == 1) send_reliable(peer_id, "stereotyping " + dsound + ".ogg", 7);
+		} else {
+			rvp.play_stationary("" + dsound + ".ogg", false);
+			if (v.keyboardsoundforothers == 1) send_reliable(peer_id, "typing " + dsound + ".ogg", 7);
+		}
+	}
+}
+void save_input_box() {
+	sd.add("inventry", v.entry);
+	sd.add("invtitle", v.title);
+	sd.add("invcursor", v.cursor);
+	sd.add("invtextlength", v.textlength);
+	sd.add("invmask", v.mask);
+	sd.add("inpventry", pv.entry);
+	sd.add("inpvtitle", pv.title);
+	sd.add("inpvcursor", pv.cursor);
+	sd.add("inpvtextlength", pv.textlength);
+	sd.add("inpvmask", pv.mask);
+	sd.save();
+}
+void load_input_box() {
+	sd.load();
+	if (sd.d.exists("inventry"))
+		v.entry = sd.reada("inventry");
+	if (sd.d.exists("invtitle"))
+		v.title = sd.read("invtitle");
+	if (sd.d.exists("invcursor"))
+		v.cursor = sd.readn("invcursor");
+	if (sd.d.exists("invtextlength"))
+		v.textlength = sd.readn("invtextlength");
+	if (sd.d.exists("invmask"))
+		v.mask = sd.read("invmask");
+	if (sd.d.exists("inpventry"))
+		pv.entry = sd.reada("inpventry");
+	if (sd.d.exists("inpvtitle"))
+		pv.title = sd.read("inpvtitle");
+	if (sd.d.exists("inpvcursor"))
+		pv.cursor = sd.readn("inpvcursor");
+	if (sd.d.exists("inpvtextlength"))
+		pv.textlength = sd.readn("inpvtextlength");
+	if (sd.d.exists("inpvmask"))
+		pv.mask = sd.read("inpvmask");
+}

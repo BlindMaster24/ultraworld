@@ -1,0 +1,452 @@
+#include "check.nvgt"
+enum teamtypes {
+	teamtype_id = 1 << 0,
+	teamtype_name = 1 << 1
+}
+string teamdir = "teams";
+string teamex = ".json";
+team@[] teams(0);
+class team {
+	string name, id, password;
+	teamplayer@[] players(0);
+	int maxmembers = 5;
+	int64 tpoints = 100, tkills = 0;
+	team(string id, string name, string password) {
+		this.id = id;
+		this.name = name;
+		this.password = password;
+	}
+	~team() {
+		this.save();
+	}
+	int64 points {
+		get {
+			return this.tpoints;
+		} set {
+			this.tpoints = value;
+			this.save();
+		}
+	}
+	int64 teamkills {
+		get {
+			return this.tkills;
+		} set {
+			this.tkills = value;
+			this.save();
+		}
+	}
+	team@ get_handle() property { return this; }
+	bool save() {
+		if (!directory_exists(teamdir) && !directory_create(teamdir)) return false;
+		if (this.players.length() < 1) return false;
+		file f;
+		if (!f.open(this.path, "w")) return false;
+		json j;
+		j.set("name", this.name);
+		j.set("password", this.password);
+		j.set("maxmembers", this.maxmembers);
+		j.set("points", this.points);
+		j.set("teamkills", this.teamkills);
+		json_object pl;
+		for (uint i = 0; i < this.players.length(); i++) {
+			pl.set(this.players[i].name, this.players[i].dump);
+		}
+		j.set("players", pl);
+		f.write(j.dump(2));
+		f.close();
+		return true;
+	}
+	void loop(int i) {
+		if (this.players.length() < 1) {
+			string pp = this.path;
+			try { @teams[i] = null; teams.remove_at(i); } catch { }
+			checkteam();
+			file_delete(pp);
+			return;
+		}
+		if (points <= 0) {
+			transmit("This team has ran out of points and is now being canceled");
+			destruct(false);
+			send_reliable(0, "The " + teamname + " team ran out of points and has been canceled!", 2);
+		}
+	}
+	teamplayer@[] get_online_players() property {
+		teamplayer@[] tps(0);
+		foreach (teamplayer@ l: this.players) {
+			if (@l.obj != null) tps.insert_last(@l);
+		}
+		return tps;
+	}
+	teamplayer@[] get_offline_players() property {
+		teamplayer@[] tps(0);
+		foreach (teamplayer@ l: this.players) {
+			if (@l.obj == null) tps.insert_last(@l);
+		}
+		return tps;
+	}
+	string list_members() {
+		teamplayer@[] onps = this.online_players;
+		teamplayer@[] offps = this.offline_players;
+		string d = "There are a total of " + this.players.length() + " members. There are " + onps.length() + " online members and there are " + offps.length() + " offline members.";
+		string[] pson(0);
+		string[] psoff(0);
+		foreach (teamplayer@ l: onps) {
+			pson.insert_last(l.name + (l.type == "owner" ? " (owner)" : (l.type == "mod" ? " (moderator)" : "")));
+		}
+		foreach (teamplayer@ l: offps) {
+			psoff.insert_last(l.name + (l.type == "owner" ? " (owner)" : (l.type == "mod" ? " (moderator)" : "")));
+		}
+		if (pson.length() > 0) d += "\nOnline members: " + join(pson, ", ") + ".";
+		if (psoff.length() > 0) d += "\nOffline members: " + join(psoff, ", ") + ".";
+		return d;
+	}
+	string list_mods() {
+		teamplayer@[] onps = this.online_players;
+		teamplayer@[] offps = this.offline_players;
+		string[] pson(0);
+		string[] psoff(0);
+		foreach (teamplayer@ l: onps) {
+			if (@l == null || (l.type != "mod" && l.type != "owner")) continue;
+			pson.insert_last(l.name + (l.type == "owner" ? " (owner)" : (l.type == "mod" ? " (moderator)" : "")));
+		}
+		foreach (teamplayer@ l: offps) {
+			if (@l == null || (l.type != "mod" && l.type != "owner")) continue;
+			psoff.insert_last(l.name + (l.type == "owner" ? " (owner)" : (l.type == "mod" ? " (moderator)" : "")));
+		}
+		string d = "There are " + (pson.length() + psoff.length()) + " team staff members.";
+		if (pson.length() > 0) d += "\nOnline members: " + join(pson, ", ") + ".";
+		if (psoff.length() > 0) d += "\nOffline members: " + join(psoff, ", ") + ".";
+		return d;
+	}
+	bool passcheck(string pass) {
+		return this.password == pass;
+	}
+	string verify_player(string name, string def = "", string type = "") {
+		if (this.players.length() < 1) return def;
+		string final = def;
+		for (uint i = 0; i < this.players.length(); i++) {
+			string t = this.players[i].verify(name, "", type);
+			if (t == "") continue;
+			final = t;
+		}
+		if (final == "") final = def;
+		return final;
+	}
+	bool is_player(string name, string type = "") {
+		return this.verify_player(name, type = type) != "";
+	}
+	bool is_mod(string w) {
+		return this.teamleader == w || this.is_player(w, "mod");
+	}
+	bool is_leader(string w) {
+		return this.teamleader == w;
+	}
+	bool is_member(string name, string type = "") {
+		return this.is_player(name, type);
+	}
+	int player_index(string name) {
+		if (this.players.length() < 1 || name == "") return -1;
+		for (uint i = 0; i < this.players.length(); i++) {
+			if (this.players[i].verify(name) != "") return i;
+		}
+		return -1;
+	}
+	teamplayer@ player_obj(string name) {
+		int x = this.player_index(name);
+		if (x < 0) return null;
+		return @this.players[x];
+	}
+	void transmit2(string msg, string buffer = "team chats", string snd = "team/transmit.ogg") {
+		foreach (teamplayer@ l: this.online_players) {
+			if (@l.obj == null) continue;
+			::bsend(l.obj.peer_id, buffer, snd, msg);
+		}
+	}
+	void transmit(string t, bool chat = false, int channel = 2, string snd = "teamchat.ogg") {
+		if (chat) {
+			this.transmit2(t, snd = snd);
+			return;
+		}
+		foreach (teamplayer@ l: this.online_players) {
+			player@ dex = @l.obj;
+			if (@dex == null) continue;
+			send_reliable(dex, t, channel);
+		}
+	}
+	bool put(string pname) {
+		return writeto(pname, "team", this.id);
+	}
+	bool add_player(string pname, string type = "", bool silent = false) {
+		if (this.is_player(pname)) {
+			return false;
+		}
+		teamplayer p(pname, type);
+		this.players.insert_last(p);
+		this.put(pname);
+		if (!silent) {
+			string msg = p.name + " was added to your team";
+			if (p.type != "") msg += " as " + p.type;
+			msg += "!";
+			this.transmit2(msg, "teamn", "teamadd.ogg");
+		}
+		if (team_index(this.id) > -1) checkteam(p.name);
+		this.save();
+		return true;
+	}
+	bool add_member(string pname, bool message = true) {
+		return this.add_player(pname, "", !message);
+	}
+	bool add_mod(string w, bool message = true) {
+		teamplayer@ a = this.player_obj(w);
+		if (@a == null) return false;
+		if (a.type == "mod") return false; // Exist.
+		if (a.type == "owner") return false; // Higher
+		a.type = "mod";
+		this.save();
+		if (message) {
+			this.transmit2(a.name + " has been promoted to moderator of this team!", "teamn", "teammembers.ogg");
+		}
+		return true;
+	}
+	bool remove_mod(string w, bool message = true) {
+		teamplayer@ a = this.player_obj(w);
+		if (@a == null || a.type != "mod") return false;
+		a.type = "";
+		this.save();
+		if (message) {
+			this.transmit2(a.name + " has been demoted from being moderator of this team!", "teamn", "teamremove.ogg");
+		}
+		return true;
+	}
+	bool remove_player(string pname) {
+		int x = this.player_index(pname);
+		if (x < 0) return false;
+		@this.players[x] = null;
+		this.players.remove_at(x);
+		checkteam(pname);
+		this.save();
+		return true;
+	}
+	bool remove_member(string name, bool r = true, bool message = true) {
+		if (!this.remove_player(name)) return false;
+		if (message) {
+			this.transmit2(name + " was just removed from the team!", "teamn", "teamkick" + random(1, 2) + ".ogg");
+		}
+		return true;
+	}
+	bool leave(string name) {
+		if (!this.remove_player(name)) return false;
+		this.transmit2(name + " left the team!", "teamn", "teamleave" + random(1, 2) + ".ogg");
+		return true;
+	}
+	void destruct(bool message = true) {
+		if (message) {
+			this.transmit2("this team has been canceled!", "teamn", "teamdistroy.ogg");
+		}
+		this.players.resize(0);
+	}
+	string get_path() property {
+		return join({teamdir, this.id + teamex}, "/");
+	}
+	string get_teamname() property { return this.name; }
+	string teamleader {
+		get {
+			foreach (teamplayer@ l: this.players) {
+				if (@l == null) continue;
+				if (l.type == "owner") return l.name;
+			}
+			return "";
+		} set {
+			teamplayer@ ll = this.player_obj(value);
+			if (ll == null) return;
+			ll.type = "owner";
+			foreach (teamplayer@ l: this.players) {
+				if (@l == null) continue;
+				if (l.name == value) continue;
+				if (l.type != "owner") continue;
+				l.type = "";
+			}
+		}
+	}
+}
+team@ create_team(string id, string name, string password, string[] tplayers = {}, bool force = false) {
+	int x = team_index(id);
+	if (x < 0) x = team_index(name, teamtype_name);
+	if (x > -1) {
+		if (force) {
+			@teams[x] = null;
+			teams.remove_at(x);
+		} else
+			return null;
+	}
+	team t(id, name, password);
+	for (uint i = 0; i < tplayers.length(); i++) {
+		string[] l = tplayers[i].split(";");
+		string p_name = l[0];
+		string p_type = "";
+		if (l.length() > 1) p_type = l[1];
+		t.add_player(p_name, p_type, true);
+	}
+	if (t.players.length() > t.maxmembers) t.maxmembers = t.players.length() + 5;
+	t.save();
+	teams.insert_last(t);
+	return t;
+}
+class teamplayer {
+	string name, type;
+	teamplayer(string name, string type = "") {
+		this.name = name;
+		this.type = type;
+	}
+	string verify(string name, string def = "", string type = "") {
+		string final = def;
+		if (this.name.lower() == name.lower()) final = this.name;
+		if (type != "" && this.type.lower() != type.lower()) final = def;
+		return final;
+	}
+	json_object@ get_dump() property {
+		json_object j;
+		if (this.type != "") j.set("type", this.type);
+		return j;
+	}
+	player@ get_obj() property {
+		player@ l = get_player_obj_from(this.name);
+		return @l;
+	}
+	bool get_online() property {
+		return @this.obj != null;
+	}
+}
+string team_path(string id) {
+	return join({teamdir, id + teamex}, "/");
+}
+int team_index(string value, teamtypes type = teamtype_id) {
+	if (value == "" || teams.length() < 1) return -1;
+	for (uint i = 0; i < teams.length(); i++) {
+		if (type & teamtype_id != 0 && teams[i].id.lower() == value.lower()) return i;
+		else if (type & teamtype_name != 0 && teams[i].name == value) return i;
+	}
+	return -1;
+}
+int get_team_index(string name) { return team_index(name); }
+bool team_exists(string name) { return team_index(name) > -1; }
+team@ team_obj(string value, teamtypes type = teamtype_id) {
+	int x = team_index(value, type);
+	if (x < 0) return null;
+	return @teams[x];
+}
+bool load_team(string id) {
+	string p = team_path(id);
+	json j;
+	if (!j.loadf(p)) return false;
+	string t_name = j.get("name", "");
+	if (t_name == "") return false;
+	string t_password = j.get("password", "");
+	if (t_password == "") return false;
+	int max = j.get("maxmembers", 5);
+	int points = j.get("points", 0);
+	double kills = j.get("teamkills", 0);
+	string[] tplayers;
+	json_object pls = j.get("players", json_object());
+	string[] kpl = pls.get_keys();
+	for (uint i = 0; i < kpl.length(); i++) {
+		json_object pn = pls.get(kpl[i], json_object());
+		string[] m = {kpl[i], pn.get("type", "")};
+		tplayers.insert_last(join(m, ";"));
+	}
+	if (tplayers.length() < 1) return false;
+	team@ t = create_team(id, t_name, t_password, tplayers);
+	if (@t != null) {
+		t.maxmembers = max;
+		t.points = points;
+		t.teamkills = kills;
+	}
+	return @t != null;
+}
+bool load_all_teams() {
+	string[] f = find_files(join({teamdir, "*" + teamex}, "/"));
+	if (f.length() < 1) return false;
+	for (uint i = 0; i < f.length(); i++) {
+		string l = f[i].replace(teamex, "");
+		load_team(l);
+	}
+	return true;
+}
+bool save_all_teams() {
+	if (!directory_exists(teamdir)) directory_create(teamdir);
+	foreach (team@ l: teams) {
+		l.save();
+	}
+	return true;
+}
+int is_in_team(string n) {
+	for (uint t = 0; t < teams.length(); t++) {
+		if (teams[t].is_player(n)) return t;
+	}
+	return -1;
+}
+team@ in_team(string w) {
+	int x = is_in_team(w);
+	if (x < 0) return null;
+	return @teams[x];
+}
+bool is_part_of_team(string playername, string teamname) {
+	team@ t = team_obj(teamname);
+	return @t != null && t.is_player(playername);
+}
+string team_name(string id, string def = "{00}") {
+	if (def == "{00}") def = id;
+	team@ t = team_obj(id);
+	if (@t == null) return def;
+	return t.name;
+}
+team@ find_best_team(dictionary@ args = null, team@ exclude = null) {
+	team@ c = null;
+	string d = find_best_team_str(args);
+	@c = team_obj(d);
+	return c;
+}
+string find_best_team_str(dictionary@ args = null) {
+	string c = "";
+	string[] p = find_best_teams_str(args);
+	if (p.length() > 0) c = p[0];
+	return c;
+}
+string[] find_best_teams_str(dictionary@ args = null) {
+	string[] f;
+	chartime@[] ch(0);
+	uint length = dgetn(args, "length", 0);
+	foreach (team@ w: teams) {
+		if (@w == null) continue;
+		//double dist = (w.teamkills > 0 ? w.points * w.teamkills : w.points);
+		double[] dist = {w.points, w.teamkills};
+		ch.insert_last(chartime(w.id, dist));
+	}
+	ch = sort_chartime(ch);
+	foreach (chartime@ l: ch) {
+		if (@l == null || l.name == "") continue;
+		if (length > 0 && f.length() >= length) break;
+		f.insert_last(l.name);
+	}
+	return f;
+}
+team@[] find_best_teams(dictionary@ args = null) {
+	string[] f = find_best_teams_str(args);
+	team@[] c(0);
+	for (uint i = 0; i < f.length(); i++) {
+		string l = f[i];
+		team@ w = team_obj(l);
+		if (@w == null) continue;
+		c.insert_last(@w);
+	}
+	return c;
+}
+string verify_teamid_case(string name) {
+	string[] d = find_files(teamdir + "/*" + teamex);
+	if (d.length() < 1) return name;
+	for (uint i = 0; i < d.length(); i++) {
+		string f = d[i].replace(teamex, "");
+		if (name.lower() == f.lower()) name = f;
+	}
+	return name;
+}

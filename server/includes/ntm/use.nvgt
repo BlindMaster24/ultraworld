@@ -1,0 +1,84 @@
+bool usentm(player@ p, string w, int h, ntmi@ item = null, ntmi@ i = null) {
+	if (@p == null) return false;
+	ntmi@[] ntmmakes = ntm_makes;
+	if (ntmmakes.length() < 1) return false;
+	ntm@ a = ntm_in(vector(p.x, p.y, p.z), p.map);
+	if (@ a == null) return false;
+	if (w == "") {
+		if (a.making) {
+			p.sendpacket("This machine is working in progress. Please wait " + ms_to_readable_time(a.maketime - a.maketimer.elapsed) + ".", 0);
+			return true;
+		}
+		if (a.take(@p)) {
+			p.sendpacket("You've taken the items out of machine. " + printinv(a.finv), 2);
+			play("get" + get_draw_and_get_sound(a.finv.items[0].name) + ".ogg", a.min, a.max, a.map);
+			a.reset();
+			a.finv.reset();
+			return true;
+		}
+		if (a.finv.size > 0) {
+			p.sendpacket("Take the items first.", 0);
+			return true;
+		}
+		if (a.what == "") {
+			p.sendpacket("This machine has no item, add first.", 0);
+			return true;
+		}
+		if (!a.requires_fulfilled) {
+			p.sendpacket("Requirements not met. You still need " + printinv(a.requirements_left), 0);
+			return true;
+		}
+		if (a.make) {
+			p.sendpacket(a.maketext, 2);
+			return true;
+		}
+		return false;
+	}
+	if (a.making || a.finv.size > 0) return false;
+	ntmi@[] items = ntmi_obj(w, ntmmakes);
+	if (a.what == "") {
+		if (items.length() > 1 && @item == null) {
+			cmenu m;
+			m.initial_packet = "cntm/" + w + "/" + h;
+			m.intro = "Select what you would like to make";
+			foreach (ntmi@ l: items) {
+				m.add(l.fname, l.fname);
+			}
+			m.send(p.peer_id);
+			return true;
+		}
+		if (items.length() > 0 && @item == null) @item = @items[0];
+		if (@item != null && item.names_in(w) && a.what == "") {
+			a.what = w;
+			a.fwhat = item.fname;
+			a.rinv.reset();
+			a.rinv.import_inv(ritem_ntm((a.fwhat != "" ? a.fwhat : w)));
+			p.sendpacket(w + " added", 0);
+			p.sendpacket("hempty " + h, 0);
+			play("coffeemachineopen.ogg", a.min, a.max, a.map);
+			p.inv_add_item(w, -1);
+			return true;
+		}
+		return false;
+	}
+	if (@i == null) {
+		try { @i = @ntmi_obj(a.what, ntmmakes, a.fwhat, true)[0]; } catch { }
+	}
+	if (@i == null) return false;
+	if ((w == "open_water_bottle" || w == "pot_of_water") && a.rinv.exists("water")) {
+		a.add("water", 1);
+		p.inv_add_item(w, -1);
+		p.sendpacket((w == "milk" ? "Milk" : "water" ) + " added", 0);
+		play("get" + get_draw_and_get_sound(w) + ".ogg", a.min, a.max, a.map);
+		if (!p.inv.exists(w)) p.sendpacket("hempty " + h, 0);
+		return true;
+	} else if (i.whats.find(w) > -1) {
+		p.inv_add_item(w, -1);
+		p.sendpacket(w + " added", 0);
+		if (!p.inv.exists(w)) p.sendpacket("hempty " + h, 0);
+		play("get" + get_draw_and_get_sound(w) + ".ogg", a.min, a.max, a.map);
+		a.add(w, 1);
+		return true;
+	}
+	return false;
+}

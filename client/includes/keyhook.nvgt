@@ -1,0 +1,10 @@
+#include "bgt_compat.nvgt"#include "bgt_compat.nvgt"class kh
+{
+	bool already_installed;
+	void install() {
+		if (screen_reader_is_running(1) and !already_installed) {
+			install_keyhook();
+			already_installed = true;
+		}
+	}
+}

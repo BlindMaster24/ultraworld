@@ -1,0 +1,264 @@
+#include "../inventory.nvgt"
+#include "../hip.nvgt"
+#include "extra.nvgt"
+#include "make_ntm.nvgt"
+#include "use.nvgt"
+#include "ritem_ntm.nvgt"
+string ntmpath = "ntms";
+int ntm_default_maketime = 21415;
+ntm@[] ntms(0);
+class ntm {
+	string id, map;
+	string what, fwhat;
+	inventory inv, rinv, finv;
+	bool __making__ = false, __done__ = false;
+	timer maketimer;
+	int maketime = ntm_default_maketime;
+	vector min, max;
+	dictionary data;
+	ntm(vector a, vector b, string mapb, string mid) {
+		this.id = mid;
+		this.min = a;
+		this.max = b;
+		this.map = mapb;
+		this.load();
+	}
+	~ntm() {
+		if (this.id != "") this.save();
+	}
+	double x {
+		get {
+			return this.min.x;
+		} set {
+			this.min.x = value;
+		}
+	}
+	double y {
+		get {
+			return this.min.y;
+		} set {
+			this.min.y = value;
+		}
+	}
+	double z {
+		get {
+			return this.min.z;
+		} set {
+			this.min.z = value;
+		}
+	}
+	bool load() {
+		file f;
+		if (!f.open(join({"maps", this.map, ntmpath, this.id + ".json"}, "/"), "r")) return false;
+		string r = f.read();
+		f.close();
+		if (r == "") return false;
+		json_object@ j = null;
+		try { @j = parse_json(r); } catch { }
+		if (@j == null) return false;
+		this.reset();
+		this.what = j.get("what", "");
+		this.fwhat = j.get("fwhat", "");
+		this.__making__ = j.get("making", false);
+		this.maketime = j.get("maketime", ntm_default_maketime);
+		this.maketimer.force(j.get("cmaketime", 0));
+		this.__done__ = j.get("done", false);
+		json_object i = j.get("items", json_object());
+		json_object ri = j.get("ritems", json_object());
+		json_object fi = j.get("fitems", json_object());
+		if (i.size() > 0) {
+			string[] k = i.get_keys();
+			if (k.length() > 0) {
+				for (uint a = 0; a < k.length(); a++) {
+					string l = k[a];
+					if (!i.is_object(l)) continue;
+					json_object@ v = i.get(l, null);
+					if (@v == null) continue;
+					string vname = l;
+					double vamount = v.get("amount", 0);
+					this.inv.give(vname, vamount);
+				}
+			}
+		}
+		if (ri.size() > 0) {
+			string[] k = ri.get_keys();
+			if (k.length() > 0) {
+				for (uint a = 0; a < k.length(); a++) {
+					string l = k[a];
+					if (!ri.is_object(l)) continue;
+					json_object@ v = ri.get(l, null);
+					if (@v == null) continue;
+					string vname = l;
+					double vamount = v.get("amount", 0);
+					this.rinv.give(vname, vamount);
+				}
+			}
+		}
+		if (fi.size() > 0) {
+			string[] k = fi.get_keys();
+			if (k.length() > 0) {
+				for (uint a = 0; a < k.length(); a++) {
+					string l = k[a];
+					if (!fi.is_object(l)) continue;
+					json_object@ v = fi.get(l, null);
+					if (@v == null) continue;
+					string vname = l;
+					double vamount = v.get("amount", 0);
+					this.finv.give(vname, vamount);
+				}
+			}
+		}
+		return true;
+	}
+	bool save() {
+		json_object j;
+		if (this.what != "") j.set("what", this.what);
+		if (this.fwhat != "") j.set("fwhat", this.fwhat);
+		j.set("making", this.making);
+		j.set("maketime", this.maketime);
+		if (this.making) {
+			j.set("cmaketime", this.maketimer.elapsed);
+		}
+		j.set("done", this.done);
+		json_object mi;
+		foreach (inventory_item@ l: this.inv.items) {
+			if (@l == null) continue;
+			json_object v;
+			v.set("amount", l.amount);
+			mi.set(l.name, v);
+		}
+		if (mi.size() > 0) j.set("items", mi);
+		json_object ri;
+		foreach (inventory_item@ l: this.rinv.items) {
+			if (@l == null) continue;
+			json_object v;
+			v.set("amount", l.amount);
+			ri.set(l.name, v);
+		}
+		if (ri.size() > 0) j.set("ritems", ri);
+		json_object fi;
+		foreach (inventory_item@ l: this.finv.items) {
+			if (@l == null) continue;
+			json_object v;
+			v.set("amount", l.amount);
+			fi.set(l.name, v);
+		}
+		if (fi.size() > 0) j.set("fitems", fi);
+		if (!directory_exists(join({"maps", this.map, ntmpath}, "/"))) directory_create(join({"maps", this.map, ntmpath}, "/"));
+		file f;
+		if (!f.open(join({"maps", this.map, ntmpath, this.id + ".json"}, "/"), "w")) return false;
+		if (j.size() > 0) f.write(j.stringify(2));
+		f.close();
+		return true;
+	}
+	bool in_range(vector c) {
+		return inrange(c, this.min, this.max);
+	}
+	bool get_making() property { return this.__making__; }
+	bool get_done() property { return this.__done__; }
+	string get_fname() property { return (this.fwhat != "" ? this.fwhat : this.what); }
+	void reset() {
+		this.__making__ = false;
+		this.__done__ = false;
+		this.what = "";
+		this.fwhat = "";
+		this.maketimer.restart();
+		this.inv.reset();
+		this.rinv.reset();
+		this.maketext = "";
+		this.data.clear();
+	}
+	bool add(string item, double amount) {
+		return this.inv.give(item, amount);
+	}
+	bool get_requires_fulfilled() property {
+		if (this.what == "") return false;
+		foreach (inventory_item@ l: this.rinv.items) {
+			if (@l == null) continue;
+			if (this.inv.get_item_amount(l.name) < l.amount) return false;
+		}
+		return true;
+	}
+	inventory@ get_requirements_left() property {
+		inventory v;
+		foreach (inventory_item@ l: this.rinv.items) {
+			if (@l == null) continue;
+			double a = l.amount;
+			double b = this.inv.get_item_amount(l.name);
+			double c = a - b;
+			if (c < 1) continue;
+			v.give(l.name, c);
+		}
+		if (v.size < 1) return null;
+		return v;
+	}
+	bool get_make() property {
+		if (this.making) return false;
+		if (this.done) return false;
+		if (this.what == "") return false;
+		if (!this.requires_fulfilled) return false;
+		this.finv.reset();
+		play("coffeemachineclose.ogg", this.min, this.max, this.map);
+		this.maketimer.restart();
+		this.__making__ = true;
+		this.finv.import_inv(make_ntm(@this, this.fname));
+		return true;
+	}
+	bool take(player@ p) {
+		if (this.making) return false;
+		if (@p == null) return false;
+		if (!this.done) return false;
+		if (this.what == "") return false;
+		if (this.finv.size < 1) return false;
+		foreach (inventory_item@ a: this.finv.items) {
+			if (@a == null) continue;
+			p.inv_add_item(a.name, a.amount);
+		}
+		return true;
+	}
+	void loop() {
+		if (!this.making) return;
+		if (this.maketimer.elapsed <= this.maketime) return;
+		this.maketimer.restart();
+		this.__done__ = true;
+		this.__making__ = false;
+	}
+	string get_info() property {
+		string[] f;
+		string w = this.fname;
+		if (this.what != "") {
+			string g = "This machine has started for making " + w + ". Currently " + (this.making ? "working in progress" : this.done ? "Finished" : "not working in progress") + ".";
+			f.insert_last(g);
+			g = "Requirements: ";
+			if (this.rinv.size < 1) g += "None";
+			else {
+				string[] d;
+				foreach (inventory_item@ a: this.rinv.items) {
+					if (@a == null) continue;
+					d.insert_last(a.amount + " " + a.name);
+				}
+				g += join(d, ", ") + ".";
+			}
+			f.insert_last(g);
+			if (this.inv.size > 0) {
+				g = "Currently added items: ";
+				string[] d;
+				foreach (inventory_item@ a: this.inv.items) {
+					if (@a == null) continue;
+					d.insert_last(a.amount + " " + a.name);
+				}
+				g += join(d, ", ") + ".";
+				f.insert_last(g);
+			}
+		} else f.insert_last("This machine has nothing prepared.");
+		return join(f, "\n");
+	}
+	string __maketext__;
+	string maketext {
+		get {
+			return (this.__maketext__ != "" ? this.__maketext__ : "Making " + this.fname);
+		} set {
+			this.__maketext__ = value;
+		}
+	}
+}

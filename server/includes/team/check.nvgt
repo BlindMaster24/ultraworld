@@ -1,0 +1,25 @@
+void checkteam() {
+	string[] chars = find_directories("chars/*");
+	if (chars.length() < 1) return;
+	for (uint a = 0; a < chars.length(); a++) {
+		checkteam(chars[a]);
+	}
+}
+void checkteam(string w) {
+	player@ c = get_player_obj_from(w);
+	bool ch = false;
+	string tid = (@c != null ? c.teamname : get_charval(w, "team"));
+	if (tid == "") tid = get_charval(w, "team");
+	if (tid == "") return;
+	team@ t = team_obj(tid);
+	if (@t == null) {
+		ch = true;
+	} else if (!ch && @t != null && !t.is_player(w)) {
+		ch = true;
+	}
+	if (ch) {
+		if (@c != null) c.teamname = "";
+		file_delete("chars/" + w + "/team.usr");
+		ch = false;
+	}
+}

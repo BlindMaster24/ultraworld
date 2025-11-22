@@ -1,0 +1,64 @@
+#include "bgt_compat.nvgt"#include "bgt_compat.nvgt"/*
+MOTD get system.
+This is a system designed to download message of the day, save a hash, and show it, using either audio or text.
+Instructions follow:
+Web setup:
+you will need to put three files in a specific location, one may be excluded if your system is set to the opposing mode.
+File 1: mode.txt
+this is a text file that the client will read to determine what mode your message of the day will be shown with.
+the "options" mentioned below are what must appear as the contents of the text file.
+Valid options, descriptions follow after colon:
+a: audio message of the day, note that this may be more laggy than text.
+t: text message of the day, trades the awesome capabilities of audio for the simplicity and speed of text.
+file 2: audio.ogg
+this is the container for the audio message of the day, and will be shown when mode is set to "a". This must be either an ogg or a wav file so bgt may play it, though ogg is recommended hugely because it has a smaller size, thus making it download faster and not crash the game on download. This is why the default filename to access is audio dot "ogg," though it may be changed if absolutely needed.
+file 3: text.txt
+this is the container for the text message of the day, and will be shown when mode is set to "t". Note that the text "message of the day: " will be prepended to this text, such as this example.
+message of the day: hello, testing123.
+end of web setup.
+Client setup:
+the client setup is fairly easy, though there is a step that is nearly required when saving is desired, which it should be.
+The first and most required step is to set the "webdir' string to point to the directory where your site houses the files needed for the message of the day. This must be done correctly for retrieval to succeed.
+Note that the webdir string must not end with a slash, because one is already appended when downloading data.
+The next step, which is optional but recommended, is to have some form of saving the "motdhash" string. If your game stores settings files of any type, whether it be registry, text, or dictionaries, this can be accomplished. Usage follows:
+after getting the message of the day, save the string called "motdhash" to your settings files, so it can be retrieved later.
+on game startup, before getting the message of the day, set the "motdhash" string to the previously saved state from your settings.
+Then you may call the function that follows.
+function name: getmotd
+return type: void
+peramitors: none
+remarks:
+this will perform the action of retrieving the mode.txt file from your site, then checking it against predetermined data. If it is equal to the string "a", an audio message of the day will be displayed, retrieved from the "audio.ogg" file on the same site. On the other hand, if it is equal to the string "t", a text message of the day will be displayed, retrieved from the "text.txt" file on the same site. However, if it is not equal to either of these strings, the function will simply return.
+After getting the message of the day downloaded, it will compare a hash of the downloaded file against the stored hash. If it is an exact match, the function will return, as the same message of the day should not be displayed more than once. If you wish to get around this for any reason, such as adding a "force redownload message of the day" option to your main menu, set the "motdhash" string to a blank string before calling this function. However, if the hashes do not match, the function will set the stored hash to the current hash, and then show your message of the day by one of the formats described later in the "dependencies section"
+After the message of the day either has finished playing or has been skipped when using audio, or has been bypassed when using text, the function will return and your game will continue to run.
+End of client setup.
+Dependencies:
+This system requires two dependencies, which can be found in any mason game.
+dlg.bgt: this is the file used to show the text message of the day in a text square. This file must be included into your script for the "getmotd" function to not throw a compilation error.
+dlgplay.bgt: this is used to display the audio message of the day, and allow the user to press enter to perform a fast fade and skip. This must be included into your script for the "getmotd" function to not compilation error.
+Technically a dependency of both "dlg.bgt" and "dlgplay.bgt" is "m_pro.bgt" though you should have that, along with the other two scripts if you are basing any bit of code off a mason game or you just want to use his menu.
+I hope you enjoy this MOTD system!
+*/
+
+string motdhash = "";
+string webdir = "http://t.jm-hosting.ir/mm";
+void getmotd() {
+	string mode = url_get(webdir + "/mode.txt");
+	if (mode != "t" && mode != "a") return;
+	if (mode == "t") {
+		string motd = url_get(webdir + "/text.txt");
+		if (string_hash(motd, 2, false) != motdhash) {
+			motdhash = string_hash(motd, 2, false);
+			dlgmeu(motd, "notify_beepup.ogg", true, 25);
+		}
+	}
+	if (mode == "a") {
+		speak("loading audio message of the day...");
+		string motd = url_get(webdir + "/audio.ogg");
+		string hash = string_hash(motd, 2, false);
+		if (hash != motdhash) {
+			motdhash = hash;
+			dlgmeu("", motd, true, 25);
+		}
+	}
+}

@@ -1,0 +1,57 @@
+staffwork staff;
+class staffwork {
+	private string[] types;
+	staffwork() {
+		this.reset();
+	}
+	void reset() {
+		this.types.resize(0);
+	}
+	bool check(string t = "") {
+		if (t == "")
+			return this.types.length() > 0;
+		return this.types.find(t) > -1;
+	}
+	bool check(string[] list) {
+		if (list.length() < 1) return false;
+		for (uint i = 0; i < list.length(); i++) {
+			if (this.check(list[i])) return true;
+		}
+		return false;
+	}
+	void setstaff(string t, bool state) {
+		if (state) {
+			if (this.types.find(t) < 0) this.types.insert_last(t);
+			return;
+		}
+		if (this.types.find(t) > -1) this.types.remove_at(this.types.find(t));
+		return;
+	}
+	bool dev() {
+		return this.check("developer");
+	}
+	bool managerable() {
+		return this.dev() || this.check({"manager", "developer"});
+	}
+	bool adminable() {
+		return this.check("admin") || this.managerable();
+	}
+	bool assisted() {
+		return this.check("ast") || this.adminable();
+	}
+	bool buildable() {
+		return this.check("builder") || this.adminable();
+	}
+}//end.class
+bool get_dev() property {
+	return staff.dev();
+}
+bool get_manager() property {
+	return staff.managerable();
+}
+bool get_admin() property {
+	return staff.adminable();
+}
+bool get_assistant() property {
+	return staff.assisted();
+}

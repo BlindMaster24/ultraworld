@@ -1,0 +1,20 @@
+namespace scp::actions::misc {
+	void ca() {
+		nv_form f;
+		f.create_window("Cancel Current Auction", false);
+		nv_form_input@ reason = f.add_input("Reason (optional)", "reason");
+		nv_form_button@ ok = f.add_button("Ok", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(reason, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				sendcommand("/ca" + (reason.text != "" ? " " + reason.text : ""));
+				break;
+			}
+		}
+		f.reset();
+	}
+}

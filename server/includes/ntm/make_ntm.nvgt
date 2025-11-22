@@ -1,0 +1,22 @@
+string make_ntm(ntm@ parent, string w) {
+	if (@parent == null) return "";
+	inventory v;
+	json j;
+	if (!j.loadf("ntm/" + w + ".json")) return "";
+	json_object r = j.get("fitems", json_object());
+	string maketext = j.get("maketext", "");
+	string[] k = r.get_keys();
+	if (k.length() > 0) {
+		for (uint a = 0; a < k.length(); a++) {
+			string l = k[a];
+			double f = r.get(l, 0);
+			if (f < 1) continue;
+			v.give(l, f);
+		}
+	} else if (w != "") {
+		v.give(w, 1);
+	}
+	if (w == "chocolate_girl") parent.maketext = "Making a sweet, pretty girl made of chocolate";
+	if (maketext != "") parent.maketext = maketext;
+	return v.export();
+}

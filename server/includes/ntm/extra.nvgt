@@ -1,0 +1,102 @@
+ntm@ ntm_obj(string map, string id) {
+	foreach (ntm@ l: ntms) {
+		if (@l == null) continue;
+		if (l.map == map && l.id == id) return @l;
+	}
+	return null;
+}
+ntm@ ntm_in(vector c, string mapname) {
+	ntm@ a = null;
+	foreach (ntm@ l: ntms) {
+		if (@l == null || l.map != mapname) continue;
+		if (l.in_range(c)) @a = @l;
+	}
+	return a;
+}
+ntm@[] ntms_in(string mapname) {
+	ntm@[] a(0);
+	foreach (ntm@ l: ntms) {
+		if (@l == null || l.map != mapname) continue;
+		a.insert_last(l);
+	}
+	return a;
+}
+bool save_ntms() {
+	int64 c = 0;
+	foreach (ntm@ a: ntms) {
+		if (@a == null) continue;
+		if (a.save()) c ++;
+	}
+	return c > 0;
+}
+bool clear_ntms_on_map(string m) {
+	int64 c = 0;
+	foreach (ntm@ a, uint i: ntms) {
+		if (@a == null || a.map != m) continue;
+		@a = null;
+		ntms.remove_at(i);
+	}
+	return c > 0;
+}
+bool spawn_ntm(vector a, vector b, string mapname, string id) {
+	if (@ntm_obj(mapname, id) != null) return false;
+	ntm aa(a, b, mapname, id);
+	ntms.insert_last(aa);
+	return true;
+}
+void ntmsloop() {
+	if (ntms.length() < 1) return;
+	foreach (ntm@ a, uint i: ntms) {
+		if (@a == null) continue;
+		a.loop();
+	}
+}
+class ntmi {
+	string name, fname;
+	string[] whats;
+	ntmi(string name, string fname = "", string[] w = {}) {
+		this.name = name;
+		this.fname = fname;
+		this.whats = w;
+		if (this.fname == "") this.fname = this.name;
+	}
+	bool names_in(string w) {
+		return this.name == w;
+	}
+	bool fnames_in(string w) {
+		if (this.fname == "") return false;
+		if (w != this.fname) return false;
+		return true;
+	}
+}
+ntmi@[] ntmi_obj(string name, ntmi@[] from, string fname = "", bool all = false) {
+	ntmi@[] cs(0);
+	foreach(ntmi@ l: from) {
+		if (@l == null) continue;
+		if (!all && (l.names_in(name) || l.fnames_in(fname))) {
+			cs.insert_last(l);
+			continue;
+		} else if (all && l.names_in(name) && l.fnames_in(fname)) cs.insert_last(l);
+	}
+	return cs;
+}
+ntmi@[] get_ntm_makes() property {
+	ntmi@[] f(0);
+	string[] files = find_files("ntm/*.json");
+	if (files.length() < 1) return f;
+	for (uint a = 0; a < files.length(); a++) {
+		string l = files[a].replace(".json", "");
+		string p = "ntm/" + l + ".json";
+		json j;
+		if (!j.loadf(p)) continue;
+		string n_i = j.get("item", "");
+		if (n_i == "") continue;
+		string n_is = j.get("items", "");
+		if (n_is == "") continue;
+		string[] lines = n_is.split(";");
+		if (lines.length() < 1) continue;
+		ntmi i(n_i, l, lines);
+		f.insert_last(i);
+	}
+	return f;
+}

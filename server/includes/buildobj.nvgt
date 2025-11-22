@@ -1,0 +1,29 @@
+void buildobj_perform(player@ p, string w) {
+	if (w == "kick") {
+		cmenu c;
+		c.initial_packet = "bdobj_kick";
+		c.intro = "Select a player to kick from the map";
+		foreach (player@ l: players) {
+			if (@l == null || l.map != p.map) continue;
+			c.add(l.name + " - " + l.nickname, l.name);
+		}
+		c.send(p.peer_id);
+		return;
+	}
+	send_reliable(p, "build" + w, 0);
+}
+bool buildobj_event(player@ p, string packet) {
+	string[] parsed = packet.split(" ");
+	if (parsed[0] == "bdobj_kick" && parsed.length() > 1) {
+		if (parsed[1] == "[back]") return true;
+		player@ w = get_player_obj_from(parsed[1]);
+		if (@w == null) return true;
+		w.supersafe = true;
+		move_player(w, "main_map", 5, 0, 0);
+		p.sendpacket("Kicked " + w.name, 2);
+		w.sendpacket("You have been kicked from the map " + p.map, 2);
+		w.supersafe = false;
+		return true;
+	}
+	return false;
+}

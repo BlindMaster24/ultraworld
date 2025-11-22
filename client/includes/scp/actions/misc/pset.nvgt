@@ -1,0 +1,48 @@
+namespace scp::actions::misc {
+	void pset() {
+		nv_form f;
+		f.create_window("Player's statistics Modifier", false);
+		nv_form_input@ user = f.add_input("Username of the player to modify", "user");
+		@user.shortcut = nv_shortcut(KEY_U, alt = true);
+		nv_form_list_box@ features = f.add_list("Modifiers", "features");
+		features.add("Reinforcement", "reinforcement");
+		features.add("Level", "level");
+		features.add("Hunger", "hunger");
+		features.add("Thirst", "thirst");
+		features.add("Health", "health");
+		features.add("Full", "full");
+		features.add("Sickness", "sick");
+		@features.shortcut = nv_shortcut(KEY_L, alt = true);
+		nv_form_input@ value = f.add_input("Value", "value");
+		nv_form_button@ ok = f.add_button("Finish", "ok", primary = true);
+		nv_form_button@ can = f.add_button("Cancel", "can", cancel = true);
+		f.focus_control(user, false, false);
+		while (f.monitor()) {
+			wait(5);
+			mainloop();
+			value.hidden = @features.focused_item == null;
+			string vv = "Value";
+			if (@features.focused_item != null) vv = features.focused_item.text + "'s value";
+			if (value.caption != vv) value.caption = vv;
+			if (f.is_pressed(can)) break;
+			if (f.is_pressed(ok)) {
+				if (user.text == "") {
+					speak("Username is required");
+					f.focus_control(user, false, false);
+					continue;
+				} else if (@features.focused_item == null) {
+					speak("One option is required");
+					f.focus_control(features, false, false);
+					continue;
+				} else if (value.text == "") {
+					speak(features.focused_item.text + "'s value is required");
+					f.focus_control(value, false, false);
+					continue;
+				}
+				sendcommand("/set" + features.focused_item.id + " " + user.text + " " + value.text);
+				break;
+			}
+		}
+		f.reset();
+	}
+}

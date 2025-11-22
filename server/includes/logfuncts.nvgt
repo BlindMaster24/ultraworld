@@ -1,0 +1,20 @@
+logfile gamelog;
+void log(string name, string what, bool dir = true, bool eventstream = false, bool telladmin = false, bool telldev = false) {
+	gamelog.log(name, what, dir);
+	if (telladmin) admintell(what);
+	if (eventstream) {
+		gamelog.log("eventstream", what, true);
+	}
+}
+string get_log(string name) {
+	return gamelog.get(name);
+}
+bool clear_log(string name) {
+	return gamelog.remove(name);
+}
+void clear_all_logs() {
+	gamelog.clear_all();
+}
+bool log_exists(string name) {
+	return gamelog.exists(name);
+}

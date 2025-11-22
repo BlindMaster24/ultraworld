@@ -1,0 +1,220 @@
+namespace apartments {
+string aa = """
+mapname:%00mapname00%
+#init
+minx:-1
+maxx:41
+miny:-1
+maxy:31
+minz:-1
+maxz:21
+#setup
+tile:-1:41:-1:31:-1:21:wallwood9
+tile:0:40:0:30:-1:-1:wall
+tile:0:40:0:30:0:0:wood2
+tile:0:40:0:30:1:20:air
+owner:%00owner00%
+litem:0
+starting_point:0:0:0:0:0:0
+deathpoint:0:0:0:0:0:0
+night:none.ogg
+wind:none.ogg
+rain:telha2.ogg
+zone:0:40:0:30:0:20:apartment
+src:0:40:0:30:0:20:-8:101:incide.ogg:1
+#foyer
+tile:0:8:0:8:0:0:carpet2
+zone:0:8:0:8:0:20:apartment foyer
+zone:0:1:0:1:0:20:near the exit door of the apartment
+zone:0:0:0:0:0:20:apartment exit-door:trackme
+src:0:0:0:0:0:10:-10:101:doorloop12.ogg
+tile:0:0:0:0:0:0:carpet5
+tile:9:9:0:9:0:20:wallbuilding7
+tile:0:4:9:9:0:20:wallbuilding7
+tile:6:9:9:9:0:20:wallbuilding7
+music:0:8:0:9:0:20:-10:101:musical12.ogg:1
+#living room
+tile:0:20:10:30:0:0:carpet10
+tile:21:21:9:31:0:20:wallwood17
+tile:-1:21:31:31:0:20:wallwood17
+music:0:20:10:30:0:20:-4:101:musica68.ogg:1
+zone:0:20:10:30:0:20:living room
+zone:4:6:8:10:0:20:near the entrance between foyer and living room
+zone:5:5:9:9:0:20:entrance between foyer and living room
+tile:14:20:9:9:0:20:wallbuilding7
+tile:10:11:9:9:0:20:wallbuilding7
+##rocking-chair
+tile:0:2:10:10:0:1:wallcardboard
+tile:0:2:11:11:0:0:wallcardboard
+tile:0:2:10:10:2:2:wood16
+tile:0:0:11:11:1:1:carpet8
+tile:1:1:11:11:0:0:chair
+tile:2:2:11:11:1:1:carpet8
+zone:0:3:10:12:0:20:near a rocking-chair
+zone:0:2:10:10:2:20:backrest of a rocking-chair
+zone:0:2:11:11:1:10:armrest of a rocking-chair
+zone:1:1:11:11:0:20:a rocking-chair:trackme
+src:1:1:11:11:0:5:-14:101:cadeira_ringindo3.ogg
+##sofa
+tile:17:20:10:11:0:0:wallcloth
+tile:17:20:10:10:1:1:carpet9
+tile:18:19:11:11:0:0:cloth
+tile:17:17:11:11:1:1:carpet9
+tile:20:20:11:11:1:1:carpet9
+zone:16:20:10:12:0:20:near a couch
+zone:17:20:10:10:1:20:backrest of the couch
+zone:17:20:11:11:1:20:armrest of the couch
+zone:18:19:11:11:0:20:a comfortable couch where you can relax or crash for a nap if you wish:trackme
+bed:18:19:11:11:0:10
+##smart tv
+tile:0:0:17:23:0:3:wallglass6
+zone:0:1:16:24:0:20:near a smart tv
+zone:0:0:17:23:3:20:smart television stand:trackme
+tile:0:0:17:23:3:3:metal18
+##sofa
+tile:0:8:27:30:0:0:wallsofa
+tile:0:8:27:29:1:1:cloth
+tile:0:8:30:30:1:1:wallsofa
+tile:0:8:30:30:2:2:carpet9
+zone:0:9:26:30:0:20:near a sofa
+zone:0:8:27:29:1:20:a sofa:trackme
+zone:0:8:30:30:2:20:backrest of the sofa
+#corridor
+zone:10:28:0:8:0:20:a small corridor between living room and kitchen
+zone:11:14:8:10:0:20:near the entrance between  a small corridor and living room
+zone:12:13:9:9:0:20:entrance between  a small corridor and living room:trackme
+tile:22:29:9:9:0:20:wallwood17
+music:10:28:0:8:0:20:-10:101:musical25.ogg:1
+tile:29:29:0:9:0:20:wallwood17
+tile:29:29:4:6:0:20:walldoor
+tile:28:28:4:6:0:0:wood3
+#kitchen
+tile:29:29:9:19:0:20:wallwood17
+tile:29:40:19:19:0:20:wallwood17
+zone:30:40:0:18:0:20:a small yet neet kitchen.
+tile:30:40:0:18:0:0:wood3
+zone:28:30:4:6:0:20:kitchen doors:trackme
+door:30:30:4:6:0:10:28:5:0:you exit the kitchen:800:silence.ogg:silence.ogg:door40open.ogg:door40close.ogg
+door:28:28:4:6:0:10:30:5:0:you enter the kitchen:800:silence.ogg:silence.ogg:door40open.ogg:door40close.ogg
+music:30:40:0:18:0:20:-6:101:musical14.ogg:1
+src:30:40:0:18:0:20:0:100:kitchen.ogg:1
+tile:30:40:-1:-1:0:20:wallwood17
+##counter
+tile:30:40:16:18:0:1:walltile
+tile:30:40:16:18:1:1:hardwood
+tile:38:40:10:16:0:1:walltile
+tile:38:40:10:16:1:1:hardwood
+zone:30:40:15:18:0:20:near the kitchen counter
+zone:37:40:9:15:0:20:near the kitchen counter
+zone:30:40:16:18:1:20:kitchen counter:trackme
+zone:38:40:10:18:1:20:kitchen counter
+tile:31:31:18:18:1:1:puddle
+zone:30:32:17:18:1:10:near the sink
+zone:31:31:18:18:1:10:the sink:trackme
+washbasin:31:31:18:18:1:10
+tile:36:40:17:18:1:1:diamond
+zone:35:40:16:18:1:10:near the stove
+zone:36:40:17:18:1:10:stove:trackme
+oven:36:40:17:18:1:10
+src:36:40:17:18:1:10:-6:101:deep_fryer.ogg
+zone:39:40:12:14:1:10:\near a microwave
+tile:40:40:13:13:1:1:metal12
+zone:40:40:13:13:1:10:microwave:trackme
+##trashcan
+zone:39:40:5:7:0:10:near the trashcan
+tile:40:40:6:6:0:0:hay
+zone:40:40:6:6:0:10:trashcan:trackme
+trashcan:40:40:6:6:0:10
+##dining table
+tile:34:36:6:8:0:0:walltable
+zone:33:37:5:9:0:10:near a dining table
+zone:34:36:6:8:1:10:a small dining table:trackme
+tile:35:35:5:5:0:0:chair
+zone:35:35:5:5:0:10:a dining chair:trackme
+tile:33:33:7:7:0:0:chair
+zone:33:33:7:7:0:10:a dining chair:trackme
+tile:35:35:9:9:0:0:chair
+zone:35:35:9:9:0:10:a dining chair:trackme
+tile:37:37:7:7:0:0:chair
+zone:37:37:7:7:0:10:a dining chair:trackme
+tile:34:36:6:8:1:1:hardwood3
+src:34:36:6:8:1:10:-10:101:table.ogg
+##fridge
+zone:39:40:1:3:0:10:near a fridge
+tile:40:40:2:2:0:0:metal15
+zone:40:40:2:2:0:10:fridge:trackme
+##kitchen cupboard
+tile:31:37:0:2:0:20:wallwood16
+zone:30:38:0:3:0:20:near the kitchen cupboard
+tile:32:36:0:1:0:0:wood8
+tile:32:36:0:1:1:19:air
+zone:32:36:0:1:0:19:in the kitchen cupboard.
+zone:33:35:1:3:0:10:kitchen cupboard doors:trackme
+door:33:35:3:3:0:10:34:1:0:you open the doors and enter in the kitchen cupboard:500:silence.ogg:silence.ogg:door155open.ogg:silence.ogg
+door:33:35:1:1:0:10:34:3:0:you close the doors and exit the kitchen cupboard:500:silence.ogg:silence.ogg:door155close.ogg:silence.ogg
+#bedroom
+tile:22:28:19:19:0:20:wallwood17
+tile:22:41:31:31:0:20:wallbuilding3
+tile:22:40:20:30:0:0:mat
+zone:22:40:20:30:0:20:bedroom
+music:22:40:20:30:0:20:-4:101:musica66.ogg:1
+tile:21:21:27:29:0:10:walldoor
+zone:20:22:27:29:0:10:bedroom doors:trackme
+door:22:22:27:29:0:10:20:28:0:you exit the bedroom:600:silence.ogg:silence.ogg:door36open.ogg:door36close.ogg
+door:20:20:27:29:0:10:22:28:0:you enter the bedroom:600:silence.ogg:silence.ogg:door36open.ogg:door36close.ogg
+tile:33:40:27:30:0:0:wallcouch
+tile:33:40:27:30:1:1:cloth
+zone:32:40:26:30:0:20:near the bed
+zone:33:40:27:30:1:20:a small but comfortable bed. :trackme
+bed:33:40:27:30:1:20
+tile:38:40:25:26:0:0:walltable
+tile:38:40:25:26:1:1:hardwood3
+zone:37:40:24:26:0:20:near the side table
+zone:38:40:25:26:1:20:side table:trackme
+tile:40:40:25:25:1:1:paper
+calendar:40:40:25:25:1:20:the date is 
+zone:40:40:25:25:1:20:a calendar:trackme
+door:40:40:25:25:1:10:40:25:1: :0:silence.ogg:silence.ogg:silencce.ogg:paper.ogg
+zone:34:36:20:21:0:20:near the grandfather clock
+tile:35:35:20:20:0:3:wallwood12
+tile:35:35:20:20:3:3:wood5
+zone:35:35:20:20:3:20:a verry old grandfather clock:trackme
+clock:35:35:20:20:3:3:the clock shows 
+door:35:35:20:20:3:3:35:20:3: :0:silence.ogg:silence.ogg:clock_chime4.ogg:silence.ogg
+tile:22:22:20:20:0:0:hay
+zone:22:23:20:21:0:10:near a trashcan
+zone:22:22:20:20:0:10:trashcan:trackme
+trashcan:22:22:20:20:0:10
+tile:20:20:27:29:0:0:mat
+tile:22:28:10:18:0:0:tile5
+reverb:22:28:10:18:0:20: bathroom:0.7:0.4:0.4:0.5:0.8
+zone:22:28:10:18:0:20:bathroom
+tile:22:28:10:12:0:0:bathtub3
+zone:22:28:10:12:0:20:shower
+shower:22:28:10:11:0:20
+tile:22:28:13:13:0:20:wallstone2
+shower:22:27:12:12:0:20
+zone:24:26:17:21:0:10:near the bathroom doors
+zone:25:25:18:20:0:10:bathroom doors:trackme
+door:25:25:18:18:0:10:25:20:0:you exit the bathroom:500:silence.ogg:silence.ogg:open4.ogg:close4.ogg
+door:25:25:20:20:0:10:25:18:0:you enter the bathroom:500:silence.ogg:silence.ogg:open4.ogg:close4.ogg
+tile:25:25:20:20:0:0:tile5
+tile:28:28:18:18:0:0:synthetic
+washbasin:28:28:18:18:0:10
+zone:28:28:18:18:0:5:washbasin:trackme
+tile:22:22:18:18:0:0:wallbarrel
+tile:22:22:18:18:1:1:bathtub
+zone:22:22:18:18:1:10:toilet seat:trackme
+toilet:22:22:18:18:1:10
+tile:22:22:15:15:0:0:bare
+zone:22:22:15:15:0:0:toilet paper dispenser:trackme
+igdoor:22:22:15:15:0:5:22:15:0:taken:toilet_paper:1:0:silence.ogg:silence.ogg:toilet_paper_dispenser.ogg:silence.ogg
+zone:28:28:12:14:0:10:shower area doors:trackme
+door:28:28:14:14:0:10:28:12:0:you enter the shower area:1000:silence.ogg:silence.ogg:open_blind.ogg:close_blind.ogg
+door:28:28:12:12:0:10:28:14:0:you exit the shower area:1000:silence.ogg:silence.ogg:open_blind.ogg:close_blind.ogg
+tile:25:25:19:19:0:10:walldoor
+tile:30:30:12:12:0:0:metalpipe
+zone:30:30:12:12:0:10:A multipurpus nutrition machine use to make many beverages:trackme
+ntm:30:30:12:12:0:10
+""";
+}

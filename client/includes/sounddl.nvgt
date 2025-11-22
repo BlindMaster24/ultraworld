@@ -1,0 +1,3 @@
+string sounddl_file(string url, string disk_file, bool quiet = false, string msg = "Downloading. Press Space for percentage and 1 2 and 3 keys for detailed progress") {
+	return "";
+}
