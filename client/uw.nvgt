@@ -6811,7 +6811,7 @@ void entercheck() {
 				dmoving = true;
 				send_reliable(peer_id, "iamdmoving " + icdoors[i].ds2, 0);
 			} else
-				speak("not inuff " + icdoors[i].item + ", you need " + icdoors[i].amount + " " + icdoors[i].item + "");
+				speak("not enough " + icdoors[i].item + ", you need " + icdoors[i].amount + " " + icdoors[i].item + "");
 		}
 	}
 	for (uint i = 0; i < itdoors.length(); i++) {
@@ -6827,7 +6827,7 @@ void entercheck() {
 				dmoving = true;
 				send_reliable(peer_id, "iamdmoving " + itdoors[i].ds2, 0);
 			} else
-				speak("not inuff " + itdoors[i].item + ", you need " + itdoors[i].amount + " " + itdoors[i].item + "");
+				speak("not enough " + itdoors[i].item + ", you need " + itdoors[i].amount + " " + itdoors[i].item + "");
 		}
 	}
 	for (uint i = 0; i < igdoors.length(); i++) {
@@ -6895,9 +6895,9 @@ void travelcheck() {
 					if (ictravelpoints[i].ds3 != "silence" and sleepmode != 0) send_reliable(0, "draw " + ictravelpoints[i].ds3, 7);
 					if (ictravelpoints[i].ds3 != "silence") rvp.play_stationary(ictravelpoints[i].ds3, false);
 				} else
-					speak("not inuff " + ictravelpoints[i].item + ", you need " + ictravelpoints[i].amount + " " + ictravelpoints[i].item + "");
+					speak("not enough " + ictravelpoints[i].item + ", you need " + ictravelpoints[i].amount + " " + ictravelpoints[i].item + "");
 			} else
-				speak("not inuff " + ictravelpoints[i].item + ", you need " + ictravelpoints[i].amount + " " + ictravelpoints[i].item + "");
+				speak("not enough " + ictravelpoints[i].item + ", you need " + ictravelpoints[i].amount + " " + ictravelpoints[i].item + "");
 		}
 	}
 	for (uint i = 0; i < ittravelpoints.length(); i++) {
@@ -6912,9 +6912,9 @@ void travelcheck() {
 					if (ittravelpoints[i].ds3 != "silence" and sleepmode != 0) send_reliable(0, "draw " + ittravelpoints[i].ds3, 7);
 					if (ittravelpoints[i].ds3 != "silence") rvp.play_stationary(ittravelpoints[i].ds3, false);
 				} else
-					speak("not inuff " + ittravelpoints[i].item + ", you need " + ittravelpoints[i].amount + " " + ittravelpoints[i].item + "");
+					speak("not enough " + ittravelpoints[i].item + ", you need " + ittravelpoints[i].amount + " " + ittravelpoints[i].item + "");
 			} else
-				speak("not inuff " + ittravelpoints[i].item + ", you need " + ittravelpoints[i].amount + " " + ittravelpoints[i].item + "");
+				speak("not enough " + ittravelpoints[i].item + ", you need " + ittravelpoints[i].amount + " " + ittravelpoints[i].item + "");
 		}
 	}
 	for (uint i = 0; i < igtravelpoints.length(); i++) {
@@ -6966,7 +6966,7 @@ void movecheck() {
 				if (icautomatic_travelpoints[i].ds3 != "silence" and sleepmode != 0) send_reliable(0, "draw " + icautomatic_travelpoints[i].ds3, 7);
 				if (icautomatic_travelpoints[i].ds3 != "silence") rvp.play_stationary(icautomatic_travelpoints[i].ds3, false);
 			} else
-				speak("not inuff " + icautomatic_travelpoints[i].item + ", you need " + icautomatic_travelpoints[i].amount + " " + icautomatic_travelpoints[i].item + "");
+				speak("not enough " + icautomatic_travelpoints[i].item + ", you need " + icautomatic_travelpoints[i].amount + " " + icautomatic_travelpoints[i].item + "");
 		}
 	}
 	for (uint i = 0; i < itautomatic_travelpoints.length(); i++) {
@@ -6979,7 +6979,7 @@ void movecheck() {
 				if (itautomatic_travelpoints[i].ds3 != "silence" and sleepmode != 0) send_reliable(0, "draw " + itautomatic_travelpoints[i].ds3, 7);
 				if (itautomatic_travelpoints[i].ds3 != "silence") rvp.play_stationary(itautomatic_travelpoints[i].ds3, false);
 			} else
-				speak("not inuff " + itautomatic_travelpoints[i].item + ", you need " + itautomatic_travelpoints[i].amount + " " + itautomatic_travelpoints[i].item + "");
+				speak("not enough " + itautomatic_travelpoints[i].item + ", you need " + itautomatic_travelpoints[i].amount + " " + itautomatic_travelpoints[i].item + "");
 		}
 	}
 	for (uint i = 0; i < igautomatic_travelpoints.length(); i++) {
@@ -7037,9 +7037,9 @@ void movecheck() {
 					amoving = true;
 					send_reliable(peer_id, "iamamoving " + icautomovers[i].ds2, 0);
 				} else
-					speak("not inuff " + icautomovers[i].item + ", you need " + icautomovers[i].amount + " " + icautomovers[i].item + "");
+					speak("not enough " + icautomovers[i].item + ", you need " + icautomovers[i].amount + " " + icautomovers[i].item + "");
 			} else
-				speak("not inuff " + icautomovers[i].item + ", you need " + icautomovers[i].amount + " " + icautomovers[i].item + "");
+				speak("not enough  " + icautomovers[i].item + ", you need " + icautomovers[i].amount + " " + icautomovers[i].item + "");
 		}
 	}
 	for (uint i = 0; i < itautomovers.length(); i++) {
@@ -7057,9 +7057,9 @@ void movecheck() {
 					amoving = true;
 					send_reliable(peer_id, "iamamoving " + itautomovers[i].ds2, 0);
 				} else
-					speak("not inuff " + itautomovers[i].item + ", you need " + itautomovers[i].amount + " " + itautomovers[i].item + "");
+					speak("not enough " + itautomovers[i].item + ", you need " + itautomovers[i].amount + " " + itautomovers[i].item + "");
 			} else
-				speak("not inuff " + itautomovers[i].item + ", you need " + itautomovers[i].amount + " " + itautomovers[i].item + "");
+				speak("not enough " + itautomovers[i].item + ", you need " + itautomovers[i].amount + " " + itautomovers[i].item + "");
 		}
 	}
 	for (uint i = 0; i < igautomovers.length(); i++) {
@@ -7130,7 +7130,7 @@ void movecheck2() {
 				if (icautomatic_travelpoints[i].ds3 != "silence" and sleepmode != 0) send_reliable(0, "draw " + icautomatic_travelpoints[i].ds3, 7);
 				if (icautomatic_travelpoints[i].ds3 != "silence") rvp.play_stationary(icautomatic_travelpoints[i].ds3, false);
 			} else
-				speak("not inuff " + icautomatic_travelpoints[i].item + ", you need " + icautomatic_travelpoints[i].amount + " " + icautomatic_travelpoints[i].item + "");
+				speak("not enough " + icautomatic_travelpoints[i].item + ", you need " + icautomatic_travelpoints[i].amount + " " + icautomatic_travelpoints[i].item + "");
 		}
 	}
 	for (uint i = 0; i < itautomatic_travelpoints.length(); i++) {
@@ -7143,7 +7143,7 @@ void movecheck2() {
 				if (itautomatic_travelpoints[i].ds3 != "silence" and sleepmode != 0) send_reliable(0, "draw " + itautomatic_travelpoints[i].ds3, 7);
 				if (itautomatic_travelpoints[i].ds3 != "silence") rvp.play_stationary(itautomatic_travelpoints[i].ds3, false);
 			} else
-				speak("not inuff " + itautomatic_travelpoints[i].item + ", you need " + itautomatic_travelpoints[i].amount + " " + itautomatic_travelpoints[i].item + "");
+				speak("not enough " + itautomatic_travelpoints[i].item + ", you need " + itautomatic_travelpoints[i].amount + " " + itautomatic_travelpoints[i].item + "");
 		}
 	}
 	for (uint i = 0; i < igautomatic_travelpoints.length(); i++) {
@@ -7201,9 +7201,9 @@ void movecheck2() {
 					amoving = true;
 					send_reliable(peer_id, "iamamoving " + icautomovers[i].ds2, 0);
 				} else
-					speak("not inuff " + icautomovers[i].item + ", you need " + icautomovers[i].amount + " " + icautomovers[i].item + "");
+					speak("not enough " + icautomovers[i].item + ", you need " + icautomovers[i].amount + " " + icautomovers[i].item + "");
 			} else
-				speak("not inuff " + icautomovers[i].item + ", you need " + icautomovers[i].amount + " " + icautomovers[i].item + "");
+				speak("not enough " + icautomovers[i].item + ", you need " + icautomovers[i].amount + " " + icautomovers[i].item + "");
 		}
 	}
 	for (uint i = 0; i < itautomovers.length(); i++) {
@@ -7221,9 +7221,9 @@ void movecheck2() {
 					amoving = true;
 					send_reliable(peer_id, "iamamoving " + itautomovers[i].ds2, 0);
 				} else
-					speak("not inuff " + itautomovers[i].item + ", you need " + itautomovers[i].amount + " " + itautomovers[i].item + "");
+					speak("not enough " + itautomovers[i].item + ", you need " + itautomovers[i].amount + " " + itautomovers[i].item + "");
 			} else
-				speak("not inuff " + itautomovers[i].item + ", you need " + itautomovers[i].amount + " " + itautomovers[i].item + "");
+				speak("not enough " + itautomovers[i].item + ", you need " + itautomovers[i].amount + " " + itautomovers[i].item + "");
 		}
 	}
 	for (uint i = 0; i < igautomovers.length(); i++) {
