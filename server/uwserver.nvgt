@@ -3548,6 +3548,10 @@ void send_store(int playerindex) {
 	}
 }
 void purchase(string name, double amount, player@p) {
+	if (amount < 1 and amount > -1) {
+		send_reliable(p, "Invalid amount.", 2);
+		return;
+	}
 	int itemindex = get_item_index(name);
 	if (itemindex > -1) {
 		int[] a = get_amounts();
@@ -3598,6 +3602,10 @@ void purchase(string name, double amount, player@p) {
 	}
 }
 void pspurchase(string name, double amount, player@p) {
+	if (amount < 1 and amount > -1) {
+		send_reliable(p, "Invalid amount.", 2);
+		return;
+	}
 	int ps = in_playerstore(p);
 	if (ps > -1) {
 		int psowner = get_player_index_from(playerstores[ps].owner);

@@ -3380,5 +3380,9 @@ void command(player@p, string command) {
 		if (file_delete("chars/" + parsed[1] + "/" + t)) p.sendpacket("Deleted " + t + " of " + parsed[1], 2);
 		else p.sendpacket("Failed to delete this", 0);
 		return;
+	} else if (parsed[0] == "/debug_stores" && p.dev) {
+		send_reliable(p.peer_id, "Memory stores: " + playerstores.length(), 0);
+		string[] files = find_files("playerstores/*.playerstore");
+		send_reliable(p.peer_id, "Disk files (" + files.length() + "): " + join(files, ", "), 0);
 	}
 }

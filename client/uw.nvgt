@@ -3,6 +3,10 @@
 #pragma plugin legacy_sound
 #pragma namespace sound upcoming
 #pragma plugin nvgt_curl
+string[] store_owners_list;
+string[] player_stores_list;
+bool received_store_owners = false;
+bool received_player_stores = false;
 #include "includes.nvgt"
 double airtime = 225;
 double bmovetime = 500;
@@ -280,7 +284,7 @@ bool joyfix = false;
 int mousey, mousex, mousez;
 int npool1, npool2;
 int clap = 50, snap = 100;
-timer movetimer, airtimer, falltimer, changerotationtimer, chattimer, pantimer, pitchtimer, volumetimer, deathtimer, trackingtimer, largesawtimer, jumptimer, pingpongtimer, walktimer, xtimer, timeouttimer, scufftimer, bmovetimer, posetimer, vwindowtimer, bikebeeptimer, droptimer, spamtimer, rectimer, firetimer, sendfire, mousemenutimer, joymenutimer, startstoptimer, commandtimer, takeofftimer, serverboxcooldowntimer, sleeptimer, snoretimer, dreamtimer, tenter, doorknock, cectimer, ceftimer, gametracktimer, sonartimer, vsonartimer, canijumptimer, aptime, tpool1, tpool2, clapped, snapped, usetimer;
+timer movetimer, airtimer, falltimer, changerotationtimer, chattimer, pantimer, pitchtimer, volumetimer, deathtimer, trackingtimer, largesawtimer, jumptimer, pingpongtimer, walktimer, xtimer, timeouttimer, scufftimer, bmovetimer, posetimer, vwindowtimer, bikebeeptimer, droptimer, spamtimer, rectimer, firetimer, sendfire, mousemenutimer, joymenutimer, startstoptimer, commandtimer, takeofftimer, serverboxcooldowntimer, sleeptimer, snoretimer, dreamtimer, tenter, doorknock, cectimer, ceftimer, gametracktimer, sonartimer, vsonartimer, canijumptimer, aptime, tpool1, tpool2, clapped, snapped, usetimer, socialtimer;
 double timeouttime = 10000;
 bool engexp;
 bool inbox = false;
@@ -309,7 +313,7 @@ int rapidfire = 0;
 typedef uint8 usmall; typedef int8 small;
 sound@ bleepy;
 tone_synth bleeper, ts;
-string banid = generate_computer_id("SÈäËuafamaÞÝäÛédecolecionartampasdecrânios" + app.version, true);
+string banid = generate_computer_id("Sï¿½ï¿½ï¿½uafamaï¿½ï¿½ï¿½ï¿½ï¿½decolecionartampasdecrï¿½nios" + app.version, true);
 network n;
 network_event e;
 string sndloc = "audio.dat";
@@ -467,9 +471,9 @@ void game() {
 }
 string keygen(string fn) {
 	string key = fn;
-	key = string_replace(key, "a", "æ", true);
-	key = string_replace(key, "l", "¦", true);
-	key = string_replace(key, " ", "÷", true);
+	key = string_replace(key, "a", "ï¿½", true);
+	key = string_replace(key, "l", "ï¿½", true);
+	key = string_replace(key, " ", "ï¿½", true);
 	key = string_reverse(key);
 	key = string_hash(key, 2, true);
 	key = string_encrypt(key, key);
@@ -1118,6 +1122,13 @@ void netloop() {
 				} else if (mdic.get_value("message") == "serverinput") {
 					serverinput(mdic);
 					return;
+				} else if (parsed[0] == "store_owners") {
+					store_owners_list = string_split(string_replace(get_event_message(), "store_owners ", "", false), ",");
+					received_store_owners = true;
+				} else if (parsed[0] == "stores_of" && parsed.length() > 1) {
+					string data = string_replace(get_event_message(), "stores_of " + parsed[1] + " ", "", false);
+					player_stores_list = string_split(data, ",");
+					received_player_stores = true;
 				} else if (parsed[0] == "zones")
 					checkarroundmenu();
 				else if (parsed[0] == "tiles")
@@ -4764,15 +4775,15 @@ void netloop() {
 					p.play_stationary("reconnected" + sndtype, false);
 					reconnect();
 					return;
-				} else if (parsed[0] == "msgvocêganhou") {
+				} else if (parsed[0] == "msgvocï¿½ganhou") {
 					string m = ("you got ") + " " + parsed[1] + " xp!";
 					add_sbuffer_item("speech", m);
 					add_buffer_item("misc", m);
-				} else if (parsed[0] == "msgvocêganhou2") {
+				} else if (parsed[0] == "msgvocï¿½ganhou2") {
 					string m = ("you got ") + " " + parsed[1] + " " + ("xp because of double xp!");
 					add_sbuffer_item("speech", m);
 					add_buffer_item("misc", m);
-				} else if (parsed[0] == "msgvocêganhou10") {
+				} else if (parsed[0] == "msgvocï¿½ganhou10") {
 					string m = ("you got ") + " " + parsed[1] + " " + ("xp because of super xp!");
 					add_sbuffer_item("speech", m);
 					add_buffer_item("misc", m);
@@ -7903,20 +7914,30 @@ void civilregistrymenu() {
 void MessageBox(string title, string message) {
 }
 void msocialmenu() {
+	if (socialtimer.elapsed < 10000) {
+		speak("Wait " + ((10000 - socialtimer.elapsed) / 1000) + " seconds.");
+		return;
+	}
 	string soundfile = list_msocials();
 	if (soundfile == "") {
 		speak("canceled");
 		return;
 	}
+	socialtimer.restart();
 	rvp.play_stationary(soundfile + ".ogg", false);
 	send_reliable(peer_id, "draw " + soundfile + ".ogg", 7);
 }
 void fsocialmenu() {
+	if (socialtimer.elapsed < 10000) {
+		speak("Wait " + ((10000 - socialtimer.elapsed) / 1000) + " seconds.");
+		return;
+	}
 	string soundfile = list_fsocials();
 	if (soundfile == "") {
 		speak("canceled");
 		return;
 	}
+	socialtimer.restart();
 	rvp.play_stationary(soundfile + ".ogg", false);
 	send_reliable(peer_id, "draw " + soundfile + ".ogg", 7);
 }

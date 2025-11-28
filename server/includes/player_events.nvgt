@@ -2,6 +2,58 @@ void player_event(player@p, string event) {
 	if (buildobj_event(p, event)) return;
 	messager md(event);
 	string[] parsed = string_split(event, " ", true);
+	if (parsed[0] == "request_store_owners" && p.admin) {
+		string[] owners;
+		for(uint i=0; i<playerstores.length(); i++) {
+			if(owners.find(playerstores[i].owner) < 0) owners.insert_last(playerstores[i].owner);
+		}
+		send_reliable(p.peer_id, "store_owners " + join(owners, ","), 0);
+		return;
+	} else if (parsed[0] == "request_stores_of" && parsed.length() > 1 && p.admin) {
+		string owner = parsed[1];
+		string[] stores;
+		for(uint i=0; i<playerstores.length(); i++) {
+			if(playerstores[i].owner == owner) stores.insert_last(playerstores[i].playerstoremap);
+		}
+		send_reliable(p.peer_id, "stores_of " + owner + " " + join(stores, ","), 0);
+		return;
+	} else if (parsed[0] == "destroy_player_store" && parsed.length() > 1 && p.admin) {
+		string target = parsed[1];
+		bool found = false;
+		int count = 0;
+		if (target == "all") {
+			for (uint i = 0; i < playerstores.length(); i++) {
+				playerstores[i].health = 0;
+			}
+			count = playerstores.length();
+			if(count > 0) found = true;
+		} else {
+			for(uint i=0; i<playerstores.length(); i++) {
+				if(playerstores[i].playerstoremap == target) {
+					playerstores[i].health = 0;
+					count = 1;
+					found = true;
+				}
+			}
+			if(!found) {
+				for(uint i=0; i<playerstores.length(); i++) {
+					if(playerstores[i].owner == target) {
+						playerstores[i].health = 0;
+						count++;
+						found = true;
+					}
+				}
+			}
+		}
+		if(found) {
+			 string s = (count == 1 ? "Store" : "Stores");
+			 send_reliable(p.peer_id, s + " destroyed.", 0);
+			 admintell(p.name + " destroyed player store(s) related to " + target);
+		} else {
+			 send_reliable(p.peer_id, "Store not found.", 0);
+		}
+		return;
+	}
 	if (parsed[0] == "stats" and parsed.length() > 1) {
 		int index2 = get_player_index_from(parsed[1]);
 		if (index2 < 0) {
