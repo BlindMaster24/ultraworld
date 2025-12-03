@@ -1522,6 +1522,23 @@ void command(player@p, string command) {
 	} else if (parsed[0] == "/stopprofile" and p.dev == true) {
 		generate_profile("profile.log");
 		p.packet(file_get_contents("profile.log"));
+	} else if (parsed[0] == "/profile" and p.is_dev()) {
+		bool reset = false;
+		if (parsed.length() > 1 and parsed[1] == "reset") reset = true;
+		
+		string prof = generate_profile(reset);
+		
+		serverinput i;
+		i.title = "Server Profile Report";
+		i.text = "Generated Profile:";
+		i.default_text = prof;
+		i.button1 = "";
+		i.button2 = "&Close";
+		i.button2cancel = 1;
+		i.readonly = 1;
+		i.multiline = 1;
+		i.send(p.peer_id);
+		p.sendpacket("Server profile report generated and displayed.", 2);
 	} else if (parsed[0] == "/adminlog" and p.is_admin()) {
 		if (adminlog == "") {
 			p.sendpacket("Nothing to display", 0);
