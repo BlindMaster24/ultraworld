@@ -1525,9 +1525,7 @@ void command(player@p, string command) {
 	} else if (parsed[0] == "/profile" and p.is_dev()) {
 		bool reset = false;
 		if (parsed.length() > 1 and parsed[1] == "reset") reset = true;
-		
 		string prof = generate_profile(reset);
-		
 		serverinput i;
 		i.title = "Server Profile Report";
 		i.text = "Generated Profile:";
@@ -1539,6 +1537,51 @@ void command(player@p, string command) {
 		i.multiline = 1;
 		i.send(p.peer_id);
 		p.sendpacket("Server profile report generated and displayed.", 2);
+	} else if (parsed[0] == "/objs" and p.is_dev()) {
+		string r = "Object Counts:\n";
+		r += "Players: " + players.length() + "\n";
+		r += "AI: " + ais.length() + "\n";
+		r += "Maps: " + maps.length() + "\n";
+		r += "Houses: " + houses.length() + "\n";
+		r += "Apartments: " + apartments.length() + "\n";
+		r += "Tents: " + tents.length() + "\n";
+		r += "Player Stores: " + playerstores.length() + "\n";
+		r += "Weapons: " + weapons.length() + "\n";
+		r += "Objects (Items): " + objs.length() + "\n";
+		r += "Fires: " + fires.length() + "\n";
+		r += "Fire Starters: " + fire_starters.length() + "\n";
+		r += "Firemaps: " + firemaps.length() + "\n";
+		r += "Grenades: " + grenades.length() + "\n";
+		r += "Mines: " + mines.length() + "\n";
+		r += "Time Bombs: " + time_bombs.length() + "\n";
+		r += "Censor Bombs: " + censor_bombs.length() + "\n";
+		r += "RPGs: " + rpgs.length() + "\n";
+		r += "Rockets: " + rockets.length() + "\n";
+		r += "Washbasins: " + washbasins.length() + "\n";
+		r += "Showers: " + showers.length() + "\n";
+		r += "Lockers: " + lockers.length() + "\n";
+		r += "Fridges: " + fridges.length() + "\n";
+		r += "Vending Machines: " + vending_machines.length() + "\n";
+		r += "Microwaves: " + microwaves.length() + "\n";
+		r += "Robots: " + robots.length() + "\n";
+		r += "Bodyfalls: " + bodyfalls.length() + "\n";
+		r += "Item Carriers: " + item_cariers.length() + "\n";
+		r += "Snares: " + snares.length() + "\n";
+		r += "Canisters: " + canisters.length() + "\n";
+		r += "Time Items: " + timeitems.length() + "\n";
+		r += "Time Packets: " + timepackets.length() + "\n";
+		r += "Auto Healers: " + auto_healers.length() + "\n";
+		r += "Teams: " + teams.length() + "\n";
+		serverinput i;
+		i.title = "Object Counts";
+		i.text = "Count of dynamic objects:";
+		i.default_text = r;
+		i.button1 = "";
+		i.button2 = "&Close";
+		i.button2cancel = 1;
+		i.readonly = 1;
+		i.multiline = 1;
+		i.send(p.peer_id);
 	} else if (parsed[0] == "/adminlog" and p.is_admin()) {
 		if (adminlog == "") {
 			p.sendpacket("Nothing to display", 0);
