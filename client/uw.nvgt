@@ -2361,9 +2361,7 @@ void netloop() {
 					string t = string_trim_left(get_event_message(), (parsed[0] + " ").length());
 					staff.setstaff(t, false);
 					return;
-				} else if (parsed[0] == "ispartnerchat")
-					chat_partner();
-				else if (parsed[0] == "srmenu") {
+				} else if (parsed[0] == "srmenu") {
 					string meitems;
 					string[] bl = string_split(get_event_message(), ":", false);
 					for (uint i = 1; i < bl.length(); i++)
@@ -5238,26 +5236,6 @@ bool is_sound_number(string t) {
 	if (string_is_digits(t))
 		return true;
 	return false;
-}
-void chat_lcm() {
-	string msg = input("LCM", "type your message here", multiline = true);
-	if (msg != "" and !is_eloquence_crash_word(msg) and get_sequence(msg, true) <= 3)send_reliable(peer_id, "lcm " + msg, 0);
-}
-void chat_manager() {
-	string msg = input("Manager", "type your message here", multiline = true);
-	if (msg != "" and !is_eloquence_crash_word(msg) and get_sequence(msg, true) <= 3)send_reliable(peer_id, "manager " + msg, 0);
-}
-void chat_administrativo() {
-	string msg = input("Admin", "type your message here", multiline = true);
-	if (msg != "" and !is_eloquence_crash_word(msg) and get_sequence(msg, true) <= 3)send_reliable(peer_id, "adm " + msg, 0);
-}
-void chat_dev() {
-	string msg = input("Developer", "type your message here", multiline = true);
-	if (msg != "" and !is_eloquence_crash_word(msg) and get_sequence(msg, true) <= 3)send_reliable(peer_id, "devc " + msg, 0);
-}
-void chat_partner() {
-	string msg = input("Partner", "type your message here", multiline = true);
-	if (msg != "" and !is_eloquence_crash_word(msg) and get_sequence(msg, true) <= 3)send_reliable(peer_id, "partnerchat2 " + msg, 0);
 }
 void lower_pitch_in_pool(sound_pool@ handle, sound_pool@ handle2, sound_pool@ handle3, sound_pool@ handle4, sound_pool@ handle5, sound_pool@ handle6, sound_pool@ handle7, sound_pool@ handle8, double time = 0.35, double minpitch = -100) {
 	for (double current = 0; current > minpitch; current -= time) {
