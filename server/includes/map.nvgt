@@ -520,11 +520,26 @@ void init_mapsystem() {
 		mapdata temp(workingname);
 		maps.insert_last(temp);
 	}
+	invalidate_map_cache();
+}
+dictionary map_indices_cache;
+void invalidate_map_cache() {
+	map_indices_cache.delete_all();
 }
 int get_map_index(string name) {
+	if (map_indices_cache.exists(name)) {
+		int idx;
+		map_indices_cache.get(name, idx);
+		if (idx >= 0 && idx < maps.length() && maps[idx].name == name)
+			return idx;
+		else
+			map_indices_cache.delete(name);
+	}
 	for (uint i = 0; i < maps.length(); i++) {
-		if (maps[i].name == name)
+		if (maps[i].name == name) {
+			map_indices_cache.set(name, i);
 			return i;
+		}
 	}
 	return -1;
 }
@@ -579,7 +594,8 @@ void load(string name) {
 	if (directory_exists("maps/" + name)) {
 		mapdata temp(name);
 		maps.insert_last(temp);
-	}//existing
+	}
+	invalidate_map_cache();
 }
 bool is_travelpoint(int x, int y, int z, mapdata@m) {
 	bool ret = false;
@@ -930,6 +946,7 @@ bool remove_map(string mapname, bool delete = true) {
 		@maps[id] = null;
 		maps.remove_at(id);
 		r = true;
+		invalidate_map_cache();
 	}
 	if (delete == true) {
 		if (directory_delete("maps/" + mapname)) r = true;
@@ -1138,6 +1155,15 @@ void map_destroy(string mapname) {
 			continue;
 		}
 	}
+	clear_washbasins_on_map(mapname);
+	clear_showers_on_map(mapname);
+	clear_ovens_on_map(mapname);
+	clear_toilets_on_map(mapname);
+	clear_beds_on_map(mapname);
+	clear_clocks_on_map(mapname);
+	clear_ccalendars_on_map(mapname);
+	clear_trashcans_on_map(mapname);
+	clear_vending_machines_on_map(mapname);
 }
 bool can_travel(string sy, int ind, string[] &out outputstring) {
 	string[] dostuff;

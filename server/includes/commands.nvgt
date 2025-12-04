@@ -1582,6 +1582,75 @@ void command(player@p, string command) {
 		i.readonly = 1;
 		i.multiline = 1;
 		i.send(p.peer_id);
+	} else if (parsed[0] == "/clearobjs" and p.is_dev()) {
+		int count = 0;
+		for (uint i = 0; i < washbasins.length(); i++) {
+			if (get_map_index(washbasins[i].map) == -1) {
+				washbasins.remove_at(i);
+				i--;
+				count++;
+			}
+		}
+		for (uint i = 0; i < showers.length(); i++) {
+			if (get_map_index(showers[i].map) == -1) {
+				showers.remove_at(i);
+				i--;
+				count++;
+			}
+		}
+		for (uint i = 0; i < ovens.length(); i++) {
+			if (get_map_index(ovens[i].map) == -1) {
+				ovens.remove_at(i);
+				i--;
+				count++;
+			}
+		}
+		for (uint i = 0; i < toilets.length(); i++) {
+			if (get_map_index(toilets[i].map) == -1) {
+				toilets.remove_at(i);
+				i--;
+				count++;
+			}
+		}
+		for (uint i = 0; i < beds.length(); i++) {
+			if (get_map_index(beds[i].map) == -1) {
+				beds.remove_at(i);
+				i--;
+				count++;
+			}
+		}
+		for (uint i = 0; i < clocks.length(); i++) {
+			if (get_map_index(clocks[i].map) == -1) {
+				clocks.remove_at(i);
+				i--;
+				count++;
+			}
+		}
+		for (uint i = 0; i < ccalendars.length(); i++) {
+			if (get_map_index(ccalendars[i].map) == -1) {
+				ccalendars.remove_at(i);
+				i--;
+				count++;
+			}
+		}
+		for (uint i = 0; i < trashcans.length(); i++) {
+			if (get_map_index(trashcans[i].map) == -1) {
+				trashcans.remove_at(i);
+				i--;
+				count++;
+			}
+		}
+		for (uint i = 0; i < vending_machines.length(); i++) {
+			if (get_map_index(vending_machines[i].map) == -1) {
+				destroy_moving_sound(vending_machines[i].mid);
+				vending_machines.remove_at(i);
+				i--;
+				count++;
+			}
+		}
+		string msg = "Cleared " + count + " orphaned objects.";
+		send_reliable(p, msg, 0);
+		admintell(p.name + " cleared " + count + " orphaned objects.");
 	} else if (parsed[0] == "/adminlog" and p.is_admin()) {
 		if (adminlog == "") {
 			p.sendpacket("Nothing to display", 0);
