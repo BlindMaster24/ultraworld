@@ -1,7 +1,7 @@
 uint aiid=0;
 ai_template@[] aitemps(0);
 class ai_template {
-	double xp, xp_max, health, health_max, range, range_max, damage, damage_max, shoottime, shoottime_max, voicetime, voicetime_max, speed, speed_max, amount, amount_max, stepsoundpitch = 100, stepsoundvolume = 0, painsoundpitch = 100, painsoundvolume = 0, killsoundpitch = 100, killsoundvolume = 0, shootsoundpitch = 100, shootsoundvolume = 0, hitsoundpitch = 100, hitsoundvolume = 0, voicepitch = 100, voicevolume = 0, fallsoundpitch = 100, fallsoundvolume = 0;
+	double xp, health, health_max, range, damage, damage_max, shoottime, voicetime, speed, amount, stepsoundpitch = 100, stepsoundvolume = 0, painsoundpitch = 100, painsoundvolume = 0, killsoundpitch = 100, killsoundvolume = 0, shootsoundpitch = 100, shootsoundvolume = 0, hitsoundpitch = 100, hitsoundvolume = 0, voicepitch = 100, voicevolume = 0, fallsoundpitch = 100, fallsoundvolume = 0;
 	string name, stepsound, painsound, killsound, shootsound, hitsound, voice, item, fallsound;
 	bool rapidvoice, treeclimb, maddable, needwater, nuclearbomb, mine;
 	int gender;
@@ -28,14 +28,14 @@ class ai : ai_template {
 		this.max = mm1;
 		this.gender = ait.gender;
 		if (this.gender != 0 && this.gender!= 1) this.gender = random(0, 1);
-		this.xp = random(ait.xp, ait.xp_max);
+		this.xp = ait.xp;
 		this.health = random(ait.health, ait.health_max);
-		this.range = random(ait.range, ait.range_max);
+		this.range = ait.range;
 		this.damage = random(ait.damage, ait.damage_max);
-		this.shoottime = random(ait.shoottime, ait.shoottime_max);
-		this.voicetime = random(ait.voicetime, ait.voicetime_max);
-		this.speed = random(ait.speed, ait.speed_max);
-		this.amount = random(ait.amount, ait.amount_max);
+		this.shoottime = ait.shoottime;
+		this.voicetime = ait.voicetime;
+		this.speed = ait.speed;
+		this.amount = ait.amount;
 		this.name = ait.name;
 		this.stepsound = ait.stepsound;
 		this.stepsoundpitch = ait.stepsoundpitch;
@@ -280,16 +280,12 @@ void load_ais() {
 				}
 			} else if (parsed[0] == "range") {
 				range = string_split(parsed[1], ",", true);
-				if (range.length() == 1) {
+				if (range.length() == 1)
 					ai.range = string_to_number(range[0]);
-					ai.range_max = ai.range;
-				} else if (range.length() > 1) {
-					ai.range = string_to_number(range[0]);
-					ai.range_max = string_to_number(range[1]);
-				} else {
+				else if (range.length() > 1)
+					ai.range = random(string_to_number(range[0]), string_to_number(range[1]));
+				else
 					ai.range = 0;
-					ai.range_max = 0;
-				}
 			} else if (parsed[0] == "damage") {
 				damage = string_split(parsed[1], ",", true);
 				if (damage.length() == 1) {
@@ -304,40 +300,28 @@ void load_ais() {
 				}
 			} else if (parsed[0] == "shoottime") {
 				shoottime = string_split(parsed[1], ",", true);
-				if (shoottime.length() == 1) {
+				if (shoottime.length() == 1)
 					ai.shoottime = string_to_number(shoottime[0]);
-					ai.shoottime_max = ai.shoottime;
-				} else if (shoottime.length() > 1) {
-					ai.shoottime = string_to_number(shoottime[0]);
-					ai.shoottime_max = string_to_number(shoottime[1]);
-				} else {
+				else if (shoottime.length() > 1)
+					ai.shoottime = random(string_to_number(shoottime[0]), string_to_number(shoottime[1]));
+				else
 					ai.shoottime = 0;
-					ai.shoottime_max = 0;
-				}
 			} else if (parsed[0] == "speed") {
 				speed = string_split(parsed[1], ",", true);
-				if (speed.length() == 1) {
+				if (speed.length() == 1)
 					ai.speed = string_to_number(speed[0]);
-					ai.speed_max = ai.speed;
-				} else if (speed.length() > 1) {
-					ai.speed = string_to_number(speed[0]);
-					ai.speed_max = string_to_number(speed[1]);
-				} else {
+				else if (speed.length() > 1)
+					ai.speed = random(string_to_number(speed[0]), string_to_number(speed[1]));
+				else
 					ai.speed = 0;
-					ai.speed_max = 0;
-				}
 			} else if (parsed[0] == "xp") {
 				xp = string_split(parsed[1], ",", true);
-				if (xp.length() == 1) {
+				if (xp.length() == 1)
 					ai.xp = string_to_number(xp[0]);
-					ai.xp_max = ai.xp;
-				} else if (xp.length() > 1) {
-					ai.xp = string_to_number(xp[0]);
-					ai.xp_max = string_to_number(xp[1]);
-				} else {
+				else if (xp.length() > 1)
+					ai.xp = random(string_to_number(xp[0]), string_to_number(xp[1]));
+				else
 					ai.xp = 0;
-					ai.xp_max = 0;
-				}
 			} else if (parsed[0] == "stepsound") {
 				if (parsed[1] == "gt") ai.stepsound = " ";
 				else if (parsed[1] == "none") ai.stepsound = "";
