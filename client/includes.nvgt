@@ -1,4 +1,7 @@
 #include "includes/inv.nvgt"
+#include "includes/lg.nvgt"
+#include "includes/form_menu.nvgt"
+#include "includes/learn_game_sounds_menu.nvgt"
 #include "includes/chat.nvgt"
 #include "includes/input.nvgt"
 #include "application.nvgt"

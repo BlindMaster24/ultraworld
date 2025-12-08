@@ -172,6 +172,7 @@ void mainmenu(bool fromgame = false) {
 	s.add_sub_menu_item("settings", "reset settings to factory defaults");
 	if (fromgame) s.add_sub_menu_item("settings", "go back");
 		s.add_sub_menu_item("misc","Restart the game");
+			s.add_sub_menu_item("misc","Learn game sounds menu");
 	s.add_sub_menu_item("misc","donate");
 	s.add_sub_menu_item("misc","open website");
 	s.add_sub_menu_item("misc","Check for updates");
@@ -861,6 +862,9 @@ void mainmenu(bool fromgame = false) {
 		urlopen(app.donate);
 		mainmenu();
 	}
+		else if(result=="misc:Learn game sounds menu") {
+		lgs();
+		}
 	else if(result=="misc:open website") {
 		urlopen(app.website);
 		mainmenu();
