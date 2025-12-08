@@ -314,6 +314,7 @@ void writedata(string fv = "", int fvv = -55555) {
 	f.open("jaildata2.dat", "wb");
 	f.write(bandata);
 	f.close();
+	save_xp_schedule();
 	sd.save();
 }
 void netloop() {

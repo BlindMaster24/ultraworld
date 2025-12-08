@@ -69,22 +69,26 @@ void command(player@p, string command) {
 		if (parsed.length() == 1 || parsed[1] == "status") {
 			p.sendpacket(get_xp_status_message(), 2);
 		} else if (p.is_dev() || p.is_manager() || p.is_admin()) {
-			if (parsed[1] == "start") {
+			string arg = string_to_lower_case(parsed[1]);
+			if (arg == "start") {
 				auto_xp = true;
+				override_mode = 0;
+				override_time_left = 0;
 				save_xp_schedule();
 				check_auto_xp();
 				p.sendpacket("Auto XP System ENABLED.", 2);
 				admintell(p.name + " ENABLED Auto XP System.");
 				send_reliable(0, "play_s notify_news2.ogg", 6);
-				send_reliable(0, "XP System Update: Auto XP is now ENABLED!", 2);
-			} else if (parsed[1] == "stop") {
+				send_reliable(0, "Auto XP Schedule is now ENABLED!", 2);
+			} else if (arg == "stop") {
 				auto_xp = false;
 				save_xp_schedule();
+				check_auto_xp();
 				p.sendpacket("Auto XP System DISABLED.", 2);
 				admintell(p.name + " DISABLED Auto XP System.");
 				send_reliable(0, "play_s notify_news2.ogg", 6);
-				send_reliable(0, "XP System Update: Auto XP is now DISABLED!", 2);
-			} else if (parsed[1] == "edit") {
+				send_reliable(0, "Auto XP Schedule is now DISABLED!", 2);
+			} else if (arg == "edit") {
 				cmenupage m;
 				m.intro = "Select a day to edit schedule:";
 				m.initial_packet = "xp_edit_day";
@@ -92,8 +96,24 @@ void command(player@p, string command) {
 					m.add(get_day_name(i) + ": " + get_xp_name(xp_schedule[i]), "" + i);
 				}
 				m.send(p.peer_id);
+			} else if (arg == "off" || arg == "cancel") {
+				start_xp_event(0, "", p.name);
 			} else {
-				p.sendpacket("/xp <start|stop|edit|status>", 0);
+				int mode = -1;
+				if (arg == "double") mode = 1;
+				else if (arg == "super") mode = 2;
+				else if (arg == "mega") mode = 3;
+				else if (arg == "giga") mode = 4;
+				else if (arg == "master") mode = 5;
+				else if (arg == "normal") mode = 0;
+				
+				if (mode > -1) {
+					string duration = (parsed.length() > 2 ? parsed[2] : "");
+					start_xp_event(mode, duration, p.name);
+				} else {
+					p.sendpacket("Usage: /xp <mode|start|stop|edit> [duration]", 0);
+					p.sendpacket("Modes: double, super, mega, giga, master, normal", 0);
+				}
 			}
 		} else {
 			p.sendpacket(get_xp_status_message(), 2);
@@ -1429,66 +1449,7 @@ menu.send(p.peer_id);
 	} else if (parsed[0] == "/datasave" and p.is_manager()) {
 		svd::save();
 		send_reliable(e.peer_id, "data saved", 2);
-	} else if (parsed[0] == "/doublexp" and p.is_admin()) {
-		if (doublexp == 1 and runbyadmin == 1) {
-			doublexp = 0;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "double xp disabled by " + p.name + "!", 2);
-			runbyadmin = 0;
-		} else if (doublexp == 0 and runbyadmin == 0) {
-			doublexp = 1;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "double xp enabled by " + p.name + "!", 2);
-			runbyadmin = 1;
-		}
-	} else if (parsed[0] == "/superxp" and p.is_admin()) {
-		if (superxp == 1 and runbyadmin == 1) {
-			superxp = 0;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "super xp disabled by " + p.name + "!", 2);
-			runbyadmin = 0;
-		} else if (superxp == 0 and runbyadmin == 0) {
-			superxp = 1;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "super xp enabled by " + p.name + "!", 2);
-			runbyadmin = 1;
-		}
-	} else if (parsed[0] == "/megaxp" and p.is_admin()) {
-		if (megaxp == 1 and runbyadmin == 1) {
-			megaxp = 0;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "mega xp disabled by " + p.name + "!", 2);
-			runbyadmin = 0;
-		} else if (megaxp == 0 and runbyadmin == 0) {
-			megaxp = 1;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "mega xp enabled by " + p.name + "!", 2);
-			runbyadmin = 1;
-		}
-	} else if (parsed[0] == "/gigaxp" and p.is_admin()) {
-		if (gigaxp == 1 and runbyadmin == 1) {
-			gigaxp = 0;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "giga xp disabled by " + p.name + "!", 2);
-			runbyadmin = 0;
-		} else if (gigaxp == 0 and runbyadmin == 0) {
-			gigaxp = 1;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "giga xp enabled by " + p.name + "!", 2);
-			runbyadmin = 1;
-		}
-	} else if (parsed[0] == "/masterxp" and p.is_manager()) {
-		if (masterxp == 1 and runbyadmin == 1) {
-			masterxp = 0;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "master xp disabled by " + p.name + "!", 2);
-			runbyadmin = 0;
-		} else if (masterxp == 0 and runbyadmin == 0) {
-			masterxp = 1;
-			send_reliable(0, "play_s notify_news2.ogg", 6);
-			send_reliable(0, "master xp enabled by " + p.name + "!", 2);
-			runbyadmin = 1;
-		}
+
 	} else if (parsed[0] == "/votelist" and p.is_admin()) {
 		double totalvotes = 0;
 		string[] chars = find_directories("chars/*");
