@@ -1735,6 +1735,8 @@ menu.send(p.peer_id);
 			send_reliable(0, "the admin note has been updated to: " + string_replace(get_event_message(), "/addanote", "", true), 2);
 		} else
 			send_reliable(e.peer_id, "you must be at least a developer to use this command", 2);
+	} else if (parsed[0] == "/cleanmapowners" and p.is_admin()) {
+		remove_duplicate_map_owners(p);
 	} else if (parsed[0] == "/getmyinv") {
 		string message = string_encrypt(p.get_inv(), "asdf$(_*~$~*$!~489eruwerisfUAFDSDFSAD9F`416`4712961$~(!@^$(~!^$(!~&@$yzcivzxycvuygiueyrt^~*$^~&!$~&!^$135i359071258787`7$(~$uiouxzcivuxvxciuvxou89ZV9XZ07`04`*~*~&!#*!~&#uiozuvoxcviuxcovuz*(^~!$(*!~@$9duf&~!$78yagusdgydsg");
 		send_reliable(e.peer_id, "writefile2 " + message + "", 0);

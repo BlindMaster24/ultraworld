@@ -3616,16 +3616,22 @@ void player_event(player@p, string event) {
 			}
 			string s = "";
 			string s2;
-			if (maps[mi].owners.length() > 1) {
+			string[] unique_owners;
+			if (maps[mi].owners.length() > 0) {
 				for (uint i = 0; i < maps[mi].owners.length(); i++) {
-					if (i == (maps[mi].owners.length() - 1)) s += "and " + maps[mi].owners[i] + ".";
-					else s += maps[mi].owners[i] + ", ";
+					if (unique_owners.find(maps[mi].owners[i]) == -1)
+						unique_owners.insert_last(maps[mi].owners[i]);
 				}
-			} else
-				for (uint i = 0; i < maps[mi].owners.length(); i++)
-					s = maps[mi].owners[i] + ".";
-			if (maps[mi].owners.length() > 1) s2 = " " + maps[mi].owners.length() + " owners: ";
-			else s2 = " " + maps[mi].owners.length() + " owner: ";
+			}
+			if (unique_owners.length() > 1) {
+				for (uint i = 0; i < unique_owners.length(); i++) {
+					if (i == (unique_owners.length() - 1)) s += "and " + unique_owners[i] + ".";
+					else s += unique_owners[i] + ", ";
+				}
+			} else if (unique_owners.length() == 1)
+				s = unique_owners[0] + ".";
+			if (unique_owners.length() > 1) s2 = " " + unique_owners.length() + " owners: ";
+			else s2 = " " + unique_owners.length() + " owner: ";
 			move_player(p, parsed[1], random(maps[mi].spminx, maps[mi].spmaxx), random(maps[mi].spminy, maps[mi].spmaxy), random(maps[mi].spminz, maps[mi].spmaxz), true);
 			bsend(0, "maps", "", p.nickname + " is now visiting the public map " + maps[mi].name + ", created by " + s2 + " " + s);
 			p.finishing_task = false;
@@ -3692,16 +3698,22 @@ void player_event(player@p, string event) {
 			}
 			string s = "";
 			string s2;
-			if (maps[mi].owners.length() > 1) {
+			string[] unique_owners;
+			if (maps[mi].owners.length() > 0) {
 				for (uint i = 0; i < maps[mi].owners.length(); i++) {
-					if (i == (maps[mi].owners.length() - 1)) s += "and " + maps[mi].owners[i] + ".";
-					else s += maps[mi].owners[i] + ", ";
+					if (unique_owners.find(maps[mi].owners[i]) == -1)
+						unique_owners.insert_last(maps[mi].owners[i]);
 				}
-			} else
-				for (uint i = 0; i < maps[mi].owners.length(); i++)
-					s = maps[mi].owners[i] + ".";
-			if (maps[mi].owners.length() > 1) s2 = " " + maps[mi].owners.length() + " owners: ";
-			else s2 = " " + maps[mi].owners.length() + " owner: ";
+			}
+			if (unique_owners.length() > 1) {
+				for (uint i = 0; i < unique_owners.length(); i++) {
+					if (i == (unique_owners.length() - 1)) s += "and " + unique_owners[i] + ".";
+					else s += unique_owners[i] + ", ";
+				}
+			} else if (unique_owners.length() == 1)
+				s = unique_owners[0] + ".";
+			if (unique_owners.length() > 1) s2 = " " + unique_owners.length() + " owners: ";
+			else s2 = " " + unique_owners.length() + " owner: ";
 			move_player(p, parsed[1], random(maps[mi].spminx, maps[mi].spmaxx), random(maps[mi].spminy, maps[mi].spmaxy), random(maps[mi].spminz, maps[mi].spmaxz), true);
 			bsend(0, "maps", "", p.nickname + " is now trying to complete task " + maps[mi].name + ". Reward: " + maps[mi].finishamount + " " + maps[mi].finishitem + ". Created by " + s2 + " " + s);
 			p.finishing_task = false;
@@ -3766,6 +3778,24 @@ void player_event(player@p, string event) {
 					send_reliable(0, "" + p.nickname + " is no longer pvp!", 2);
 				}
 			}
+			string s = "";
+			string s2;
+			string[] unique_owners;
+			if (maps[mi].owners.length() > 0) {
+				for (uint i = 0; i < maps[mi].owners.length(); i++) {
+					if (unique_owners.find(maps[mi].owners[i]) == -1)
+						unique_owners.insert_last(maps[mi].owners[i]);
+				}
+			}
+			if (unique_owners.length() > 1) {
+				for (uint i = 0; i < unique_owners.length(); i++) {
+					if (i == (unique_owners.length() - 1)) s += "and " + unique_owners[i] + ".";
+					else s += unique_owners[i] + ", ";
+				}
+			} else if (unique_owners.length() == 1)
+				s = unique_owners[0] + ".";
+			if (unique_owners.length() > 1) s2 = " " + unique_owners.length() + " owners: ";
+			else s2 = " " + unique_owners.length() + " owner: ";
 			move_player(p, parsed[1], random(maps[mi].spminx, maps[mi].spmaxx), random(maps[mi].spminy, maps[mi].spmaxy), random(maps[mi].spminz, maps[mi].spmaxz), true);
 			p.finishing_task = false;
 			p.finishtasktimer.restart();
@@ -5954,6 +5984,14 @@ void player_event(player@p, string event) {
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addowner") {
 		string maptext = string_replace(get_event_message(), "addowner ", "", false);
+		mapdata@ m = get_map_obj(p.map);
+		string new_owner = string_replace(maptext, "owner:", "", false);
+		if (@m != null) {
+			if (m.owners.find(new_owner) > -1) {
+				send_reliable(p, "User " + new_owner + " is already an owner of this map.", 2);
+				return;
+			}
+		}
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
 		string mapdata = f.read().replace("\r\n", "\n");

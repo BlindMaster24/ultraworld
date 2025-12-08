@@ -58,6 +58,7 @@
 #include"includes/locker.nvgt"
 #include"includes/log.nvgt"
 #include "includes/logfuncts.nvgt"
+#include "includes/admin_tools.nvgt"
 #include"includes/map.nvgt"
 #include"includes/map_spam.nvgt"
 #include"includes/meteorite.nvgt"
