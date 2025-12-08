@@ -40,8 +40,9 @@ void build_menu(player@ p) {
 	a.add("specified air temperature", "specified_air_temperature");
 	a.add("teleporter", "teleporter");
 	a.add("vanishing platform", "vanishing_platform");
-	if (p.admin) {
 		a.add("vending machine", "vending_machine");
+	a.add("nutrition machine", "ntm");
+	if (p.admin) {
 		a.add("AI", "AI");
 		a.add("foods and drinks", "fad");
 		a.add("draw sounds", "drawsounds");

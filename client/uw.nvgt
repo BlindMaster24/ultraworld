@@ -1596,6 +1596,8 @@ void netloop() {
 					buildmusic();
 				} else if (parsed[0] == "buildtile") {
 					buildtile();
+				} else if (parsed[0] == "buildntm") {
+					buildntm();
 				} else if (parsed[0] == "buildecoordinates")
 					send_reliable(peer_id, "addecoordinates enable:" + "coordinates", 0);
 				else if (parsed[0] == "buildecamera")
