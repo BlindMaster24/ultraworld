@@ -4546,10 +4546,32 @@ void player_event(player@p, string event) {
 						else
 							send_menu(p.peer_id, "automatic_travelpoint menu", "btravelpoint", "automatic_travelpoint:automatic_travelpoint[]password protected automatic_travelpoint:pautomatic_travelpoint[]item checker automatic_travelpoint:icautomatic_travelpoint[]item taker automatic_travelpoint:itautomatic_travelpoint[]travelpoint:travelpoint[]password protected travelpoint:ptravelpoint[]item checker travelpoint:ictravelpoint[]item taker travelpoint:ittravelpoint");
 					} else if (what == "tf") {
-						if (p.is_admin())
-							send_menu(p.peer_id, "togglable features menu", "btf", "enable 2dsupport:e2dsupport[]disable 2dsupport:d2dsupport[]enable coordinates:ecoordinates[]disable coordinates:dcoordinates[]camera options:cameraoptions[]enable jumping:ejump[]disable jumping:djump[]spyglass options:spyglassoptions[]enable local chat:elocalchat[]disable local chat:dlocalchat[]enable voice chat:evoicechat[]disable voice chat:dvoicechat[]enable tts chat:ettschat[]disable tts chat:dttschat[]enable tracking players:etracking[]disable tracking players:dtracking[]enable disaster spawning:edisasters[]disable disaster spawning:ddisasters[]disable rain:drain[]disable wind:dwind[]disable night sounds:dnight");
-						else
-							send_menu(p.peer_id, "togglable features menu", "btf", "enable 2dsupport:e2dsupport[]disable 2dsupport:d2dsupport[]enable coordinates:ecoordinates[]disable coordinates:dcoordinates[]camera options:cameraoptions[]enable jumping:ejump[]disable jumping:djump[]spyglass options:spyglassoptions[]enable local chat:elocalchat[]disable local chat:dlocalchat[]enable voice chat:evoicechat[]disable voice chat:dvoicechat[]enable tts chat:ettschat[]disable tts chat:dttschat[]enable tracking players:etracking[]disable tracking players:dtracking[]disable rain:drain[]disable wind:dwind[]disable night sounds:dnight");
+						mapdata@ m = get_map_obj(p.map);
+						string menu = "";
+						
+						if (string_contains(m.rawdata, "enable:2dsupport", 1) > -1) menu += "disable 2dsupport:d2dsupport[]"; else menu += "enable 2dsupport:e2dsupport[]";
+						if (string_contains(m.rawdata, "enable:coordinates", 1) > -1) menu += "disable coordinates:dcoordinates[]"; else menu += "enable coordinates:ecoordinates[]";
+						
+						menu += "camera options:cameraoptions[]";
+						
+						if (string_contains(m.rawdata, "disable:jump", 1) > -1) menu += "enable jumping:ejump[]"; else menu += "disable jumping:djump[]";
+						
+						menu += "spyglass options:spyglassoptions[]";
+						
+						if (string_contains(m.rawdata, "disable:localchat", 1) > -1) menu += "enable local chat:elocalchat[]"; else menu += "disable local chat:dlocalchat[]";
+						if (string_contains(m.rawdata, "disable:voicechat", 1) > -1) menu += "enable voice chat:evoicechat[]"; else menu += "disable voice chat:dvoicechat[]";
+						if (string_contains(m.rawdata, "disable:ttschat", 1) > -1) menu += "enable tts chat:ettschat[]"; else menu += "disable tts chat:dttschat[]";
+						if (string_contains(m.rawdata, "disable:tracking", 1) > -1) menu += "enable tracking players:etracking[]"; else menu += "disable tracking players:dtracking[]";
+						
+						if (p.is_admin()) {
+							if (string_contains(m.rawdata, "enable:disasters", 1) > -1) menu += "disable disaster spawning:ddisasters[]"; else menu += "enable disaster spawning:edisasters[]";
+						}
+						
+						if (string_contains(m.rawdata, "disable:rain", 1) > -1) menu += "enable rain:erain[]"; else menu += "disable rain:drain[]";
+						if (string_contains(m.rawdata, "disable:wind", 1) > -1) menu += "enable wind:ewind[]"; else menu += "disable wind:dwind[]";
+						if (string_contains(m.rawdata, "disable:night", 1) > -1) menu += "enable night sounds:enight"; else menu += "disable night sounds:dnight";
+
+						send_menu(p.peer_id, "togglable features menu", "btf", menu);
 					} else if (what == "fishingcoordinate" and p.is_admin())
 						send_reliable(p, "buildfishing_coordinate", 0);
 					else if (what == "vending_machine" and p.is_admin())
@@ -7817,109 +7839,172 @@ void player_event(player@p, string event) {
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addd2dsupport") {
 		string maptext = string_replace(get_event_message(), "addd2dsupport ", "", false);
+		string feature = string_replace(maptext, "enable:", "", false).replace("disable:", "");
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:" + feature || maplines[i] == "disable:" + feature) {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "adddjump") {
 		string maptext = string_replace(get_event_message(), "adddjump ", "", false);
+		string feature = string_replace(maptext, "enable:", "", false).replace("disable:", "");
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:" + feature || maplines[i] == "disable:" + feature) {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "adddspy") {
 		string maptext = string_replace(get_event_message(), "adddspy ", "", false);
+		string feature = string_replace(maptext, "enable:", "", false).replace("disable:", "");
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:" + feature || maplines[i] == "disable:" + feature) {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addecoordinates") {
 		string maptext = string_replace(get_event_message(), "addecoordinates ", "", false);
+		string feature = string_replace(maptext, "enable:", "", false).replace("disable:", "");
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:" + feature || maplines[i] == "disable:" + feature) {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addecamera") {
 		string maptext = string_replace(get_event_message(), "addecamera ", "", false);
+		string feature = string_replace(maptext, "enable:", "", false).replace("disable:", "");
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:" + feature || maplines[i] == "disable:" + feature) {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addecamerawall") {
 		string maptext = string_replace(get_event_message(), "addecamerawall ", "", false);
+		string feature = string_replace(maptext, "enable:", "", false).replace("disable:", "");
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:" + feature || maplines[i] == "disable:" + feature) {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addemfwc") {
 		string maptext = string_replace(get_event_message(), "addemfwc ", "", false);
+		string feature = string_replace(maptext, "enable:", "", false).replace("disable:", "");
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:" + feature || maplines[i] == "disable:" + feature) {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addejump") {
 		string maptext = string_replace(get_event_message(), "addejump ", "", false);
+		string feature = string_replace(maptext, "enable:", "", false).replace("disable:", "");
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:" + feature || maplines[i] == "disable:" + feature) {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addespy") {
 		string maptext = string_replace(get_event_message(), "addespy ", "", false);
+		string feature = string_replace(maptext, "enable:", "", false).replace("disable:", "");
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:" + feature || maplines[i] == "disable:" + feature) {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -7927,11 +8012,17 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "adde2dsupport ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:2dsupport" || maplines[i] == "disable:2dsupport") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -7939,11 +8030,17 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "adddlocalchat ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:localchat" || maplines[i] == "disable:localchat") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -7951,11 +8048,17 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "addelocalchat ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:localchat" || maplines[i] == "disable:localchat") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -7963,11 +8066,17 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "adddvoicechat ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:voicechat" || maplines[i] == "disable:voicechat") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -7975,11 +8084,17 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "addevoicechat ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:voicechat" || maplines[i] == "disable:voicechat") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -7987,11 +8102,17 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "adddttschat ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:ttschat" || maplines[i] == "disable:ttschat") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -7999,11 +8120,17 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "addettschat ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:ttschat" || maplines[i] == "disable:ttschat") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -8011,11 +8138,17 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "adddtracking ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:tracking" || maplines[i] == "disable:tracking") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -8023,27 +8156,36 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "addetracking ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:tracking" || maplines[i] == "disable:tracking") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addddisasters") {
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		string[] mapdata = string_split(mdata, "\n");
-		int something = mapdata.find("enable:disasters");
-		if (something > -1) {
-			mapdata.remove_at(something);
-			file_put_contents("maps/" + p.map + "/!.map", linear(mapdata), 250);
-			send_reliable(p, "Map updated", 0);
-			mapupdate(p.map);map_updated(p.map);
+		for(uint i=0; i<maplines.length(); i++) {
+			if(maplines[i] == "enable:disasters" || maplines[i] == "disable:disasters") {
+				maplines.remove_at(i);
+				i--;
+			}
 		}
+		f.open("maps/" + p.map + "/!.map", "wb");
+		f.write(linear(maplines));
+		f.close();
+		send_reliable(p, "Map updated", 0);
+		mapupdate(p.map);map_updated(p.map);
 	} else if (parsed[0] == "addedisasters") {
 		string maptext = string_replace(get_event_message(), "addedisasters ", "", false);
 		file f;
@@ -8060,11 +8202,33 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "adddrain ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(string_left(maplines[i], 5)=="rain:") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
+		f.close();
+		send_reliable(p, "Map updated", 0);
+		mapupdate(p.map);map_updated(p.map);
+	} else if (parsed[0] == "adderain") {
+		file f;
+		f.open("maps/" + p.map + "/!.map", "rb");
+		string[] maplines = delinear(f.read());
+		f.close();
+		for(uint i=0; i<maplines.length(); i++) {
+			if(string_left(maplines[i], 5)=="rain:") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		f.open("maps/" + p.map + "/!.map", "wb");
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -8072,11 +8236,33 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "adddwind ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(string_left(maplines[i], 5)=="wind:") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
+		f.close();
+		send_reliable(p, "Map updated", 0);
+		mapupdate(p.map);map_updated(p.map);
+	} else if (parsed[0] == "addewind") {
+		file f;
+		f.open("maps/" + p.map + "/!.map", "rb");
+		string[] maplines = delinear(f.read());
+		f.close();
+		for(uint i=0; i<maplines.length(); i++) {
+			if(string_left(maplines[i], 5)=="wind:") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		f.open("maps/" + p.map + "/!.map", "wb");
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);
@@ -8084,11 +8270,49 @@ void player_event(player@p, string event) {
 		string maptext = string_replace(get_event_message(), "adddnight ", "", false);
 		file f;
 		f.open("maps/" + p.map + "/!.map", "rb");
-		string mapdata = f.read().replace("\r\n", "\n");
+		string[] maplines = delinear(f.read());
 		f.close();
-		mapdata += "\n" + maptext;
+		for(uint i=0; i<maplines.length(); i++) {
+			if(string_left(maplines[i], 6)=="night:") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		maplines.insert_last(maptext);
 		f.open("maps/" + p.map + "/!.map", "wb");
-		f.write(mapdata);
+		f.write(linear(maplines));
+		f.close();
+		send_reliable(p, "Map updated", 0);
+		mapupdate(p.map);map_updated(p.map);
+	} else if (parsed[0] == "addenight") {
+		file f;
+		f.open("maps/" + p.map + "/!.map", "rb");
+		string[] maplines = delinear(f.read());
+		f.close();
+		for(uint i=0; i<maplines.length(); i++) {
+			if(string_left(maplines[i], 6)=="night:") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		f.open("maps/" + p.map + "/!.map", "wb");
+		f.write(linear(maplines));
+		f.close();
+		send_reliable(p, "Map updated", 0);
+		mapupdate(p.map);map_updated(p.map);
+	} else if (parsed[0] == "addenight") {
+		file f;
+		f.open("maps/" + p.map + "/!.map", "rb");
+		string[] maplines = delinear(f.read());
+		f.close();
+		for(uint i=0; i<maplines.length(); i++) {
+			if(string_left(maplines[i], 6)=="night:") {
+				maplines.remove_at(i);
+				i--;
+			}
+		}
+		f.open("maps/" + p.map + "/!.map", "wb");
+		f.write(linear(maplines));
 		f.close();
 		send_reliable(p, "Map updated", 0);
 		mapupdate(p.map);map_updated(p.map);

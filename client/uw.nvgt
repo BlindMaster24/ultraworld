@@ -1639,7 +1639,7 @@ void netloop() {
 				else if (parsed[0] == "builde2dsupport")
 					send_reliable(peer_id, "adde2dsupport enable:" + "2dsupport", 0);
 				else if (parsed[0] == "buildd2dsupport")
-					send_reliable(peer_id, "addd2dsupport disable:" + "fridge", 0);
+					send_reliable(peer_id, "addd2dsupport disable:" + "2dsupport", 0);
 				else if (parsed[0] == "buildetracking")
 					send_reliable(peer_id, "addetracking enable:" + "tracking", 0);
 				else if (parsed[0] == "builddtracking")
