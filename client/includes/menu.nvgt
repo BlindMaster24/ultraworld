@@ -2891,17 +2891,17 @@ void checkarroundmenu() {
 	string mres = menu("Find what?", cs);
 	if (mres == "" or mres == "stoptrack") {
 		speak("Stopped tracking");
-		trackx = -1; tracky = -1; trackz = -1; tracking = "";
+		ztrackx = -1; ztracky = -1; ztrackz = -1; ztracking = "";
 		return;
 	} else {
 		int zz = get_zone_index(mres);
 		if (zz > -1) {
 			zone@ z = zones[zz];
-			trackx = z.minx;
-			tracky = z.miny;
-			trackz = z.minz;
-			tracking = z.text;
-			tell_where(trackx, tracky, trackz, "loctrack", false);
+			ztrackx = z.minx;
+			ztracky = z.miny;
+			ztrackz = z.minz;
+			ztracking = z.text;
+			tell_where(ztrackx, ztracky, ztrackz, "loctrack", false);
 		} else {
 			if (SCRIPT_COMPILED == false) speak("That zone could not be found");
 		}

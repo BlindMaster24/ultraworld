@@ -44,9 +44,11 @@ void build_menu(player@ p) {
 	if (p.admin) {
 		a.add("vending machine", "vending_machine");
 		a.add("AI", "AI");
+/*
 		a.add("foods and drinks", "fad");
 		a.add("draw sounds", "drawsounds");
 		a.add("item usage limit", "itemusagelimit");
+*/
 		a.add("item", "item");
 	}
 	//if (p.assistant) a.add("item description", "desc_menu");

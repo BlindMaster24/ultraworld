@@ -811,9 +811,9 @@ void gameloop() {
 			optionsmenu();
 			return;
 		}
-		if (trackx == -1 or tracky == -1 or trackz == -1 or tracking == "")
+		if (ztrackx == -1 or ztracky == -1 or ztrackz == -1 or ztracking == "")
 			speak("Nothing to track");
-		else tell_where(trackx, tracky, trackz, "loctrack", false);
+		else tell_where(ztrackx, ztracky, ztrackz, "loctrack", false);
 	}
 	if (shift_is_down() and key_pressed(KEY_N)) {
 		if (ttrackx == -1 or ttracky == -1 or ttrackz == -1 or ttracking == "")

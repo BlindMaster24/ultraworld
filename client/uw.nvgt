@@ -193,6 +193,8 @@ string tracking = "";
 double trackx = -1, tracky = -1, trackz = -1;
 string ttracking = "";
 double ttrackx = -1, ttracky = -1, ttrackz = -1;
+string ztracking = "";
+double ztrackx = -1, ztracky = -1, ztrackz = -1;
 bool falling = false;
 double falltime = 125;
 double falldistance = 5;
@@ -2558,9 +2560,19 @@ void netloop() {
 					else
 						tell_where(x, y, z, parsed[6], true);
 				} else if (parsed[0] == "playermapmenu") {
-					string m = string_replace(get_event_message(), "playermapmenu ", "Stop Tracking\n", false);
-					string[] playerstuff = string_split(m, "\n");
-					player::menu::map(playerstuff);
+					string content = string_replace(get_event_message(), "playermapmenu ", "", false);
+					if (content == "" or content == " ") {
+						if (tracking != "") {
+							string[] p = {"Stop Tracking"};
+							player::menu::map(p);
+						} else {
+							speak("Just you are in this map");
+						}
+					} else {
+						string m = "Stop Tracking\n" + content;
+						string[] playerstuff = string_split(m, "\n");
+						player::menu::map(playerstuff);
+					}
 				} else if (parsed[0] == "playermenu") {
 					string m = string_replace(get_event_message(), "playermenu", "", true);
 					string[] playerstuff = string_split(m, "\n");
@@ -2977,6 +2989,19 @@ void mainloop() {
 		if (me.x == ttrackx and me.y == ttracky and me.z == ttrackz) {
 			p.play_stationary("loctracked.ogg", false);
 			ttrackx = -1; ttracky = -1; ttrackz = -1; ttracking = "";
+		}
+	}
+if (ztrackx != -1 and ztracky != -1 and ztrackz != -1 and ztracking != "") {
+		if (trackingmode == 0 and trackingtimer.elapsed > 700) {
+			trackingtimer.restart();
+			p.play_3d("loctrack.ogg", me.x, me.y, me.z, ztrackx, ztracky, ztrackz, calculate_theta(facing), false);
+		} else if (trackingmode == 1 and trackingtimer.elapsed > 50 + get_3d_distance(me.x, me.y, me.z, ztrackx, ztracky, ztrackz) * 5) {
+			trackingtimer.restart();
+			p.play_stationary("loctrack.ogg", false);
+		}
+		if (me.x == ztrackx and me.y == ztracky and me.z == ztrackz) {
+			p.play_stationary("loctracked.ogg", false);
+			ztrackx = -1; ztracky = -1; ztrackz = -1; ztracking = "";
 		}
 	}
 	if (sleepmode == 1 and sleeptimer.elapsed >= 1000) {

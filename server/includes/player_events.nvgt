@@ -4379,8 +4379,6 @@ void player_event(player@p, string event) {
 			z = players[ind].z;
 			string[] playernames = nearest_player_sorted_array(players[ind]);
 			finaltext += linear(playernames);
-			if (finaltext == "playermapmenu ")
-				finaltext = "Just you are in this map";
 			send_reliable(p, finaltext, 0);
 		}
 	} else if (parsed[0] == "playermenu") {
@@ -4912,10 +4910,6 @@ void player_event(player@p, string event) {
 						string[] lines = string_split(f.read().replace("\r\n", "\n"), "\n", true);
 						f.close();
 						for (uint i = 0; i < lines.length(); i++) {
-							if (string_contains(lines[i], "=", 1) < 0) {
-								send_reliable(p, "error: all draw sounds take at least one argument, got " + lines[i] + "", 2);
-								return;
-							}
 							m.add(lines[i], lines[i]);
 						}
 						m.send(p.peer_id);
@@ -4928,10 +4922,6 @@ void player_event(player@p, string event) {
 						string[] lines = string_split(f.read().replace("\r\n", "\n"), "\n", true);
 						f.close();
 						for (uint i = 0; i < lines.length(); i++) {
-							if (string_contains(lines[i], "=", 1) < 0) {
-								send_reliable(p, "error: all draw sounds take at least one argument, got " + lines[i] + "", 2);
-								return;
-							}
 							m.add(lines[i], lines[i]);
 						}
 						m.send(p.peer_id);
