@@ -1676,7 +1676,7 @@ menu.send(p.peer_id);
 			return;
 		}
 		if (p.looking != "") {
-			send_reliable(p, "you can't do this while your looking at someone", 2);
+			send_reliable(p, "you can't do this while you're looking at someone", 2);
 			return;
 		}
 		if (p.pvp == 1) {
@@ -2248,7 +2248,7 @@ menu.send(p.peer_id);
 		string[] a = string_split(file_get_contents("chmaps.svr"), "\r\n", false);
 		int something = a.find(p.map);
 		if (something > -1) {
-			send_reliable(p, "you can't look at someone when your doing a task map", 2);
+			send_reliable(p, "you can't look at someone when you're doing a task map", 2);
 			return;
 		}
 		if (p.afk) {
@@ -2483,12 +2483,12 @@ menu.send(p.peer_id);
 				return;
 			}
 			if (p.looking != "") {
-				send_reliable(p, "you can't do this while your looking at someone", 2);
+				send_reliable(p, "you can't do this while you're looking at someone", 2);
 				return;
 			}
 			if (p.pvp == 0) {
 				if (p.afk == true) {
-					send_reliable(p, "you can't toggle your pvp when your afk", 2);
+					send_reliable(p, "you can't toggle your pvp when you're afk", 2);
 					return;
 				}
 				int mapindex = get_map_index(p.map);
@@ -2524,7 +2524,7 @@ menu.send(p.peer_id);
 					}
 				}
 				if (p.afk == true) {
-					send_reliable(p, "you can't toggle your pvp when your afk", 2);
+					send_reliable(p, "you can't toggle your pvp when you're afk", 2);
 					return;
 				}
 				int mapindex = get_map_index(p.map);
