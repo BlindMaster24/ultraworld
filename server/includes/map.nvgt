@@ -568,11 +568,8 @@ vector get_max_values(string map) {
 }
 bool mapex(string m) { return directory_exists("maps/" + m); }
 bool map_exists(string map) {
-	string[] m = find_directories("maps/*");
-	for (uint x = 0; x < m.length(); x++) {
-		if (string_to_lower_case(m[x]) == string_to_lower_case(map)) return true;
-	}
-	return false;
+	if (get_map_index(map) > -1) return true;
+	return directory_exists("maps/" + map);
 }
 string get_map_text(mapdata@m) {
 	if (@m == null) return "";
@@ -1210,7 +1207,11 @@ void check_maps_for(string w) {
 	foreach (mapdata@ l: maps) {
 		if (l.owners.find(w) > -1) lines.insert_last(l.name);
 	}
-	file_put(cf + "/maps.usr", join(lines, "\n"));
+	string new_content = join(lines, "\n");
+	if (file_exists(cf + "/maps.usr")) {
+		if (file_get(cf + "/maps.usr") == new_content) return;
+	}
+	file_put(cf + "/maps.usr", new_content);
 }
 string get_dmg(double x, double y, double z, string map) {
 	map = map.replace(".map", "");
