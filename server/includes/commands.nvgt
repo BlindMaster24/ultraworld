@@ -3162,7 +3162,7 @@ menu.send(p.peer_id);
 			menu.send(p.peer_id);
 		}
 	} else if (parsed[0] == "/compinfolog" and p.is_dev() == true) {
-		send_reliable(p, "clip " + file_get_contents("compinfo.log"), 0);
+		send_reliable(p, "clip " + file_get_contents("compchars.log"), 0);
 		send_reliable(p, "Copied", 0);
 	} else if (parsed[0] == "/sleep" and p.is_admin() and parsed.length() > 1) {
 		string t = string_trimleft(command, (parsed[0] + " " + parsed[1] + " ").length());
