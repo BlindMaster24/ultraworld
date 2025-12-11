@@ -250,6 +250,85 @@ void player_event(player@p, string event) {
 		double amount = string_to_number(parsed[2]);
 		if (parsed[2] == "[cncel]") return;
 		auction::make_bid(p, amount, id);
+	} else if (parsed[0] == "weather_menu") {
+		if (!p.is_dev() && !p.is_manager() && !p.is_admin()) return; // Corrected permission check order
+		string action = parsed[1];
+		
+		if (action == "rain") {
+			if (chovendo == 1) {
+				chuvatimer.restart();
+				send_reliable(0, "fimchuva", 0);
+				send_reliable(0, "volumechuva -12", 0);
+				chovendo = 0;
+				send_reliable(0, "notify Rain has stopped.", 0);
+				admintell(p.name + " stopped rain.");
+				p.sendpacket("Rain stopped. Type /weather to open menu again.", 2);
+			} else {
+				chuvatimer.restart();
+				send_reliable(0, "volumechuva -7", 0);
+				volumechuva = -12;
+				numerochuva = random(3, 4);
+				send_reliable(0, "chuvaativa " + numerochuva, 0);
+				chovendo = 1;
+				trov1 = 0; trov2 = 0; trov3 = 0; trov4 = 0; trov5 = 0;
+				trov6 = 0; trov7 = 0; trov8 = 0; trov9 = 0; trov10 = 0;
+				volumechuva1 = 0; volumechuva2 = 0; volumechuva3 = 0;
+				volumechuva4 = 0; volumechuva5 = 0; volumechuva6 = 0;
+				volumechuva7 = 0; volumechuva8 = 0; volumechuva9 = 0;
+				volumechuva10 = 0;
+				send_reliable(0, "notify Rain has started.", 0);
+				admintell(p.name + " started rain.");
+				p.sendpacket("Rain started. Type /weather to open menu again.", 2);
+			}
+		} else if (action == "wind") {
+			if (windendo == 1) {
+				windtimer.restart();
+				send_reliable(0, "fimwind", 0);
+				send_reliable(0, "volumewind -12", 0);
+				windendo = 0;
+				send_reliable(0, "notify Wind has stopped.", 0);
+				admintell(p.name + " stopped wind.");
+				p.sendpacket("Wind stopped. Type /weather to open menu again.", 2);
+			} else {
+				windtimer.restart();
+				send_reliable(0, "volumewind -7", 0);
+				volumewind = -12;
+				numerowind = random(3, 4);
+				send_reliable(0, "windativa " + numerowind, 0);
+				windendo = 1;
+				wtrov1 = 0; wtrov2 = 0; wtrov3 = 0; wtrov4 = 0; wtrov5 = 0;
+				wtrov6 = 0; wtrov7 = 0; wtrov8 = 0; wtrov9 = 0; wtrov10 = 0;
+				volumewind1 = 0; volumewind2 = 0; volumewind3 = 0;
+				volumewind4 = 0; volumewind5 = 0; volumewind6 = 0;
+				volumewind7 = 0; volumewind8 = 0; volumewind9 = 0;
+				volumewind10 = 0;
+				send_reliable(0, "notify Wind has started.", 0);
+				admintell(p.name + " started wind.");
+				p.sendpacket("Wind started. Type /weather to open menu again.", 2);
+			}
+		} else if (action == "night") {
+			if (nightendo == 1) {
+				send_reliable(0, "fimnight", 0);
+				send_reliable(0, "volumenight -12", 0);
+				nightendo = 0;
+				send_reliable(0, "notify Night mode disabled.", 0);
+				admintell(p.name + " disabled night mode.");
+				p.sendpacket("Night mode disabled. Type /weather to open menu again.", 2);
+			} else {
+				send_reliable(0, "volumenight -7", 0);
+				volumenight = -12;
+				numeronight = random(3, 4);
+				send_reliable(0, "nightativa " + numeronight, 0);
+				nightendo = 1;
+				volumenight1 = 0; volumenight2 = 0; volumenight3 = 0;
+				volumenight4 = 0; volumenight5 = 0; volumenight6 = 0;
+				volumenight7 = 0; volumenight8 = 0; volumenight9 = 0;
+				volumenight10 = 0;
+				send_reliable(0, "notify Night mode enabled.", 0);
+				admintell(p.name + " enabled night mode.");
+				p.sendpacket("Night mode enabled. Type /weather to open menu again.", 2);
+			}
+		}
 	} else if (parsed[0] == "lookstop" and p.looking != "") {
 		int ind = get_player_index_from(p.looking);
 		if (ind > -1) {

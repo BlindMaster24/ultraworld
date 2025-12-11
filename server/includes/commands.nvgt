@@ -3690,5 +3690,13 @@ menu.send(p.peer_id);
 		send_reliable(p.peer_id, "Memory stores: " + playerstores.length(), 0);
 		string[] files = find_files("playerstores/*.playerstore");
 		send_reliable(p.peer_id, "Disk files (" + files.length() + "): " + join(files, ", "), 0);
+	} else if (parsed[0] == "/weather" && (p.is_dev() || p.is_manager() || p.is_admin())) {
+		cmenupage m;
+		m.intro = "Weather Control Menu";
+		m.initial_packet = "weather_menu";
+		m.add("Rain: " + (chovendo == 1 ? "ON" : "OFF"), "rain");
+		m.add("Wind: " + (windendo == 1 ? "ON" : "OFF"), "wind");
+		m.add("Night: " + (nightendo == 1 ? "ON" : "OFF"), "night");
+		m.send(p.peer_id);
 	}
 }
