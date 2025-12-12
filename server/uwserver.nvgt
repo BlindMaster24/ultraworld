@@ -163,6 +163,8 @@ const string prefskey = "charbhoom";
 dictionary d, d2;
 http httpn;
 dictionary ip_conn_counts;
+dictionary players_by_peer_id;
+dictionary players_by_name;
 dictionary peer_ip_map;
 const int MAX_CONNS_PER_IP = 5;
 //mapispawn@[] mapispawns;
@@ -336,11 +338,13 @@ void netloop() {
 	}
 	if (maps.length() > 0) {
 		for (uint i = 0; i < maps.length(); i++)
-			maps[i].loop();
+			if (@maps[i] != null)
+				maps[i].loop();
 	}
 	if (players.length() > 0) {
 		for (uint i = 0; i < players.length(); i++)
-			players[i].loop(i);
+			if (@players[i] != null)
+				players[i].loop(i);
 	}
 	if (onlineplength != players.length() && !weblock) {
 		onlineplength = players.length();
@@ -357,115 +361,143 @@ void netloop() {
 	}
 	if (houses.length() > 0) {
 		for (uint i = 0; i < houses.length(); i++)
-			houses[i].loop(i);
+			if (@houses[i] != null)
+				houses[i].loop(i);
 	}
 	if (apartments.length() > 0) {
 		for (uint i = 0; i < apartments.length(); i++)
-			apartments[i].loop(i);
+			if (@apartments[i] != null)
+				apartments[i].loop(i);
 	}
 	if (tents.length() > 0) {
 		for (uint i = 0; i < tents.length(); i++)
-			tents[i].loop(i);
+			if (@tents[i] != null)
+				tents[i].loop(i);
 	}
 	if (playerstores.length() > 0) {
 		for (uint i = 0; i < playerstores.length(); i++)
-			playerstores[i].loop(i);
+			if (@playerstores[i] != null)
+				playerstores[i].loop(i);
 	}
 	if (robots.length() > 0) {
 		for (uint i = 0; i < robots.length(); i++)
-			robots[i].loop(i);
+			if (@robots[i] != null)
+				robots[i].loop(i);
 	}
 	if (washbasins.length() > 0) {
 		for (uint i = 0; i < washbasins.length(); i++)
-			washbasins[i].loop();
+			if (@washbasins[i] != null)
+				washbasins[i].loop();
 	}
 	if (showers.length() > 0) {
 		for (uint i = 0; i < showers.length(); i++)
-			showers[i].loop();
+			if (@showers[i] != null)
+				showers[i].loop();
 	}
 	if (item_cariers.length() > 0) {
 		for (uint i = 0; i < item_cariers.length(); i++)
-			item_cariers[i].loop(i);
+			if (@item_cariers[i] != null)
+				item_cariers[i].loop(i);
 	}
 	if (firemaps.length() > 0) {
 		for (uint i = 0; i < firemaps.length(); i++)
-			firemaps[i].loop(i);
+			if (@firemaps[i] != null)
+				firemaps[i].loop(i);
 	}
 	if (timeitems.length() > 0) {
 		for (uint i = 0; i < timeitems.length(); i++)
-			timeitems[i].loop(i);
+			if (@timeitems[i] != null)
+				timeitems[i].loop(i);
 	}
 	if (timepackets.length() > 0) {
 		for (uint i = 0; i < timepackets.length(); i++)
-			timepackets[i].loop(i);
+			if (@timepackets[i] != null)
+				timepackets[i].loop(i);
 	}
 	if (time_bombs.length() > 0) {
 		for (uint i = 0; i < time_bombs.length(); i++)
-			time_bombs[i].loop(i);
+			if (@time_bombs[i] != null)
+				time_bombs[i].loop(i);
 	}
 	if (mines.length() > 0) {
 		for (uint i = 0; i < mines.length(); i++)
-			mines[i].loop(i);
+			if (@mines[i] != null)
+				mines[i].loop(i);
 	}
 	if (vending_machines.length() > 0) {
 		for (uint i = 0; i < vending_machines.length(); i++)
-			vending_machines[i].loop();
+			if (@vending_machines[i] != null)
+				vending_machines[i].loop();
 	}
 	if (bodyfalls.length() > 0) {
 		for (uint i = 0; i < bodyfalls.length(); i++)
-			bodyfalls[i].loop(i);
+			if (@bodyfalls[i] != null)
+				bodyfalls[i].loop(i);
 	}
 	if (censor_bombs.length() > 0) {
 		for (uint i = 0; i < censor_bombs.length(); i++)
-			censor_bombs[i].loop(i);
+			if (@censor_bombs[i] != null)
+				censor_bombs[i].loop(i);
 	}
 	if (snares.length() > 0) {
 		for (uint i = 0; i < snares.length(); i++)
-			snares[i].loop(i);
+			if (@snares[i] != null)
+				snares[i].loop(i);
 	}
 	if (canisters.length() > 0) {
 		for (uint i = 0; i < canisters.length(); i++)
-			canisters[i].loop(i);
+			if (@canisters[i] != null)
+				canisters[i].loop(i);
 	}
 	if (rpgs.length() > 0) {
 		for (uint i = 0; i < rpgs.length(); i++)
-			rpgs[i].loop(i);
+			if (@rpgs[i] != null)
+				rpgs[i].loop(i);
 	}
 	if (rockets.length() > 0) {
 		for (uint i = 0; i < rockets.length(); i++)
-			rockets[i].loop(i);
+			if (@rockets[i] != null)
+				rockets[i].loop(i);
 	}
 	if (auto_healers.length() > 0) {
 		for (uint i = 0; i < auto_healers.length(); i++)
-			auto_healers[i].loop(i);
+			if (@auto_healers[i] != null)
+				auto_healers[i].loop(i);
 	}
 	if (microwaves.length() > 0) {
 		for (uint i = 0; i < microwaves.length(); i++)
-			microwaves[i].loop(i);
+			if (@microwaves[i] != null)
+				microwaves[i].loop(i);
 	}
 	if (teams.length() > 0) {
 		for (uint i = 0; i < teams.length(); i++)
-			teams[i].loop(i);
+			if (@teams[i] != null)
+				teams[i].loop(i);
 	}
 	if (lockers.length() > 0) {
 		for (uint i = 0; i < lockers.length(); i++)
-			lockers[i].loop(i);
+			if (@lockers[i] != null)
+				lockers[i].loop(i);
 	}
 	if (fridges.length() > 0) {
 		for (uint i = 0; i < fridges.length(); i++)
-			fridges[i].loop(i);
+			if (@fridges[i] != null)
+				fridges[i].loop(i);
 	}
 	if (fires.length() > 0) {
 		for (uint i = 0; i < fires.length(); i++)
-			fires[i].loop(i);
+			if (@fires[i] != null)
+				fires[i].loop(i);
 	}
 	if (fire_starters.length() > 0) {
 		for (uint i = 0; i < fire_starters.length(); i++)
-			fire_starters[i].loop(i);
+			if (@fire_starters[i] != null)
+				fire_starters[i].loop(i);
 	}
 	if (grenades.length() > 0) {
 		for (uint i = 0; i < grenades.length(); i++)
-			grenades[i].loop(i);
+			if (@grenades[i] != null)
+				grenades[i].loop(i);
 	}
 	if (xp_check_timer.elapsed >= 60000) {
 		xp_check_timer.restart();
@@ -2572,29 +2604,24 @@ void login(string u, string p, string yv, uint id, string compid, string node_id
 	}
 }
 int get_player_index(uint id) {
-	for (uint i = 0; i < players.length(); i++) {
-		if (players[i].peer_id == id)
-			return i;
+	if (players_by_peer_id.exists("" + id)) {
+		int index;
+		players_by_peer_id.get("" + id, index);
+		return index;
 	}
 	return -1;
 }
 int get_player_index_from(string name, bool evenhidden = true) {
-	for (uint i = 0; i < players.length(); i++) {
-		if (players[i].name == name) {
-			if (!evenhidden) continue;
-			return i;
-		}
+	if (players_by_name.exists(name)) {
+		if (!evenhidden) return -1;
+		int index;
+		players_by_name.get(name, index);
+		return index;
 	}
 	return -1;
 }
 int get_player_index_from(player@p, bool evenhidden = true) {
-	for (uint i = 0; i < players.length(); i++) {
-		if (players[i].name == p.name) {
-			if (!evenhidden) continue;
-			return i;
-		}
-	}
-	return -1;
+	return get_player_index_from(p.name, evenhidden);
 }
 void create_char(string username, string password, string email, int gender, uint id, string yv, string compid, string node_id) {
 	string ip = n.get_peer_address(id);
