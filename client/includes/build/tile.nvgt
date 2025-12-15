@@ -4,12 +4,12 @@ void buildtile() {
     string mx, mmx, my, mmy, mz, mmz;
     if (d2dsupport == 0) {
         form.create_window("tile", false);
-        int a = form.create_input_box("type the minimum x of the tile");
-        int b = form.create_input_box("type the maximum x of the tile");
-        int c = form.create_input_box("type the minimum y of the tile");
-        int d = form.create_input_box("type the maximum y of the tile");
-        int e = form.create_input_box("type the minimum z of the tile");
-        int f = form.create_input_box("type the maximum z of the tile");
+        int a = form.create_input_box("type the minimum x of the tile",lx);
+        int b = form.create_input_box("type the maximum x of the tile",rx);
+        int c = form.create_input_box("type the minimum y of the tile",by);
+        int d = form.create_input_box("type the maximum y of the tile",fy);
+        int e = form.create_input_box("type the minimum z of the tile",bz);
+        int f = form.create_input_box("type the maximum z of the tile",tz);
         form.set_disallowed_chars(a, nums, true);
         form.set_disallowed_chars(b, nums, true);
         form.set_disallowed_chars(c, nums, true);
@@ -53,10 +53,10 @@ void buildtile() {
     }
     else {
         form.create_window("tile", false);
-        int a = form.create_input_box("type the minimum x of the tile");
-        int b = form.create_input_box("type the maximum x of the tile");
-        int c = form.create_input_box("type the minimum y of the tile");
-        int d = form.create_input_box("type the maximum y of the tile");
+        int a = form.create_input_box("type the minimum x of the tile",lx);
+        int b = form.create_input_box("type the maximum x of the tile",rx);
+        int c = form.create_input_box("type the minimum y of the tile",bz);
+        int d = form.create_input_box("type the maximum y of the tile",tz);
         form.set_disallowed_chars(a, nums, true);
         form.set_disallowed_chars(b, nums, true);
         form.set_disallowed_chars(c, nums, true);
