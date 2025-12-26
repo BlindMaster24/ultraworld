@@ -816,12 +816,23 @@ bool can_spawn_locker_at(int x, int y, int z, mapdata@m) {
 	return ret;
 }
 bool remove_map(string mapname, bool delete = true) {
-	int i = get_map_index(mapname);
-	if (i < 0) return false;
-	map_indices_cache.delete(mapname);
-	maps.remove_at(i);
-	map_indices_cache.delete_all();
-	return true;
+	mapname = verify_mapname_case(mapname);
+	int id = get_map_index(mapname);
+	bool r = false;
+	for (uint i = 0; i < players.length(); i++) {
+		if (players[i].map == mapname) move_player(players[i], "main_map", random(5, 10), 1, 0);  
+	}
+	map_destroy(mapname);
+	if (id > -1) {
+		@maps[id] = null;
+		maps.remove_at(id);
+		r = true;
+		invalidate_map_cache();
+	}
+	if (delete == true) {
+		if (directory_delete("maps/" + mapname)) r = true;
+	}
+	return r;
 }
 void map_destroy(string mapname) {
 	for (uint i2 = 0; i2 < msounds.length(); i2++) {

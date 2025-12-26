@@ -1950,7 +1950,7 @@ void spawn_player(int x, int y, int z, string map, string name, int pi, string c
 	players_by_peer_id.set("" + pi, players.length() - 1);
 	players_by_name.set(name, players.length() - 1);
 	int index = get_player_index_from(name);
-	players[index].statchangetimer.force(1000000);
+	players[index].statchangetimer.force(100000);
 	if (hid == 0)
 		send_reliable(0, "online " + x + " " + y + " " + z + " " + name + " " + map, 0);
 	connections++;

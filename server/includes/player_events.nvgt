@@ -4553,9 +4553,8 @@ void player_event(player@p, string event) {
 		file f;
 		int mapindex = get_map_index(p.map);
 		if (mapindex > -1) {
-			{
-				if (maps[mapindex].owners.find(p.name) > -1 or maps[mapindex].owners.find(p.partner) > -1 or p.is_admin()) {
-					if (what == "tile")
+			if (maps[mapindex].owners.find(p.name) > -1 or maps[mapindex].owners.find(p.partner) > -1 or p.is_admin()) {
+				if (what == "tile")
 						send_reliable(p, "buildtile", 0);
 					else if (what == "zone")
 						send_reliable(p, "buildzone", 0);
@@ -4925,13 +4924,11 @@ void player_event(player@p, string event) {
 						//send_reliable(p, "Not working. Use /rawdata <data> command", 0);
 					} else if (what == "specified_air_temperature")
 						send_reliable(p, "buildspecified_air_temperature", 0);
-						else buildobj_perform(p, what);
-				}
-				return;
-			}
-		}
-	} else if (parsed[0] == "build") {
-		build_menu(p);
+															else buildobj_perform(p, what);
+														}
+														return;
+													}
+											} else if (parsed[0] == "build") {		build_menu(p);
 	} else if (parsed[0] == "bAI" and parsed.length() > 1) {
 		int mapindex = get_map_index(p.map);
 		if (mapindex > -1) {
